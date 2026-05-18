@@ -3,3 +3,5 @@
 .kotlin/
 build/
 local.properties
+backend/node_modules
+banckend/.env
