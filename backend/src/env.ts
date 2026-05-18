@@ -8,11 +8,11 @@ export const env = cleanEnv(process.env, {
 
   PORT: port(),
 
-  LOG_DIR: str({
+  DIR_LOG: str({
     default: "logs"
   }),
 
-  LOG_FORMAT: str({
+  FORMAT_LOG: str({
     default: "simple"
   }),
 

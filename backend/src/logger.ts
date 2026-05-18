@@ -12,9 +12,9 @@ import { env } from "./env.js";
 /*
   cria o diretório de logs caso ele não exista
 */
-if (!fs.existsSync(env.LOG_DIR)) {
+if (!fs.existsSync(env.DIR_LOG)) {
 
-  fs.mkdirSync(env.LOG_DIR, {
+  fs.mkdirSync(env.DIR_LOG, {
     recursive: true
   });
 }
@@ -23,7 +23,7 @@ if (!fs.existsSync(env.LOG_DIR)) {
   caminho do arquivo de log
 */
 const logPath =
-  path.join(env.LOG_DIR, "geral.log");
+  path.join(env.DIR_LOG, "geral.log");
 
 /*
   middleware responsável por registrar
@@ -47,7 +47,7 @@ export function logger(
     log simples:
     data, método HTTP e URL
   */
-  if (env.LOG_FORMAT === "simple") {
+  if (env.FORMAT_LOG === "simple") {
 
     mensagem =
       `[${data}] ` +
