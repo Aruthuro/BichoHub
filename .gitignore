@@ -3,10 +3,10 @@
 .kotlin/
 build/
 local.properties
-backend/node_modules
-backend/.env.development
-backend/.env.production
-backend/logs/
-.env
-.env.*
+server/node_modules
+server/.env.development
+server/.env.production
+server/logs/
+.env.development
+.env.production
 !.env.example
