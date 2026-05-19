@@ -1,9 +1,5 @@
 import express from "express";
-import dotenv from "dotenv";
 
-/*
-  variaveis do env sendo extraidas nesse arquivo e sendo colocadas na variavel env
-*/
 import { env } from "./env.js";
 
 import { client } from "./bancoDeDados.js";
@@ -11,10 +7,6 @@ import { client } from "./bancoDeDados.js";
 import { logger } from "./logger.js";
 
 import router from "./routes/routes.js";
-
-dotenv.config({
-  path: `.env.${process.env.NODE_ENV}`
-});
 
 const app = express();
 
@@ -33,7 +25,7 @@ app.use("/css", express.static(`${publicPath}/css`));
 app.use("/js", express.static(`${publicPath}/js`));
 app.use("/img", express.static(`${publicPath}/img`));
 
-app.use(router);
+app.use("/api", router);
 
 /*
   como o router deixa tem as rotas, caso não vá para nenhuma delas não vai para o 404
@@ -57,17 +49,13 @@ async function iniciarServidor() {
     console.log("Banco conectado");
 
     app.listen(env.PORT, () => {
-
-      console.log(
-        `Servidor rodando na porta ${env.PORT}`
-      );
+      console.log(`Servidor rodando na porta ${env.PORT}`);
     });
 
   } catch (erro) {
 
     console.error(
-      "Erro ao iniciar servidor:",
-      erro
+      "Erro ao iniciar servidor:", erro
     );
   }
 }
