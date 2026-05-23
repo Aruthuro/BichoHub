@@ -6,7 +6,7 @@ import { client } from "./bancoDeDados.js";
 
 import { logger } from "./logger.js";
 
-import router from "./routes/routes.js";
+import router from "./router/routes.js";
 
 const app = express();
 

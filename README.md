@@ -15,6 +15,7 @@
 
 - [Backend](./docs/backend.md)
 - [Endpoints](./docs/endpoints.md)
+- [Épicos](./docs/epics/EP00%20-%20Epicos%20do%20projeto.md)
 
 ## Marco
 
