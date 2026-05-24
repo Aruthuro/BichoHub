@@ -79,3 +79,17 @@ export async function removerMensagem(id: number) {
 
   return resultado.rows[0];
 }
+
+/*
+  mostrar a lista de plantao
+*/
+export async function mostrarPlantao() {
+  const resultado = await client.query(
+    `
+    SELECT * FROM plantoes 
+    WHERE disponivel IS TRUE
+    `,
+  );
+
+  return resultado.rows;
+}

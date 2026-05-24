@@ -4,7 +4,8 @@ import {
   criarTabelaMensagens,
   inserirMensagem,
   buscarMensagens,
-  removerMensagem
+  removerMensagem,
+  mostrarPlantoesAtuais
 } from "../bancoDeDados.js";
 
 const router = Router();
@@ -79,5 +80,26 @@ router.delete("/mensagens/:id", async (req, res) => {
     dados: mensagemRemovida
   });
 });
+
+/* 
+  mostra os platoes atuais
+*/
+router.get("/plantoesAtuais", async (req, res) => {
+    try {
+
+    const plantoes = await mostrarPlantoesAtuais();
+
+    res.status(200).json(plantoes);
+
+  } catch (erro) {
+
+    console.error(erro);
+
+    res.status(500).json({
+      erro: "Erro ao buscar plantões"
+    });
+    }
+});
+
 
 export default router;
