@@ -8,45 +8,46 @@ Definir a arquitetura do backend e toda comunicação entre frontend e servidor.
 
 ---
 
-## E05 - Implementação de esquema de API
+# E05 - Implementação de esquema de API
 
-### Objetivo
+## Objetivo
 
 Implementação de uma API para facilitar comunicação entre front-end e back-end.
 
-### Critérios Funcionais
+## Critérios Funcionais
 
-- [ ] A API deve possuir rotas documentadas;
-- [ ] A aPI deve definir rotas protegidas por perfil.
+- [x] A API deve possuir rotas documentadas;
+- [x] A aPI deve definir rotas protegidas por perfil.
 
-### Critérios Técnicos
+## Critérios Técnicos
 
-- [ ] Swagger UI.
+- [x] Swagger UI.
 
-### Artefatos
+## Artefatos
 
-- [ ] Especificação OpenAPI;
+- [x] Especificação OpenAPI;
     APIs públicas:
 
-    - [ ] Criação de usuário;
-    - [ ] Login de usuário;
-    - [ ] Solicitação de chamada;
-    - [ ] Verificar disponibilidade de coletores.
+    - [x] Criação de usuário;
+    - [x] Login de usuário;
+    - [x] Solicitação de chamada;
+    - [x] Recuperar histórico de chamadas;
+    - [x] Verificar disponibilidade de coletores.
 
     APIs para coletores:
 
-    - [ ] Aceitar/rejeitar chamadas;
-    - [ ] Ver chamadas em aberto;
-    - [ ] Recuperar histórico de chamadas;
-    - [ ] Recuperar histórico geral;
-    - [ ] Editar informações de chamada;
-    - [ ] Editar horários de plantão.
+    - [x] Aceitar/rejeitar chamadas;
+    - [x] Ver chamadas em aberto;
+    - [x] Recuperar histórico de chamadas;
+    - [x] Recuperar histórico geral;
+    - [x] Editar informações de chamada;
+    - [x] Editar horários de plantão.
 
-### Dependências
+## Dependências
 
 - E04 - Implementação do esquema de banco de dados
 
-### Definition of Done
+## Definition of Done
 
 - [ ] Especificação válida OpenAPi;
 - [ ] Rotas documentadas.
