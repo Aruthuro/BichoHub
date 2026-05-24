@@ -102,7 +102,7 @@ router.get("/plantoes/atuais", async (req, res) => {
     }
 });
 
-router.get("/resgates/concluidos/:id", async (req, res) => {
+router.get("/ocorrencias/concluidos/:id", async (req, res) => {
 
   const id = Number(req.params.id);
 
