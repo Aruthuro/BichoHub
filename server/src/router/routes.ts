@@ -5,7 +5,8 @@ import {
   inserirMensagem,
   buscarMensagens,
   removerMensagem,
-  mostrarPlantoesAtuais
+  mostrarPlantoesAtuais,
+  mostrarResgatesConcluidos
 } from "../bancoDeDados.js";
 
 const router = Router();
@@ -84,7 +85,7 @@ router.delete("/mensagens/:id", async (req, res) => {
 /* 
   mostra os platoes atuais
 */
-router.get("/plantoesAtuais", async (req, res) => {
+router.get("/plantoes/atuais", async (req, res) => {
     try {
 
     const plantoes = await mostrarPlantoesAtuais();
@@ -99,6 +100,28 @@ router.get("/plantoesAtuais", async (req, res) => {
       erro: "Erro ao buscar plantões"
     });
     }
+});
+
+router.get("/resgates/concluidos/:id", async (req, res) => {
+
+  const id = Number(req.params.id);
+
+  try {
+
+    const resgates = await mostrarResgatesConcluidos(id);
+
+    res.status(200).json(resgates);
+
+  } catch (erro) {
+
+    console.error(erro);
+
+    res.status(500).json({
+      erro: "Erro ao buscar resgates concluídos"
+    });
+
+  }
+
 });
 
 
