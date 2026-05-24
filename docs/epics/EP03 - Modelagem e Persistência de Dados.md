@@ -20,46 +20,35 @@ Implementar a estrutura inicial do banco de dados do sistema.
 
 ## Critérios Funcionais
 
-- [ ] O banco de dados deve permitir armazenamento de usuários.
-- [ ] O banco de dados deve permitir diferenciação entre perfis de usuário:
-  - [ ] Usuário comum;
-  - [ ] Coletor;
-  - [ ] Ajudante;
-  - [ ] Administrador.
-
-- [ ] O banco de dados deve permitir armazenamento de chamadas:
-  - [ ] Resgate;
-  - [ ] Coleta;
-  - [ ] Condução;
-  - [ ] Registro.
-
-- [ ] O banco de dados deve permitir armazenamento de estados de chamadas:
-  - [ ] Em aberto;
-  - [ ] Aceita;
-  - [ ] Em progresso;
-  - [ ] Finalizada;
-  - [ ] Cancelada.
-
-- [ ] O banco de dados deve permitir associação de imagens às chamadas.
+- [x] O banco deve permitir armazenamento de usuários;
+- [x] O banco deve permitir diferenciação entre perfis:
+  - [x] Usuário comum;
+  - [x] Coletor;
+  - [x] Ajudante;
+  - [x] Administrador.
+- [x] O banco deve permitir armazenamento de ocorrências;
+- [x] O banco deve permitir categorização de ocorrências:
+  - [x] Resgate;
+  - [x] Coleta;
+  - [x] Condução.
+- [x] O banco deve permitir persistência do estado operacional das ocorrências:
+  - [x] Em aberto;
+  - [x] Em andamento;
+  - [x] Finalizada;
+  - [x] Cancelada.
+- [x] O banco deve permitir armazenamento geográfico de origem e destino das ocorrências;
+- [x] O banco deve permitir associação de imagens às ocorrências;
+- [X] O banco deve permitir gerenciamento de plantões e disponibilidade de coletores.
 
 ## Critérios Técnicos
 
-- [ ] Utilizar PostgreSQL como SGBD principal;
-- [ ] Utilizar PostGIS para armazenamento geográfico;
-- [ ] Definir chaves primárias e estrangeiras;
-- [ ] Definir constraints de integridade;
-- [ ] Definir índices necessários para consultas geográficas;
-- [ ] Implementar scripts SQL versionáveis;
-- [ ] Garantir compatibilidade com ambiente Docker.
+- [x] Definir chaves primárias e estrangeiras;
+- [x] Definir constraints de integridade;
+- [x] Definir índices necessários para consultas geográficas.
 
 ## Artefatos
 
-- [ ] Script SQL inicial do esquema do banco:
-  - [ ] Usuários;
-  - [ ] Senha;
-  - [ ] Chamadas/ocorrências;
-  - [ ] Imagens.
-  - [ ] PGS.
+- [x] Script SQL do esquema do banco.
 
 ## Dependências
 
