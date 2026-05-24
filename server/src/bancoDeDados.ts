@@ -79,3 +79,56 @@ export async function removerMensagem(id: number) {
 
   return resultado.rows[0];
 }
+
+/*
+  mostrar a lista de plantao
+*/
+export async function mostrarPlantoesAtuais() {
+    const resultado = await client.query(
+      `
+      SELECT
+        p.inicio,
+        p.fim,
+        u.nome,
+        u.contato,
+      FROM plantoes p
+      JOIN coletores c
+        ON c.usuario_id = p.coletor_id
+      JOIN usuarios u
+        ON u.id = c.usuario_id
+      WHERE p.disponivel = TRUE
+      `
+  );
+
+  return resultado.rows;
+}
+
+export async function mostrarResgatesConcluidos(id: number) {
+
+  const resultado = await client.query(
+    `
+    SELECT
+      o.id,
+      o.data_captura,
+      o.descricao_origem,
+      o.descricao_destino,
+      o.observacoes,
+      o.risco,
+      o.tipo,
+      o.referencia_imagem,
+      u.nome AS solicitante_nome
+    FROM ocorrencias o
+
+    JOIN usuarios u
+      ON u.id = o.origem_solicitacao_id
+
+    WHERE o.coletor_id = $1
+      AND o.estado = 2
+
+    ORDER BY o.data_captura DESC
+    `,
+    [id]
+  );
+
+  return resultado.rows;
+}
