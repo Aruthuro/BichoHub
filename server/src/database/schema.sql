@@ -6,12 +6,16 @@ CREATE TABLE IF NOT EXISTS usuarios (
     reputacao real NOT NULL DEFAULT 0.0,
     contato VARCHAR(20),
     ajudante boolean NOT NULL DEFAULT FALSE,
-    administrador boolean NOT NULL DEFAULT FALSE,
     criado_em TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     atualizado_em TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS coletores (
+    usuario_id INTEGER PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE,
+    cpf VARCHAR(11) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS administrador (
     usuario_id INTEGER PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE,
     cpf VARCHAR(11) NOT NULL UNIQUE
 );
