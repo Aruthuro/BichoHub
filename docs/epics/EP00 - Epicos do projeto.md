@@ -1,5 +1,7 @@
 # EP00 - Hub de Épicos do Projeto
 
+[Voltar para o README](../../README.md)
+
 ## Épicos
 
 - [EP01 - Infraestrutura e Ambiente de Desenvolvimento](./EP01%20-%20Infraestrutura%20e%20Ambiente%20de%20Desenvolvimento.md)
