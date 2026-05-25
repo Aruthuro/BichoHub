@@ -8,7 +8,7 @@ import {
   listarSolicitacoes,
   listarColetoresDisponiveisNoHorario
 } from "../bancoDeDados.js";
-import { verificarToken } from "../middlewares/auth.js";
+import { verificarToken, realizarLogin } from "../middlewares/authService.js";
 
 const router = Router();
 
@@ -140,5 +140,53 @@ router.get("/v1/usuarios/listar/:id", async (req, res) => {
 
 });
 
+/*
+  login do usuario
+*/
+router.post("/v1/usuarios/login", async (req, res) => {
+  const { email, senha } = req.body;
+
+  if (!email || !senha) {
+    return res.status(400).json({ erro: "Email e senha são obrigatórios" });
+  }
+
+  try {
+    const resultado = await realizarLogin(email, senha);
+    return res.json(resultado); // { token, nome }
+  } catch (erro: any) {
+    if (erro.message === "Credenciais inválidas") {
+      return res.status(401).json({ erro: "Credenciais inválidas" });
+    }
+    console.error(erro);
+    return res.status(500).json({ erro: "Erro interno ao realizar login" });
+  }
+});
+
+
+/*
+  cadastro do usuario
+*/
+router.post("/v1/usuarios/cadastrar", async (req, res) => {
+  const { nome, email, senha, contato } = req.body;
+
+  // Validação básica
+  if (!nome || !email || !senha) {
+    return res.status(400).json({ erro: "Nome, email e senha são obrigatórios" });
+  }
+
+  try {
+    const usuario = await cadastrarUsuario(nome, email, senha, contato);
+    res.status(201).json({
+      mensagem: "Usuário cadastrado com sucesso",
+      usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email },
+    });
+  } catch (erro: any) {
+    if (erro.message === "Email já cadastrado") {
+      return res.status(409).json({ erro: erro.message });
+    }
+    console.error(erro);
+    res.status(500).json({ erro: "Erro ao cadastrar usuário" });
+  }
+});
 
 export default router;

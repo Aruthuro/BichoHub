@@ -21,6 +21,13 @@ export const client = new Client({
   port: env.POSTGRES_PORT
 });
 
+export interface Credencial {
+  usuario_id: number;
+  email: string;
+  senha_hash: string;
+  nome: string;
+}
+
 /*
   cria tabela
 */
@@ -86,16 +93,12 @@ export async function removerMensagem(id: number) {
 export async function listarColetoresDisponiveisNoHorario(horario: string) {
   const resultado = await client.query(
     `
-    SELECT
-      u.nome,
-      u.contato,
-      p.inicio AS inicio_plantao,
-      p.fim    AS fim_plantao
+    SELECT u.nome, u.contato, p.inicio AS inicio_plantao, p.fim AS fim_plantao
     FROM plantoes p
-    JOIN coletores c  ON c.usuario_id = p.coletor_id
-    JOIN usuarios u   ON u.id = c.usuario_id
+    JOIN coletores c ON c.usuario_id = p.coletor_id
+    JOIN usuarios u ON u.id = c.usuario_id
     WHERE p.disponivel = TRUE
-      AND $1::timestamptz BETWEEN p.inicio AND p.fim   -- filtro principal
+      AND $1::timestamptz BETWEEN p.inicio AND p.fim
     ORDER BY u.nome
     `,
     [horario]
@@ -107,17 +110,9 @@ export async function listarColetoresDisponiveisNoHorario(horario: string) {
 export async function listarSolicitacoes(usuarioId: number) {
   const resultado = await client.query(
     `
-    SELECT
-      o.id,
-      o.data_captura,
-      o.descricao_origem,
-      o.descricao_destino,
-      o.observacoes,
-      o.risco,
-      o.tipo,
-      o.estado,
-      o.referencia_imagem,
-      u_coletor.nome AS coletor_nome   -- só preenche se já houver coletor atribuído
+    SELECT o.id, o.data_captura, o.descricao_origem, o.descricao_destino,
+          o.observacoes, o.risco, o.tipo, o.estado, o.referencia_imagem,
+          u_coletor.nome AS coletor_nome
     FROM ocorrencias o
     LEFT JOIN coletores c ON o.coletor_id = c.usuario_id
     LEFT JOIN usuarios u_coletor ON c.usuario_id = u_coletor.id
@@ -127,4 +122,19 @@ export async function listarSolicitacoes(usuarioId: number) {
     [usuarioId]
   );
   return resultado.rows;
+}
+
+
+export async function buscarCredencialPorEmail(email: string): Promise<Credencial | null> {
+  const resultado = await client.query(
+    `
+    SELECT c.usuario_id, c.email, c.senha AS senha_hash, u.nome
+    FROM credenciais c
+    JOIN usuarios u ON u.id = c.usuario_id
+    WHERE c.email = $1
+    `,
+    [email]
+  );
+
+  return resultado.rows[0] || null;
 }
