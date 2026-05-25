@@ -85,7 +85,7 @@ router.delete("/mensagens/:id", async (req, res) => {
 /* 
   mostra os platoes atuais
 */
-router.get("/plantoes/atuais", async (req, res) => {
+router.get("api/v1/coletores/plantoes", async (req, res) => {
     try {
 
     const plantoes = await mostrarPlantoesAtuais();
@@ -102,7 +102,7 @@ router.get("/plantoes/atuais", async (req, res) => {
     }
 });
 
-router.get("/ocorrencias/concluidos/:id", async (req, res) => {
+router.get("/api/v1/coletores/ocorrencias/historico/:id", async (req, res) => {
 
   const id = Number(req.params.id);
 
