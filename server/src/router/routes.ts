@@ -5,9 +5,10 @@ import {
   inserirMensagem,
   buscarMensagens,
   removerMensagem,
-  mostrarPlantoesAtuais,
-  mostrarResgatesConcluidos
+  listarSolicitacoes,
+  listarColetoresDisponiveisNoHorario
 } from "../bancoDeDados.js";
+import { verificarToken } from "../middlewares/auth.js";
 
 const router = Router();
 
@@ -85,30 +86,45 @@ router.delete("/mensagens/:id", async (req, res) => {
 /* 
   mostra os platoes atuais
 */
-router.get("api/v1/coletores/plantoes", async (req, res) => {
-    try {
-
-    const plantoes = await mostrarPlantoesAtuais();
-
-    res.status(200).json(plantoes);
-
-  } catch (erro) {
-
-    console.error(erro);
-
-    res.status(500).json({
-      erro: "Erro ao buscar plantões"
-    });
+router.get(
+  "/v1/usuarios/coletores-disponiveis",
+  verificarToken,
+  async (req, res) => {
+    // Extração segura do horário (código que você já tem)
+    const raw = req.query.horario;
+    let horario: string;
+    if (Array.isArray(raw)) {
+      horario = raw[0]?.toString() ?? "";
+    } else if (typeof raw === "string") {
+      horario = raw;
+    } else {
+      horario = "";
     }
-});
 
-router.get("/api/v1/coletores/ocorrencias/historico/:id", async (req, res) => {
+    if (!horario || isNaN(Date.parse(horario))) {
+      return res.status(400).json({ erro: "Parâmetro 'horario' inválido ou ausente..." });
+    }
+
+    try {
+      const coletores = await listarColetoresDisponiveisNoHorario(horario);
+      return res.status(200).json(coletores);
+    } catch (erro) {
+      console.error(erro);
+      return res.status(500).json({ erro: "Erro ao buscar coletores disponíveis" });
+    }
+  }
+);
+
+/*
+  lista todas as ocorrencias abertas por um usuario
+*/
+router.get("/v1/usuarios/listar/:id", async (req, res) => {
 
   const id = Number(req.params.id);
 
   try {
 
-    const resgates = await mostrarResgatesConcluidos(id);
+    const resgates = await listarSolicitacoes(id);
 
     res.status(200).json(resgates);
 
@@ -117,7 +133,7 @@ router.get("/api/v1/coletores/ocorrencias/historico/:id", async (req, res) => {
     console.error(erro);
 
     res.status(500).json({
-      erro: "Erro ao buscar resgates concluídos"
+      erro: "Erro ao buscar a lista de resgates do usuário"
     });
 
   }

@@ -83,28 +83,28 @@ export async function removerMensagem(id: number) {
 /*
   mostrar a lista de plantao
 */
-export async function mostrarPlantoesAtuais() {
-    const resultado = await client.query(
-      `
-      SELECT
-        p.inicio,
-        p.fim,
-        u.nome,
-        u.contato,
-      FROM plantoes p
-      JOIN coletores c
-        ON c.usuario_id = p.coletor_id
-      JOIN usuarios u
-        ON u.id = c.usuario_id
-      WHERE p.disponivel = TRUE
-      `
+export async function listarColetoresDisponiveisNoHorario(horario: string) {
+  const resultado = await client.query(
+    `
+    SELECT
+      u.nome,
+      u.contato,
+      p.inicio AS inicio_plantao,
+      p.fim    AS fim_plantao
+    FROM plantoes p
+    JOIN coletores c  ON c.usuario_id = p.coletor_id
+    JOIN usuarios u   ON u.id = c.usuario_id
+    WHERE p.disponivel = TRUE
+      AND $1::timestamptz BETWEEN p.inicio AND p.fim   -- filtro principal
+    ORDER BY u.nome
+    `,
+    [horario]
   );
 
   return resultado.rows;
 }
 
-export async function mostrarResgatesConcluidos(id: number) {
-
+export async function listarSolicitacoes(usuarioId: number) {
   const resultado = await client.query(
     `
     SELECT
@@ -115,20 +115,16 @@ export async function mostrarResgatesConcluidos(id: number) {
       o.observacoes,
       o.risco,
       o.tipo,
+      o.estado,
       o.referencia_imagem,
-      u.nome AS solicitante_nome
+      u_coletor.nome AS coletor_nome   -- só preenche se já houver coletor atribuído
     FROM ocorrencias o
-
-    JOIN usuarios u
-      ON u.id = o.origem_solicitacao_id
-
-    WHERE o.coletor_id = $1
-      AND o.estado = 2
-
+    LEFT JOIN coletores c ON o.coletor_id = c.usuario_id
+    LEFT JOIN usuarios u_coletor ON c.usuario_id = u_coletor.id
+    WHERE o.origem_solicitacao_id = $1
     ORDER BY o.data_captura DESC
     `,
-    [id]
+    [usuarioId]
   );
-
   return resultado.rows;
 }
