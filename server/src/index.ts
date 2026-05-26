@@ -4,13 +4,16 @@ import { env } from "./env.js";
 
 import { client } from "./bancoDeDados.js";
 
-import { logger } from "./logger.js";
+import { logger, logError } from "./logger.js";
 
 import router from "./router/routes.js";
+
+import { type Request, type Response, type NextFunction } from "express";
 
 const app = express();
 
 const publicPath = `${process.cwd()}/public`;
+
 
 /*
   middleware para converter JSON do body
@@ -36,6 +39,14 @@ app.use((req, res) => {
     erro: "Rota não encontrada"
   });
 });
+
+app.use((erro: any, req: Request, res: Response, next: NextFunction) => {
+  logError(erro, req);
+  const status = erro.status || 500;
+  res.status(status).json({ erro: erro.message || "Erro interno" });
+});
+
+
 
 /*
   funcao assincrona para iniciar o servidor (nao sei se tem q colocar promisse honestamente)

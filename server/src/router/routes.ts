@@ -8,7 +8,8 @@ import {
   listarSolicitacoes,
   listarColetoresDisponiveisNoHorario
 } from "../bancoDeDados.js";
-import { verificarToken, realizarLogin } from "../middlewares/authService.js";
+import { verificarToken, realizarLogin, cadastrarUsuario} from "../middlewares/authService.js";
+import { type CustomRequest } from "../middlewares/authService.js"
 
 const router = Router();
 
@@ -118,28 +119,17 @@ router.get(
 /*
   lista todas as ocorrencias abertas por um usuario
 */
-router.get("/v1/usuarios/listar/:id", async (req, res) => {
-
-  const id = Number(req.params.id);
-
+router.get("/v1/usuarios/listar", verificarToken, async (req, res) => {
   try {
-
-    const resgates = await listarSolicitacoes(id);
-
-    res.status(200).json(resgates);
-
+    // O middleware injeta o payload do token em req.usuario
+    const usuarioId = (req as CustomRequest).usuario.id;
+    const solicitacoes = await listarSolicitacoes(usuarioId);
+    res.status(200).json(solicitacoes);
   } catch (erro) {
-
     console.error(erro);
-
-    res.status(500).json({
-      erro: "Erro ao buscar a lista de resgates do usuário"
-    });
-
+    res.status(500).json({ erro: "Erro ao buscar as solicitações do usuário" });
   }
-
 });
-
 /*
   login do usuario
 */
@@ -155,7 +145,7 @@ router.post("/v1/usuarios/login", async (req, res) => {
     return res.json(resultado); // { token, nome }
   } catch (erro: any) {
     if (erro.message === "Credenciais inválidas") {
-      return res.status(401).json({ erro: "Credenciais inválidas" });
+      return res.status(403).json({ erro: "Credenciais inválidas" });
     }
     console.error(erro);
     return res.status(500).json({ erro: "Erro interno ao realizar login" });

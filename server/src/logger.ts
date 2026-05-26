@@ -1,84 +1,48 @@
 import fs from "fs";
 import path from "path";
-
-import type {
-  Request,
-  Response,
-  NextFunction
-} from "express";
-
+import type { Request, Response, NextFunction } from "express";
 import { env } from "./env.js";
 
-/*
-  cria o diretório de logs caso ele não exista
-*/
+// Garante que o diretório de logs existe
 if (!fs.existsSync(env.DIR_LOG)) {
-
-  fs.mkdirSync(env.DIR_LOG, {
-    recursive: true
-  });
+  fs.mkdirSync(env.DIR_LOG, { recursive: true });
 }
 
-/*
-  caminho do arquivo de log
-*/
-const logPath =
-  path.join(env.DIR_LOG, "geral.log");
+// Caminho do arquivo de log de acesso
+const logPath = path.join(env.DIR_LOG, "geral.log");
 
-/*
-  middleware responsável por registrar
-  os acessos da aplicação
-*/
-export function logger(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+// Caminho do arquivo de log de erro (separado)
+const errorLogPath = path.join(env.DIR_LOG, "erro.log");
 
-  /*
-    data/hora atual no formato ISO
-  */
-  const data =
-    new Date().toISOString();
+/**
+ * Middleware para registrar requisições HTTP.
+ */
+export function logger(req: Request, res: Response, next: NextFunction) {
+  const data = new Date().toISOString();
+  let mensagem: string;
 
-  let mensagem = "";
-
-  /*
-    log simples:
-    data, método HTTP e URL
-  */
   if (env.FORMAT_LOG === "simple") {
-
-    mensagem =
-      `[${data}] ` +
-      `${req.method} ${req.url}\n`;
-
+    mensagem = `[${data}] ${req.method} ${req.url}\n`;
   } else {
-
-    /*
-      log completo:
-      data, método, URL,
-      versão HTTP e user-agent
-    */
-    mensagem =
-      `[${data}] ` +
-      `${req.method} ${req.url} ` +
-      `HTTP/${req.httpVersion} ` +
-      `${req.headers["user-agent"]}\n`;
+    mensagem = `[${data}] ${req.method} ${req.url} HTTP/${req.httpVersion} ${req.headers["user-agent"]}\n`;
   }
 
-  /*
-    adiciona mensagem ao final
-    do arquivo de log
-  */
-  fs.appendFileSync(
-    logPath,
-    mensagem
-  );
-
-  /*
-    continua para o próximo
-    middleware/rota
-  */
+  fs.appendFileSync(logPath, mensagem);
   next();
+}
+
+/**
+ * Registra um erro no arquivo de log e opcionalmente no console.
+ * Pode ser chamada pelo middleware de erro global.
+ */
+export function logError(erro: Error, req?: Request) {
+  const data = new Date().toISOString();
+  let mensagem = `[${data}] ${erro.message}\n${erro.stack}\n`;
+
+  if (req) {
+    mensagem = `[${data}] ${req.method} ${req.url} - ${erro.message}\n${erro.stack}\n`;
+  }
+
+  fs.appendFileSync(errorLogPath, mensagem);
+  console.error(mensagem); // também exibe no console (útil em desenvolvimento)
 }

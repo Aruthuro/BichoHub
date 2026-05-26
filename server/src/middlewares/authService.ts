@@ -4,7 +4,7 @@ import { env } from "../env.js"
 import jwt from "jsonwebtoken";
 import { buscarCredencialPorEmail, type Credencial, client} from "../bancoDeDados.js";
 
-interface CustomRequest extends Request {
+export interface CustomRequest extends Request {
   usuario?: any;
 }
 
@@ -16,7 +16,7 @@ export interface LoginResultado {
 export function verificarToken(req: CustomRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ erro: "Token não fornecido" });
+    return res.status(401).json({ erro: "Token não fornecido" });   // 401, não 403
   }
 
   const token = authHeader.split(" ")[1];
@@ -25,13 +25,8 @@ export function verificarToken(req: CustomRequest, res: Response, next: NextFunc
   }
 
   try {
-    const secret = process.env.JWT_SECRET; // env ainda nao criado a configurado
-    if (!secret) {
-      console.error("JWT_SECRET não definido");
-      return res.status(500).json({ erro: "Configuração do servidor" });
-    }
-
-    const payload = jwt.verify(token, secret);
+    // env.JWT_SECRET já é validado na inicialização, não precisa testar
+    const payload = jwt.verify(token, env.JWT_SECRET);
     req.usuario = payload;  
     next();
   } catch (erro) {
@@ -39,7 +34,7 @@ export function verificarToken(req: CustomRequest, res: Response, next: NextFunc
   }
 }
 
-/**
+/*
  * Autentica um usuário com email e senha.
  * Retorna o token JWT e o nome do usuário em caso de sucesso.
  * Lança erro se as credenciais forem inválidas ou ocorrer problema interno.
