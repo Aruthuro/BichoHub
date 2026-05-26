@@ -5,9 +5,11 @@ import {
   inserirMensagem,
   buscarMensagens,
   removerMensagem,
-  mostrarPlantoesAtuais,
-  mostrarResgatesConcluidos
+  listarSolicitacoes,
+  listarColetoresDisponiveisNoHorario
 } from "../bancoDeDados.js";
+import { verificarToken, realizarLogin, cadastrarUsuario} from "../middlewares/authService.js";
+import { type CustomRequest } from "../middlewares/authService.js"
 
 const router = Router();
 
@@ -85,44 +87,96 @@ router.delete("/mensagens/:id", async (req, res) => {
 /* 
   mostra os platoes atuais
 */
-router.get("/plantoes/atuais", async (req, res) => {
-    try {
-
-    const plantoes = await mostrarPlantoesAtuais();
-
-    res.status(200).json(plantoes);
-
-  } catch (erro) {
-
-    console.error(erro);
-
-    res.status(500).json({
-      erro: "Erro ao buscar plantões"
-    });
+router.get(
+  "/v1/usuarios/coletores-disponiveis",
+  verificarToken,
+  async (req, res) => {
+    // Extração segura do horário (código que você já tem)
+    const raw = req.query.horario;
+    let horario: string;
+    if (Array.isArray(raw)) {
+      horario = raw[0]?.toString() ?? "";
+    } else if (typeof raw === "string") {
+      horario = raw;
+    } else {
+      horario = "";
     }
-});
 
-router.get("/ocorrencias/concluidos/:id", async (req, res) => {
+    if (!horario || isNaN(Date.parse(horario))) {
+      return res.status(400).json({ erro: "Parâmetro 'horario' inválido ou ausente..." });
+    }
 
-  const id = Number(req.params.id);
+    try {
+      const coletores = await listarColetoresDisponiveisNoHorario(horario);
+      return res.status(200).json(coletores);
+    } catch (erro) {
+      console.error(erro);
+      return res.status(500).json({ erro: "Erro ao buscar coletores disponíveis" });
+    }
+  }
+);
 
+/*
+  lista todas as ocorrencias abertas por um usuario
+*/
+router.get("/v1/usuarios/listar", verificarToken, async (req, res) => {
   try {
-
-    const resgates = await mostrarResgatesConcluidos(id);
-
-    res.status(200).json(resgates);
-
+    // O middleware injeta o payload do token em req.usuario
+    const usuarioId = (req as CustomRequest).usuario.id;
+    const solicitacoes = await listarSolicitacoes(usuarioId);
+    res.status(200).json(solicitacoes);
   } catch (erro) {
-
     console.error(erro);
+    res.status(500).json({ erro: "Erro ao buscar as solicitações do usuário" });
+  }
+});
+/*
+  login do usuario
+*/
+router.post("/v1/usuarios/login", async (req, res) => {
+  const { email, senha } = req.body;
 
-    res.status(500).json({
-      erro: "Erro ao buscar resgates concluídos"
-    });
-
+  if (!email || !senha) {
+    return res.status(400).json({ erro: "Email e senha são obrigatórios" });
   }
 
+  try {
+    const resultado = await realizarLogin(email, senha);
+    return res.json(resultado); // { token, nome }
+  } catch (erro: any) {
+    if (erro.message === "Credenciais inválidas") {
+      return res.status(403).json({ erro: "Credenciais inválidas" });
+    }
+    console.error(erro);
+    return res.status(500).json({ erro: "Erro interno ao realizar login" });
+  }
 });
 
+
+/*
+  cadastro do usuario
+*/
+router.post("/v1/usuarios/cadastrar", async (req, res) => {
+  const { nome, email, senha, contato } = req.body;
+
+  // Validação básica
+  if (!nome || !email || !senha) {
+    return res.status(400).json({ erro: "Nome, email e senha são obrigatórios" });
+  }
+
+  try {
+    const usuario = await cadastrarUsuario(nome, email, senha, contato);
+    res.status(201).json({
+      mensagem: "Usuário cadastrado com sucesso",
+      usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email },
+    });
+  } catch (erro: any) {
+    if (erro.message === "Email já cadastrado") {
+      return res.status(409).json({ erro: erro.message });
+    }
+    console.error(erro);
+    res.status(500).json({ erro: "Erro ao cadastrar usuário" });
+  }
+});
 
 export default router;

@@ -6,6 +6,7 @@ local.properties
 server/node_modules
 server/.env.development
 server/.env.production
+server/.env.JWT_SECRET
 server/logs/
 .env.development
 .env.production
