@@ -2,6 +2,7 @@ package br.edu.bichohub.ui.theme
 
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -17,6 +18,7 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.painterResource
@@ -26,6 +28,7 @@ import br.edu.bichohub.R
 /**
  * Função que adiciona uma barra superiror com um menu tipo gaveta.
  * @param titulo o que será escrito na barra superior.
+ * @param content o conteúdo da tela.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +64,12 @@ fun Template(titulo: String, content: @Composable () -> Unit) {
                 )
             }
         ) { innerPadding ->
-            Column(modifier = Modifier.padding(innerPadding)) {
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 content()
             }
         }
