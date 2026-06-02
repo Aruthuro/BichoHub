@@ -33,11 +33,13 @@ class MainActivity : ComponentActivity() {
                         onNavigateToLogIn = { navController.navigate(route=LogIn) },
                         onNavigateToOcorr = { navController.navigate(route=Ocorrencia) }
                     ) }
-                    composable<SignIn>{ SignInScreen() }
-                    composable<LogIn>{ LogInScreen(
-                        onNavigateToSignIn = { navController.navigate(route=SignIn) }
-                    ) }
-                    composable<Ocorrencia>{ OcorrenciaScreen() }
+                    composable<SignIn>{SignInScreen()}
+                    composable<LogIn>{LogInScreen(onNavigateToSignIn = { navController.navigate(route=SignIn) })}
+                    composable<Ocorrencia>{
+                        OcorrenciaScreen{ ocorr ->
+                            println("${ocorr.fotoURI.toString()}, ${ocorr.descricao}, ${ocorr.tipoChamada}")
+                        }
+                    }
                 }
             }
         }
