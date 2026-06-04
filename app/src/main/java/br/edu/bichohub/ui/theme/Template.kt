@@ -1,9 +1,12 @@
 package br.edu.bichohub.ui.theme
 
+import androidx.compose.foundation.layout.Arrangement
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -66,8 +69,9 @@ fun Template(titulo: String, content: @Composable () -> Unit) {
         ) { innerPadding ->
             Column(
                 modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(innerPadding),
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 content()

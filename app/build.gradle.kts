@@ -52,7 +52,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit)
-    implementation(libs.converter.gson)
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
     implementation(libs.okhttp)
     implementation(libs.coil.compose)
     testImplementation(libs.junit)

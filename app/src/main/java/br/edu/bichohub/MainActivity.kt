@@ -15,7 +15,6 @@ import br.edu.bichohub.ui.screens.Ocorrencia
 import br.edu.bichohub.ui.screens.OcorrenciaScreen
 import br.edu.bichohub.ui.screens.SignIn
 import br.edu.bichohub.ui.screens.SignInScreen
-import br.edu.bichohub.ui.theme.BichoHubTheme
 
 /**
  * Activity principal do aplicativo, ativada ao inicializá-lo.
@@ -25,20 +24,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            BichoHubTheme {
-                val navController = rememberNavController()
-                NavHost(navController, startDestination=Main) {
-                    composable<Main>{ MainScreen(
-                        onNavigateToSignIn = { navController.navigate(route=SignIn) },
-                        onNavigateToLogIn = { navController.navigate(route=LogIn) },
-                        onNavigateToOcorr = { navController.navigate(route=Ocorrencia) }
-                    ) }
-                    composable<SignIn>{SignInScreen()}
-                    composable<LogIn>{LogInScreen(onNavigateToSignIn = { navController.navigate(route=SignIn) })}
-                    composable<Ocorrencia>{
-                        OcorrenciaScreen{ ocorr ->
-                            println("${ocorr.fotoURI.toString()}, ${ocorr.descricao}, ${ocorr.tipoChamada}")
-                        }
+            val navController = rememberNavController()
+            NavHost(navController, startDestination=Main) {
+                composable<Main>{ MainScreen(
+                    onNavigateToSignIn = { navController.navigate(route=SignIn) },
+                    onNavigateToLogIn = { navController.navigate(route=LogIn) },
+                    onNavigateToOcorr = { navController.navigate(route=Ocorrencia) }
+                ) }
+                composable<SignIn>{SignInScreen()}
+                composable<LogIn>{LogInScreen(onNavigateToSignIn = { navController.navigate(route=SignIn) })}
+                composable<Ocorrencia>{
+                    OcorrenciaScreen{ ocorr ->
+                        println("${ocorr.fotoURI.toString()}, ${ocorr.descricao}, ${ocorr.tipoChamada}")
                     }
                 }
             }

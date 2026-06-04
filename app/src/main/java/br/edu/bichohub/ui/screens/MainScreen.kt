@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import br.edu.bichohub.ui.theme.BichoHubTheme
 import br.edu.bichohub.ui.theme.Template
 import kotlinx.serialization.Serializable
 
@@ -21,25 +22,27 @@ object Main
  */
 @Composable
 fun MainScreen(onNavigateToSignIn: () -> Unit, onNavigateToLogIn: () -> Unit, onNavigateToOcorr: () -> Unit){
-    var login = false //placeholder
-    
-    if (login){
-        Template("BichoHub", content= {
-            Row(modifier = Modifier.fillMaxSize()){
-                Button(shape=RectangleShape, onClick = { onNavigateToOcorr() }) {
-                    Text("Ocorrência")
+    val login = true //placeholder
+
+    BichoHubTheme {
+        if (login) {
+            Template("BichoHub", content = {
+                Row(modifier = Modifier.fillMaxSize()) {
+                    Button(shape = RectangleShape, onClick = { onNavigateToOcorr() }) {
+                        Text("Ocorrência")
+                    }
+                    Button(shape = RectangleShape, onClick = { }) {
+                        Text("Plantões")
+                    }
                 }
-                Button(shape=RectangleShape, onClick = {  }) {
-                    Text("Plantões")
-                }
+            })
+        } else {
+            Button(onClick = { onNavigateToSignIn() }) {
+                Text("Cadastrar-se")
             }
-        })
-    } else {
-        Button(onClick = { onNavigateToSignIn() }) {
-            Text("Cadastrar-se")
-        }
-        Button(onClick = { onNavigateToLogIn() }) {
-            Text("Log-in")
+            Button(onClick = { onNavigateToLogIn() }) {
+                Text("Log-in")
+            }
         }
     }
 }

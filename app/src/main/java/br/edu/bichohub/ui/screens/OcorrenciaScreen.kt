@@ -12,9 +12,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedButton
@@ -29,12 +32,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import br.edu.bichohub.ui.theme.BichoHubTheme
 import br.edu.bichohub.ui.theme.Template
+import coil3.compose.AsyncImage
 import kotlinx.serialization.Serializable
 import java.io.File
 import java.util.UUID
@@ -59,6 +64,7 @@ fun OcorrenciaScreen(onSubmit: (FormData) -> Unit){
     var fotoURI by rememberSaveable { mutableStateOf<Uri?>(null) }
     var tipoChamada by remember { mutableStateOf<TipoChamada?>(null) }
     val descricao = rememberTextFieldState()
+    val estadoScroll = rememberScrollState()
 
     val gerenteCamera = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
@@ -75,105 +81,108 @@ fun OcorrenciaScreen(onSubmit: (FormData) -> Unit){
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Foto")
-                if (fotoURI != null) {
-                    Text(fotoURI.toString())
-                } else {
+    BichoHubTheme {
+        Template("BichoHub", content = {
+            Card(
+                modifier = Modifier.padding(16.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Qual o tipo de serviço?")
+                    TipoChamada.entries.forEach { tipo ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            RadioButton(
+                                selected = (tipoChamada == tipo),
+                                onClick = { tipoChamada = tipo }
+                            )
+                            Text(tipo.nome)
+                        }
+                    }
+                }
+            }
+
+            Card(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 0.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                OutlinedTextField(
+                    state = descricao,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(160.dp)
+                        .padding(16.dp)
+                        .verticalScroll(estadoScroll),
+                    label = {Text("Descrição do ocorrido")},
+                    lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 3)
+                )
+            }
+
+            Card(
+                modifier = Modifier.padding(16.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Foto")
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(100.dp)
+                            .height(90.dp)
                             .padding(8.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Nenhuma foto foi adicionada.")
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = { gerenteCamera.launch(criaURI(context)) },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Tirar foto")
-                    }
-                    OutlinedButton(
-                        onClick = {
-                            gerenteGaleria.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        if (fotoURI != null){
+                            AsyncImage(
+                                model = fotoURI,
+                                contentDescription = "Foto adicionada",
+                                modifier = Modifier.size(90.dp),
+                                contentScale = ContentScale.Crop
                             )
-                        },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Fazer upload")
+                        } else{
+                            Text("Nenhuma foto foi adicionada.")
+                        }
                     }
-                }
-            }
-        }
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Qual o tipo de serviço?")
-                TipoChamada.entries.forEach { tipo ->
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        RadioButton(
-                            selected = (tipoChamada == tipo),
-                            onClick = { tipoChamada = tipo }
-                        )
-                        Text(tipo.nome)
+                        Button(
+                            onClick = { gerenteCamera.launch(criaURI(context)) },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Tirar foto")
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                gerenteGaleria.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Fazer upload")
+                        }
                     }
                 }
             }
-        }
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-           OutlinedTextField(
-               state = descricao,
-               modifier = Modifier
-                   .fillMaxWidth()
-                   .height(200.dp)
-                   .padding(16.dp),
-               label = {Text("Descrição")},
-               lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 5)
-           )
-        }
-
-        Button(
-            onClick = {
-                onSubmit(
-                    FormData(
-                        fotoURI = fotoURI,
-                        tipoChamada = tipoChamada!!,
-                        descricao = descricao.text.toString()
+            Button(
+                onClick = {
+                    onSubmit(
+                        FormData(
+                            fotoURI = fotoURI,
+                            tipoChamada = tipoChamada!!,
+                            descricao = descricao.text.toString()
+                        )
                     )
-                )
-            },
-            enabled = tipoChamada != null
-        ) {
-            Text("Submeter")
-        }
+                },
+                enabled = tipoChamada != null && descricao.text.any { it.isLetter() }
+            ) {
+                Text("Submeter")
+            }
+        })
     }
 }
 

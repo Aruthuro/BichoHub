@@ -19,7 +19,8 @@ private val LightColorScheme = lightColorScheme(
     onError = Branco
 )
 private val DarkColorScheme = darkColorScheme(
-    //primary = VerdeClaro1,
+    primary = VerdeClaro1,
+    onPrimary = CinzaClaro,
     //secondary = VerdeEscuro2,
     //tertiary = Cinza,
     background = CinzaEscuro,
