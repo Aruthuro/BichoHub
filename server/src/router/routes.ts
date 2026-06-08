@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type NextFunction } from "express";
 
 import {
   criarTabelaMensagens,
@@ -28,60 +28,80 @@ router.get("/status", (req, res) => {
 /*
   setup do banco
 */
-router.get("/setup", async (req, res) => {
+router.get("/setup", async (req, res, next) => {
 
-  await criarTabelaMensagens();
+  try {await criarTabelaMensagens();
 
   res.json({
     mensagem: "Tabela criada"
   });
+  } catch(erro){
+    console.error(erro);
+    next(erro)
+  }
 });
 
 /*
   inserir mensagem
 */
-router.post("/mensagens", async (req, res) => {
+router.post("/mensagens", async (req, res, next) => {
 
-  const { texto } = req.body;
-
-  const mensagem = await inserirMensagem(texto);
-
-  res.status(201).json(mensagem);
+  try{
+    const { texto } = req.body;
+    const mensagem = await inserirMensagem(texto);
+    res.status(201).json(mensagem);
+  }catch (erro){
+    console.error(erro);
+    next(erro)
+  }
+  
 });
 
 /*
   buscar mensagens
 */
-router.get("/mensagens", async (req, res) => {
+router.get("/mensagens", async (req, res, next) => {
+  try{
+    const mensagens = await buscarMensagens();
 
-  const mensagens = await buscarMensagens();
-
-  res.json(mensagens);
+    res.json(mensagens);
+  }catch(erro){
+    console.error(erro);
+    next(erro)
+  }
+  
 });
 
 /*
   remover mensagem
 */
-router.delete("/mensagens/:id", async (req, res) => {
+router.delete("/mensagens/:id", async (req, res, next) => {
 
-  const id = Number(req.params.id);
+  try {
+    const id = Number(req.params.id);
 
-  const mensagemRemovida = await removerMensagem(id);
+    const mensagemRemovida = await removerMensagem(id);
 
-  /*
-    verifica se a mensagem existia
-  */
-  if (!mensagemRemovida) {
+    /*
+      verifica se a mensagem existia
+    */
+    if (!mensagemRemovida) {
 
-    return res.status(404).json({
-      erro: "Mensagem não encontrada"
+      return res.status(404).json({
+        erro: "Mensagem não encontrada"
+      });
+    }
+
+    res.json({
+      mensagem: "Mensagem remvida",
+      dados: mensagemRemovida
     });
+  }catch(erro){
+    console.error(erro);
+    next(erro)
   }
 
-  res.json({
-    mensagem: "Mensagem remvida",
-    dados: mensagemRemovida
-  });
+  
 });
 
 /* 
@@ -90,8 +110,9 @@ router.delete("/mensagens/:id", async (req, res) => {
 router.get(
   "/v1/usuarios/coletores-disponiveis",
   verificarToken,
-  async (req, res) => {
-    // Extração segura do horário (código que você já tem)
+  async (req, res, next) => {
+
+    // extracao segura do horario 
     const raw = req.query.horario;
     let horario: string;
     if (Array.isArray(raw)) {
@@ -119,36 +140,34 @@ router.get(
 /*
   lista todas as ocorrencias abertas por um usuario
 */
-router.get("/v1/usuarios/listar", verificarToken, async (req, res) => {
+router.get("/v1/usuarios/listar", verificarToken, async (req, res, next) => {
   try {
     // O middleware injeta o payload do token em req.usuario
     const usuarioId = (req as CustomRequest).usuario.id;
     const solicitacoes = await listarSolicitacoes(usuarioId);
+
     res.status(200).json(solicitacoes);
   } catch (erro) {
     console.error(erro);
-    res.status(500).json({ erro: "Erro ao buscar as solicitações do usuário" });
+    next(erro)
   }
 });
+
 /*
   login do usuario
 */
-router.post("/v1/usuarios/login", async (req, res) => {
-  const { email, senha } = req.body;
-
-  if (!email || !senha) {
-    return res.status(400).json({ erro: "Email e senha são obrigatórios" });
-  }
-
+router.post("/v1/usuarios/login", async (req, res, next) => {
   try {
-    const resultado = await realizarLogin(email, senha);
-    return res.json(resultado); // { token, nome }
-  } catch (erro: any) {
-    if (erro.message === "Credenciais inválidas") {
-      return res.status(403).json({ erro: "Credenciais inválidas" });
+    const { email, senha } = req.body;
+    if (!email || !senha) {
+      return res.status(400).json({ erro: "Email e senha são obrigatórios" });
     }
-    console.error(erro);
-    return res.status(500).json({ erro: "Erro interno ao realizar login" });
+    const resultado = await realizarLogin(email, senha);
+    return res.json(resultado);
+  } catch (erro: any) {
+    console.log(erro)
+    erro.status = 403;
+    next(erro);
   }
 });
 
@@ -156,7 +175,7 @@ router.post("/v1/usuarios/login", async (req, res) => {
 /*
   cadastro do usuario
 */
-router.post("/v1/usuarios/cadastrar", async (req, res) => {
+router.post("/v1/usuarios/cadastrar", async (req, res, next) => {
   const { nome, email, senha, contato } = req.body;
 
   // Validação básica
@@ -174,8 +193,8 @@ router.post("/v1/usuarios/cadastrar", async (req, res) => {
     if (erro.message === "Email já cadastrado") {
       return res.status(409).json({ erro: erro.message });
     }
-    console.error(erro);
-    res.status(500).json({ erro: "Erro ao cadastrar usuário" });
+    console.log(erro)
+    next(erro)
   }
 });
 
