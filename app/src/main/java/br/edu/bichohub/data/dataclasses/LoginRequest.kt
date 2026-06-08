@@ -1,4 +1,4 @@
-package br.edu.bichohub.api.datac
+package br.edu.bichohub.data.dataclasses
 
 data class LoginRequest(
     val email: String,

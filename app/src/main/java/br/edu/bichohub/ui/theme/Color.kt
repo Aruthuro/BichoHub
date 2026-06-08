@@ -3,7 +3,7 @@ package br.edu.bichohub.ui.theme
 import androidx.compose.ui.graphics.Color
 
 val VerdeClaro1 = Color(0xFF548E2E)
-val VerdeClaro2 = Color(0xFFB1C6A8)
+val VerdeClaro2 = Color(0xFFc7e6b3)
 val CinzaClaro = Color(0xFFD1D1D1)
 val Branco = Color(0xFFFFFBFE)
 

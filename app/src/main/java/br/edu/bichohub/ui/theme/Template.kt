@@ -5,8 +5,6 @@ import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,6 +19,9 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,9 +36,10 @@ import br.edu.bichohub.R
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Template(titulo: String, content: @Composable () -> Unit) {
+fun Template(titulo: String, content: @Composable (onShowSnackbar: (String) -> Unit) -> Unit) {
     val meuDrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     ModalNavigationDrawer(
         drawerState = meuDrawerState,
@@ -65,7 +67,8 @@ fun Template(titulo: String, content: @Composable () -> Unit) {
                         }
                     }
                 )
-            }
+            },
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
         ) { innerPadding ->
             Column(
                 modifier = Modifier
@@ -74,7 +77,12 @@ fun Template(titulo: String, content: @Composable () -> Unit) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                content()
+                content { mensagem ->
+                    scope.launch {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar(mensagem)
+                    }
+                }
             }
         }
     }

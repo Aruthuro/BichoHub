@@ -10,7 +10,7 @@ export interface CustomRequest extends Request {
 
 export interface LoginResultado {
   token: string;
-  nome: string;
+  id: number;
 }
 
 export function verificarToken(req: CustomRequest, res: Response, next: NextFunction) {
@@ -58,7 +58,7 @@ export async function realizarLogin(email: string, senha: string): Promise<Login
 
   return {
     token,
-    nome: credencial.nome,
+    id: credencial.usuario_id,
   };
 }
 
@@ -100,7 +100,11 @@ export async function cadastrarUsuario(
 
     await client.query("COMMIT");
 
-    return { id: usuarioId, nome, email };
+    // Gera o token JWT
+    const payload = { id: usuarioId, email: email };
+    const token = jwt.sign(payload, env.JWT_SECRET, { expiresIn: "1d" });
+
+    return { id: usuarioId, token };
   } catch (erro) {
     await client.query("ROLLBACK");
     throw erro;

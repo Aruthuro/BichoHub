@@ -6,7 +6,8 @@ import {
   buscarMensagens,
   removerMensagem,
   listarSolicitacoes,
-  listarColetoresDisponiveisNoHorario
+  listarColetoresDisponiveisNoHorario,
+  inserirOcorrencia
 } from "../bancoDeDados.js";
 import { verificarToken, realizarLogin, cadastrarUsuario} from "../middlewares/authService.js";
 import { type CustomRequest } from "../middlewares/authService.js"
@@ -87,13 +88,10 @@ router.delete("/mensagens/:id", async (req, res) => {
 /* 
   mostra os platoes atuais
 */
-router.get(
-  "/v1/usuarios/coletores-disponiveis",
-  verificarToken,
-  async (req, res) => {
-    // Extração segura do horário (código que você já tem)
+router.get("/v1/usuarios/coletores-disponiveis", verificarToken, async (req, res) => {
     const raw = req.query.horario;
     let horario: string;
+    
     if (Array.isArray(raw)) {
       horario = raw[0]?.toString() ?? "";
     } else if (typeof raw === "string") {
@@ -130,6 +128,7 @@ router.get("/v1/usuarios/listar", verificarToken, async (req, res) => {
     res.status(500).json({ erro: "Erro ao buscar as solicitações do usuário" });
   }
 });
+
 /*
   login do usuario
 */
@@ -142,7 +141,7 @@ router.post("/v1/usuarios/login", async (req, res) => {
 
   try {
     const resultado = await realizarLogin(email, senha);
-    return res.json(resultado); // { token, nome }
+    return res.json(resultado); // { token, id }
   } catch (erro: any) {
     if (erro.message === "Credenciais inválidas") {
       return res.status(403).json({ erro: "Credenciais inválidas" });
@@ -151,7 +150,6 @@ router.post("/v1/usuarios/login", async (req, res) => {
     return res.status(500).json({ erro: "Erro interno ao realizar login" });
   }
 });
-
 
 /*
   cadastro do usuario
@@ -168,7 +166,7 @@ router.post("/v1/usuarios/cadastrar", async (req, res) => {
     const usuario = await cadastrarUsuario(nome, email, senha, contato);
     res.status(201).json({
       mensagem: "Usuário cadastrado com sucesso",
-      usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email },
+      usuario: { token: usuario.token, id: usuario.id },
     });
   } catch (erro: any) {
     if (erro.message === "Email já cadastrado") {
@@ -176,6 +174,26 @@ router.post("/v1/usuarios/cadastrar", async (req, res) => {
     }
     console.error(erro);
     res.status(500).json({ erro: "Erro ao cadastrar usuário" });
+  }
+});
+
+/*
+  Registrar ocorrência
+*/
+router.post("/v1/usuarios/registrar-ocorrencia", async (req, res) => {
+  const { usuario_id, gps_origem, descricao, imagem, tipo } = req.body;
+
+  // Validação básica
+  if (!usuario_id || !tipo || !gps_origem) {
+    return res.status(400).json({ erro: "O id do usuário, tipo de ocorrência e localização são obrigatórios" });
+  }
+
+  try {
+    const ocorrenciaID = await inserirOcorrencia(usuario_id, gps_origem, descricao, imagem, tipo);
+    res.status(200).json({ mensagem: "Registro enviado com sucesso", id: ocorrenciaID });
+  } catch (erro: any) {
+    console.error(erro);
+    res.status(500).json({ erro: "Erro ao registrar ocorrência" });
   }
 });
 

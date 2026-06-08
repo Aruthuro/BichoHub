@@ -42,7 +42,7 @@ fun SignInScreen(){
     val emailViewModel: EmailViewModel = viewModel<EmailViewModel>()
     val senha = rememberTextFieldState()
     var senhaInvisivel by rememberSaveable { mutableStateOf(true) }
-    val inst = rememberTextFieldState()
+    val contato = rememberTextFieldState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -79,11 +79,11 @@ fun SignInScreen(){
             }
         )
         OutlinedTextField(
-            state = inst,
+            state = contato,
             lineLimits = TextFieldLineLimits.SingleLine,
-            label = { Text("Instituição (opcional)") }
+            label = { Text("Contato (opcional)") }
         )
-        FilledTonalButton(onClick = { }) {
+        FilledTonalButton(onClick = {  }) {
             Text("Cadastrar-se")
         }
     }

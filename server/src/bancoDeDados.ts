@@ -138,3 +138,22 @@ export async function buscarCredencialPorEmail(email: string): Promise<Credencia
 
   return resultado.rows[0] || null;
 }
+
+export async function inserirOcorrencia(
+  origem_id: number,
+  gps_origem: [number, number],
+  descricao: string | null,
+  imagem: string | null,
+  tipo: number
+) {
+  const resultado = await client.query(
+    `
+      INSERT INTO ocorrencias (origem_solicitacao_id, gps_origem, descricao_origem, referencia_imagem, tipo)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id
+    `,
+    [origem_id, gps_origem, descricao, imagem, tipo]
+  );
+
+  return resultado.rows[0].id;
+}
