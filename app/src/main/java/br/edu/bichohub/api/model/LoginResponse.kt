@@ -1,4 +1,4 @@
-package br.edu.bichohub.data.dataclasses
+package br.edu.bichohub.api.model
 
 data class LoginResponse(
     val token: String,

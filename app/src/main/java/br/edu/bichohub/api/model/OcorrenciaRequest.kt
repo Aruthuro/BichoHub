@@ -1,4 +1,4 @@
-package br.edu.bichohub.data.dataclasses
+package br.edu.bichohub.api.model
 
 import android.location.Location
 import com.google.gson.annotations.SerializedName

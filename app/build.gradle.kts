@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
     kotlin("plugin.serialization") version "2.3.21"
 }
 
@@ -41,6 +43,7 @@ android {
 }
 
 dependencies {
+    val dataStoreVer = "1.2.1"
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
@@ -50,11 +53,16 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation("androidx.datastore:datastore-preferences:${dataStoreVer}")
+    implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit)
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")
     implementation(libs.okhttp)
+    implementation("com.squareup.okhttp3:logging-interceptor:5.4.0")
     implementation(libs.coil.compose)
+    implementation("com.google.dagger:hilt-android:2.59.2")
+    ksp("com.google.dagger:hilt-android-compiler:2.59.2")
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

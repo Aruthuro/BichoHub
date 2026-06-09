@@ -190,7 +190,7 @@ router.post("/v1/usuarios/registrar-ocorrencia", async (req, res) => {
 
   try {
     const ocorrenciaID = await inserirOcorrencia(usuario_id, gps_origem, descricao, imagem, tipo);
-    res.status(200).json({ mensagem: "Registro enviado com sucesso", id: ocorrenciaID });
+    res.status(201).json({ mensagem: "Registro enviado com sucesso", id: ocorrenciaID });
   } catch (erro: any) {
     console.error(erro);
     res.status(500).json({ erro: "Erro ao registrar ocorrência" });

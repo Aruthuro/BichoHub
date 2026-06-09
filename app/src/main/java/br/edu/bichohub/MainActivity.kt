@@ -17,10 +17,12 @@ import br.edu.bichohub.ui.screens.SignIn
 import br.edu.bichohub.ui.screens.SignInScreen
 import br.edu.bichohub.ui.theme.BichoHubTheme
 import br.edu.bichohub.ui.theme.Template
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Activity principal do aplicativo, ativada ao inicializá-lo.
  */
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
