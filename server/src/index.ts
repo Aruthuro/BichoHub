@@ -1,4 +1,6 @@
 import express from "express";
+import fs from "fs";
+import path from "path";
 import { env } from "./env.js";
 import { client } from "./bancoDeDados.js";
 import { logger, logError } from "./logger.js";
@@ -46,6 +48,13 @@ async function iniciarServidor() {
   try {
     await client.connect();
     console.log("Banco conectado");
+
+    // executa schema.sql para criar/alterar tabelas
+    const schemaPath = path.join(process.cwd(), "src", "database", "schema.sql");
+    const schema = fs.readFileSync(schemaPath, "utf8");
+    await client.query(schema);
+    console.log("Schema atualizado");
+
     app.listen(env.PORT, () => {
       console.log(`Servidor rodando na porta ${env.PORT}`);
     });

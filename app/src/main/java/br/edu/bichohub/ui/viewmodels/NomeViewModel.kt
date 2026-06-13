@@ -17,7 +17,7 @@ class NomeViewModel : ViewModel() {
 
     val taErrado by derivedStateOf {
         if (nome.text.isNotEmpty()) {
-            nome.text.all { it.isLetter() }
+            nome.text.any { !it.isLetter() && !it.isWhitespace() }
         } else {
             false
         }
