@@ -40,19 +40,22 @@ import br.edu.bichohub.ui.viewmodels.AuthViewModel
 /**
  * Função que adiciona uma barra superiror com um menu tipo gaveta.
  * @param titulo o que será escrito na barra superior.
+ * @param onVoltar se fornecido, mostra uma seta de voltar no lugar do menu.
  * @param content o conteúdo da tela.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuLateral(titulo: String, content: @Composable (onShowSnackbar: (String) -> Unit) -> Unit) {
+fun MenuLateral(titulo: String, onVoltar: (() -> Unit)? = null, content: @Composable (onShowSnackbar: (String) -> Unit) -> Unit) {
     val meuDrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val temVoltar = onVoltar != null
     val snackbarHostState = remember { SnackbarHostState() }
     val authViewModel: AuthViewModel = viewModel<AuthViewModel>()
     val context = LocalContext.current
 
     ModalNavigationDrawer(
         drawerState = meuDrawerState,
+        gesturesEnabled = false,
         drawerContent = {
             ModalDrawerSheet {
                 Text("BichoHub", modifier = Modifier.padding(16.dp))
@@ -93,12 +96,22 @@ fun MenuLateral(titulo: String, content: @Composable (onShowSnackbar: (String) -
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(titulo) }, navigationIcon = {
-                        IconButton(onClick = { scope.launch { meuDrawerState.apply { if (isClosed) open() else close() } } }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.menu_24px),
-                                contentDescription = "Abrir menu lateral"
-                            )
+                    title = { Text(titulo) },
+                    navigationIcon = {
+                        if (temVoltar) {
+                            IconButton(onClick = onVoltar) {
+                                Icon(
+                                    /*TODO: painter = ,*/
+                                    contentDescription = "Voltar"
+                                )
+                            }
+                        } else {
+                            IconButton(onClick = { scope.launch { meuDrawerState.apply { if (isClosed) open() else close() } } }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.menu_24px),
+                                    contentDescription = "Abrir menu lateral"
+                                )
+                            }
                         }
                     }
                 )

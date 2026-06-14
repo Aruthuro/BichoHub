@@ -21,7 +21,7 @@ services:
     command: npm run dev
 
   db_postgres:
-    image: postgres:15
+    image: postgis/postgis:15-3.4
 
     container_name: db_postgres
 

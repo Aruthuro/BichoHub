@@ -1,17 +1,13 @@
 import express from "express";
-
+import fs from "fs";
+import path from "path";
 import { env } from "./env.js";
-
 import { client } from "./bancoDeDados.js";
-
 import { logger, logError } from "./logger.js";
-
 import router from "./router/routes.js";
-
 import { type Request, type Response, type NextFunction } from "express";
 
 const app = express();
-
 const publicPath = `${process.cwd()}/public`;
 
 
@@ -34,10 +30,7 @@ app.use("/api", router);
   como o router deixa tem as rotas, caso não vá para nenhuma delas não vai para o 404
 */
 app.use((req, res) => {
-
-  res.status(404).json({
-    erro: "Rota não encontrada"
-  });
+  res.status(404).json({ erro: "Rota não encontrada" });
 });
 
 app.use((erro: any, req: Request, res: Response, next: NextFunction) => {
@@ -52,22 +45,21 @@ app.use((erro: any, req: Request, res: Response, next: NextFunction) => {
   funcao assincrona para iniciar o servidor (nao sei se tem q colocar promisse honestamente)
 */
 async function iniciarServidor() {
-
   try {
-
     await client.connect();
-
     console.log("Banco conectado");
+
+    // executa schema.sql para criar/alterar tabelas
+    const schemaPath = path.join(process.cwd(), "src", "database", "schema.sql");
+    const schema = fs.readFileSync(schemaPath, "utf8");
+    await client.query(schema);
+    console.log("Schema atualizado");
 
     app.listen(env.PORT, () => {
       console.log(`Servidor rodando na porta ${env.PORT}`);
     });
-
   } catch (erro) {
-
-    console.error(
-      "Erro ao iniciar servidor:", erro
-    );
+    logError(erro as Error);
   }
 }
 

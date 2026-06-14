@@ -3,16 +3,12 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
-    kotlin("plugin.serialization") version "2.3.21"
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     namespace = "br.edu.bichohub"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "br.edu.bichohub"
