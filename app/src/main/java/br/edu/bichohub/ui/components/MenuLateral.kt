@@ -1,8 +1,11 @@
-package br.edu.bichohub.ui.theme
+package br.edu.bichohub.ui.components
 
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -18,16 +21,21 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.bichohub.R
+import br.edu.bichohub.ui.theme.BichoHubTheme
+import br.edu.bichohub.ui.viewmodels.AuthViewModel
 
 /**
  * Função que adiciona uma barra superiror com um menu tipo gaveta.
@@ -36,10 +44,12 @@ import br.edu.bichohub.R
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Template(titulo: String, content: @Composable (onShowSnackbar: (String) -> Unit) -> Unit) {
+fun MenuLateral(titulo: String, content: @Composable (onShowSnackbar: (String) -> Unit) -> Unit) {
     val meuDrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val authViewModel: AuthViewModel = viewModel<AuthViewModel>()
+    val context = LocalContext.current
 
     ModalNavigationDrawer(
         drawerState = meuDrawerState,
@@ -48,9 +58,34 @@ fun Template(titulo: String, content: @Composable (onShowSnackbar: (String) -> U
                 Text("BichoHub", modifier = Modifier.padding(16.dp))
                 HorizontalDivider()
                 NavigationDrawerItem(
-                    label = { Text(text = "Sobre") },
+                    label = { Text(text = "Home") },
                     selected = false,
-                    onClick = { /*TODO*/ }
+                    onClick = {  }
+                )
+                NavigationDrawerItem(
+                    label = { Text(text = "Ocorrências") },
+                    selected = false,
+                    onClick = {  }
+                )
+                NavigationDrawerItem(
+                    label = { Text(text = "Sair") },
+                    selected = false,
+                    onClick = { authViewModel.logoutUsuario() }
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = "BichoHub ${
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        context.packageManager.getPackageInfo(
+                            context.packageName,
+                            PackageManager.PackageInfoFlags.of(0)
+                        ).versionName
+                    } else {
+                        @Suppress("DEPRECATION")
+                        context.packageManager.getPackageInfo(context.packageName, 0).versionName
+                    }}",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
         }
@@ -89,13 +124,13 @@ fun Template(titulo: String, content: @Composable (onShowSnackbar: (String) -> U
 }
 
 /**
- * @see Template
+ * @see MenuLateral
  */
 @Preview(showBackground = true)
 @Composable
 fun TemplatePreview() {
     BichoHubTheme {
-        Template(
+        MenuLateral(
             titulo = "Teste",
             content = {
                 Text(text = "Palavra.")

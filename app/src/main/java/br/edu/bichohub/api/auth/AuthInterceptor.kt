@@ -1,5 +1,6 @@
 package br.edu.bichohub.api.auth
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
@@ -9,8 +10,8 @@ class AuthInterceptor(private val tokenDataStoreManager: TokenDataStoreManager) 
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
 
-        val token = runBlocking { tokenDataStoreManager.tokenFlow.first() }
-        if (token == null) {
+        val token = runBlocking(Dispatchers.IO) { tokenDataStoreManager.tokenFlow.first() }
+        if (token.isNullOrBlank()) {
             return chain.proceed(originalRequest)
         }
 

@@ -11,10 +11,10 @@ import retrofit2.http.POST
  * Interface para funções
  */
 interface UserService {
-    @POST("/v1/usuarios/login")
+    @POST("v1/usuarios/login")
     suspend fun login(@Body req: LoginRequest): Response<LoginResponse>
 
-    @POST("/v1/usuarios/cadastrar")
+    @POST("v1/usuarios/cadastrar")
     suspend fun cadastra(@Body req: CadastroRequest): Response<LoginResponse>
 
     /*TODO*/

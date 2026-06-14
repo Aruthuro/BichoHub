@@ -11,7 +11,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class TokenDataStoreManager @Inject constructor(@ApplicationContext private val context: Context) {
+/**
+ * Gerenciador da DataStore que armazena os tokens de acesso.
+ * @param context o contexo do aplicativo.
+ */
+class TokenDataStoreManager @Inject constructor(@param:ApplicationContext private val context: Context) {
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "token")
 
     internal companion object {

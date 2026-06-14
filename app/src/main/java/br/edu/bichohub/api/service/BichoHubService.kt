@@ -10,9 +10,9 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface BichoHubService {
-    @POST("/v1/usuarios/registrar-ocorrencia")
+    @POST("v1/usuarios/registrar-ocorrencia")
     suspend fun registraOcorrencia(@Body req: OcorrenciaRequest): Response<OcorrenciaResponse>
 
-    @GET("/v1/usuarios/coletores-disponiveis")
+    @GET("v1/usuarios/coletores-disponiveis")
     suspend fun getPlantoesAgora(@Query("horario") horario: String): Response<List<PlantoesResponse>>
 }
