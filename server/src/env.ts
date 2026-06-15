@@ -19,5 +19,5 @@ export const env = cleanEnv(process.env, {
   POSTGRES_HOST: str(),
   POSTGRES_PORT: port(),
 
-  JWT_SECRET: str() 
+  JWT_SECRET: str()
 })

@@ -1,6 +1,19 @@
 package br.edu.bichohub.api.model
 
+import android.location.Location
 import com.google.gson.annotations.SerializedName
+
+data class OcorrenciaRequest(
+    val tipo: Int,
+    @SerializedName("gps_origem")
+    val gpsOrigem: Location,
+    @SerializedName("descricao_origem")
+    val descricaoOrigem: String?,
+    val observacoes: String?,
+    val risco: String?,
+    @SerializedName("referencia_imagem")
+    val imagem: String?
+)
 
 data class OcorrenciaResponse(
     val id: Int,

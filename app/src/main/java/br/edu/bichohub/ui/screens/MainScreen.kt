@@ -42,7 +42,8 @@ fun MainScreen(
 ){
     val authViewModel: AuthViewModel = viewModel<AuthViewModel>()
     val login by authViewModel.taLogado.collectAsStateWithLifecycle()
-    val coletor = true //placeholder
+    val coletor by authViewModel.ehColetor.collectAsStateWithLifecycle()
+    val ajudante by authViewModel.ehAjudante.collectAsStateWithLifecycle()
 
     if (login) {
         MenuLateral("BichoHub", content = {
@@ -53,12 +54,14 @@ fun MainScreen(
                 Button(shape = RectangleShape, onClick = { onNavigateToMinhasOcorrencias() }) {
                     Text("Minhas Solicitações")
                 }
-                if (coletor){
+                if (ajudante || coletor){
                     Button(shape = RectangleShape, onClick = { onNavigateToCollectorOcorrencias() }) {
-                        Text("Solicitações Abertas (Coletor)")
+                        Text("Solicitações Abertas")
                     }
+                }
+                if (coletor){
                     Button(shape = RectangleShape, onClick = { onNavigateToHistoricoColetor() }) {
-                        Text("Histórico (Coletor)")
+                        Text("Histórico")
                     }
                 }
                 Button(shape = RectangleShape, onClick = { onNavigateToPlantoes() }) {

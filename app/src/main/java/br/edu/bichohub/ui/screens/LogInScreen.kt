@@ -24,7 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.bichohub.data.UiState
 import br.edu.bichohub.ui.components.EmailTextField
 import br.edu.bichohub.ui.components.SenhaTextField
-import br.edu.bichohub.ui.viewmodels.UserStateViewModel
+import br.edu.bichohub.ui.viewmodels.AuthViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -35,8 +35,8 @@ object LogIn
  */
 @Composable
 fun LogInScreen(onNavigateToSignIn: () -> Unit, onNavigateToMain: () -> Unit) {
-    val userStateViewModel: UserStateViewModel = viewModel<UserStateViewModel>()
-    val userState by userStateViewModel.userState.collectAsStateWithLifecycle()
+    val authViewModel: AuthViewModel = viewModel<AuthViewModel>()
+    val userState by authViewModel.userState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(userState) {
@@ -66,16 +66,16 @@ fun LogInScreen(onNavigateToSignIn: () -> Unit, onNavigateToMain: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 EmailTextField(
-                    estado = userStateViewModel.email,
-                    ehEmailValido = userStateViewModel.emailTaErrado
+                    estado = authViewModel.email,
+                    ehEmailValido = authViewModel.emailTaErrado
                 )
                 SenhaTextField(
-                    estado = userStateViewModel.senha,
-                    ehSenhaValida = userStateViewModel.senhaTaErrada
+                    estado = authViewModel.senha,
+                    ehSenhaValida = authViewModel.senhaTaErrada
                 )
                 FilledTonalButton(
-                    onClick = { userStateViewModel.login() },
-                    enabled = !userStateViewModel.emailTaErrado && !userStateViewModel.senhaTaErrada && (userState is UiState.Idle || userState is UiState.Erro)
+                    onClick = { authViewModel.login() },
+                    enabled = !authViewModel.emailTaErrado && !authViewModel.senhaTaErrada && (userState is UiState.Idle || userState is UiState.Erro)
                 ) {
                     Text("Log-In")
                 }

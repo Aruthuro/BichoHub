@@ -1,5 +1,6 @@
 package br.edu.bichohub.api
 
+import android.content.Context
 import br.edu.bichohub.api.auth.AuthInterceptor
 import br.edu.bichohub.api.auth.TokenDataStoreManager
 import br.edu.bichohub.api.service.BichoHubService
@@ -7,6 +8,7 @@ import br.edu.bichohub.api.service.UserService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -29,6 +31,12 @@ object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideTokenDataStoreManager(@ApplicationContext context: Context): TokenDataStoreManager {
+        return TokenDataStoreManager(context)
     }
 
     @Provides

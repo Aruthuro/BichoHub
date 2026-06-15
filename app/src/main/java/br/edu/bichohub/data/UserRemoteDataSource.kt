@@ -4,6 +4,9 @@ import br.edu.bichohub.api.service.UserService
 import br.edu.bichohub.api.model.CadastroRequest
 import br.edu.bichohub.api.model.LoginRequest
 import br.edu.bichohub.api.model.LoginResponse
+import br.edu.bichohub.api.model.OcorrenciaRequest
+import br.edu.bichohub.api.model.OcorrenciaResponse
+import br.edu.bichohub.api.model.PlantoesResponse
 import javax.inject.Inject
 
 /**
@@ -11,14 +14,15 @@ import javax.inject.Inject
  * @param servicoAPI instância do UserService
  */
 class UserRemoteDataSource @Inject constructor(private val servicoAPI: UserService){
-    suspend fun cadastraUsuario(req: CadastroRequest): Resposta<LoginResponse> {
-        return chamaApi { servicoAPI.cadastra(req) }
+    suspend fun registraOcorrencia(req: OcorrenciaRequest): Resposta<Unit> {
+        return chamaApi { servicoAPI.registraOcorrencia(req) }
     }
 
-    suspend fun loginUsuario(req: LoginRequest): Resposta<LoginResponse> {
-        return chamaApi { servicoAPI.login(req) }
+    suspend fun listarSolicitacoes(): Resposta<List<OcorrenciaResponse>> {
+        return chamaApi { servicoAPI.listarSolicitacoes() }
     }
 
-    /*TODO*/
-    //rota para pegar um novo token após expirar
+    suspend fun getPlantoesAgora(horario: String): Resposta<List<PlantoesResponse>> {
+        return chamaApi { servicoAPI.getPlantoesAgora(horario) }
+    }
 }

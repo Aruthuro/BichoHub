@@ -1,8 +1,9 @@
 package br.edu.bichohub.repos
 
-import br.edu.bichohub.api.model.CadastroRequest
-import br.edu.bichohub.api.model.LoginRequest
-import br.edu.bichohub.api.model.LoginResponse
+import android.location.Location
+import br.edu.bichohub.api.model.OcorrenciaRequest
+import br.edu.bichohub.api.model.OcorrenciaResponse
+import br.edu.bichohub.api.model.PlantoesResponse
 import br.edu.bichohub.data.Resposta
 import br.edu.bichohub.data.UserRemoteDataSource
 import javax.inject.Inject
@@ -11,36 +12,43 @@ import javax.inject.Inject
  * Repositório para funções de ações do usuário
  * @param remoteDataSource a DataSource consumida por este repositório.
  */
-class UserRepository @Inject constructor(
-    private val remoteDataSource: UserRemoteDataSource,
-    private val authRepository: AuthRepository
-) {
-    suspend fun cadastraUsuario(nome: String, email:String, senha: String, contato: String?): Resposta<LoginResponse> {
-        val req = CadastroRequest(nome, email, senha, contato)
+class UserRepository @Inject constructor(private val remoteDataSource: UserRemoteDataSource) {
+    suspend fun registraOcorrencia(
+        tipo: Int,
+        gpsOrigem: Location,
+        descricaoOrigem: String?,
+        observacoes: String?,
+        risco: String,
+        imagem: String?
+    ): Resposta<Unit> {
+        val req = OcorrenciaRequest(tipo, gpsOrigem, descricaoOrigem, observacoes, risco, imagem)
 
-        return when (val resultado = remoteDataSource.cadastraUsuario(req)) {
-            is Resposta.Sucesso<LoginResponse> -> {
-                authRepository.salvaToken(resultado.corpo.token)
-                resultado
-            }
+        return when (val resultado = remoteDataSource.registraOcorrencia(req)) {
+            is Resposta.Sucesso<*> -> resultado
             is Resposta.Erro -> when (resultado.code) {
-                409 -> Resposta.Erro(409, "O cadastro já foi realizado. Por favor, faça log-in.")
+                401 -> Resposta.Erro(401, "Usuário não autorizado.")
                 else -> resultado
             }
             is Resposta.ErroException -> resultado
         }
     }
 
-    suspend fun loginUsuario(email:String, senha: String): Resposta<LoginResponse> {
-        val req = LoginRequest(email, senha)
-
-        return when (val resultado = remoteDataSource.loginUsuario(req)) {
-            is Resposta.Sucesso<LoginResponse> -> {
-                authRepository.salvaToken(resultado.corpo.token)
-                resultado
-            }
+    suspend fun listarSolicitacoes(): Resposta<List<OcorrenciaResponse>> {
+        return when (val resultado = remoteDataSource.listarSolicitacoes()) {
+            is Resposta.Sucesso<List<OcorrenciaResponse>> -> resultado
             is Resposta.Erro -> when (resultado.code) {
-                403 -> Resposta.Erro(403, "Credenciais inválidas.")
+                401 -> Resposta.Erro(401, "Usuário não autorizado.")
+                else -> resultado
+            }
+            is Resposta.ErroException -> resultado
+        }
+    }
+
+    suspend fun getPlantoesAgora(horario: String): Resposta<List<PlantoesResponse>> {
+        return when (val resultado = remoteDataSource.getPlantoesAgora(horario)) {
+            is Resposta.Sucesso<List<PlantoesResponse>> -> resultado
+            is Resposta.Erro -> when (resultado.code) {
+                401 -> Resposta.Erro(401, "Usuário não autorizado.")
                 else -> resultado
             }
             is Resposta.ErroException -> resultado

@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { type Request, type Response, type NextFunction } from "express";
 import { env } from "../env.js"
 import jwt from "jsonwebtoken";
-import { buscarCredencialPorEmail, type Credencial, client, verificarColetor as checarColetor } from "../bancoDeDados.js";
+import { buscarCredencialPorEmail, type Credencial, client, checarColetor, checarAjudante } from "../bancoDeDados.js";
 
 export interface CustomRequest extends Request {
   usuario?: any;
@@ -16,12 +16,12 @@ export interface LoginResultado {
 export function verificarToken(req: CustomRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ erro: "Token não fornecido" });   // 401, não 403
+    return res.status(403).json({ erro: "Token não fornecido" });
   }
 
   const token = authHeader.split(" ")[1];
   if (!token) {
-    return res.status(401).json({ erro: "Token mal formatado" });
+    return res.status(403).json({ erro: "Token mal formatado" });
   }
 
   try {
@@ -30,7 +30,13 @@ export function verificarToken(req: CustomRequest, res: Response, next: NextFunc
     req.usuario = payload;  
     next();
   } catch (erro) {
-    return res.status(401).json({ erro: "Token inválido ou expirado" });
+	  if (erro.name == TokenExpiredError || erro.name == NotBeforeError){
+		return res.status(401).json({ erro: "Token expirado" });
+	  } else if (erro.name == JsonWebTokenError){
+    		return res.status(403).json({ erro: "Token inválido" });
+	  } else {
+		return res.staus(500).json({ erro: "Erro inexperado" })
+	  }
   }
 }
 
@@ -41,6 +47,18 @@ export async function verificarColetor(req: CustomRequest, res: Response, next: 
   }
   const isColetor = await checarColetor(usuarioId);
   if (!isColetor) {
+    return res.status(403).json({ erro: "Usuário não é um coletor" });
+  }
+  next();
+}
+
+export async function verificarAjudante(req: CustomRequest, res: Response, next: NextFunction) {
+  const usuarioId = req.usuario?.id;
+  if (!usuarioId) {
+    return res.status(401).json({ erro: "Usuário não autenticado" });
+  }
+  const isAjudante = await checarAjudante(usuarioId);
+  if (!isAjudante) {
     return res.status(403).json({ erro: "Usuário não é um coletor" });
   }
   next();
@@ -65,7 +83,9 @@ export async function realizarLogin(email: string, senha: string): Promise<Login
   }
 
   // 3. Gera o token JWT
-  const payload = { id: credencial.usuario_id, email: credencial.email };
+  const isColetor = await checarColetor(usuarioId);
+  const isAjudante = await checarAjudante(usuarioId);
+  const payload = { id: credencial.usuario_id, coletor: isColetor, ajudante: isAjudante };
   const token = jwt.sign(payload, env.JWT_SECRET, { expiresIn: "1d" });
 
   return {
@@ -74,12 +94,7 @@ export async function realizarLogin(email: string, senha: string): Promise<Login
   };
 }
 
-export async function cadastrarUsuario(
-  nome: string,
-  email: string,
-  senha: string,
-  contato?: string
-) {
+export async function cadastrarUsuario(nome: string, email: string, senha: string, contato?: string): Promise<LoginResultado>{
   // Verifica se o email já está em uso
   const existente = await client.query(
     `SELECT 1 FROM credenciais WHERE email = $1`,
@@ -113,10 +128,12 @@ export async function cadastrarUsuario(
     await client.query("COMMIT");
 
     // Gera o token JWT
-    const payload = { id: usuarioId, email: email };
+    const isColetor = await checarColetor(usuarioId);
+    const isAjudante = await checarAjudante(usuarioId);
+    const payload = { id: usuarioId, coletor: isColetor, ajudante: isAjudante };
     const token = jwt.sign(payload, env.JWT_SECRET, { expiresIn: "1d" });
 
-    return { id: usuarioId, token };
+    return { token, id: usuarioId };
   } catch (erro) {
     await client.query("ROLLBACK");
     throw erro;

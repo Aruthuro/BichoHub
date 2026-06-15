@@ -25,7 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.bichohub.data.UiState
 import br.edu.bichohub.ui.components.EmailTextField
 import br.edu.bichohub.ui.components.SenhaTextField
-import br.edu.bichohub.ui.viewmodels.UserStateViewModel
+import br.edu.bichohub.ui.viewmodels.AuthViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -36,8 +36,8 @@ object SignIn
  */
 @Composable
 fun SignInScreen(onNavigateToMain: () -> Unit){
-    val userStateViewModel: UserStateViewModel = viewModel<UserStateViewModel>()
-    val userState by userStateViewModel.userState.collectAsStateWithLifecycle()
+    val authViewModel: AuthViewModel = viewModel<AuthViewModel>()
+    val userState by authViewModel.userState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(userState) {
@@ -67,33 +67,33 @@ fun SignInScreen(onNavigateToMain: () -> Unit){
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 OutlinedTextField(
-                    state = userStateViewModel.nome,
+                    state = authViewModel.nome,
                     lineLimits = TextFieldLineLimits.SingleLine,
                     label = { Text("Nome") },
-                    isError = userStateViewModel.nomeTaErrado,
+                    isError = authViewModel.nomeTaErrado,
                     supportingText = {
-                        if (userStateViewModel.nomeTaErrado) {
+                        if (authViewModel.nomeTaErrado) {
                             Text("Escreva seu nome com apenas letras e espaço.")
                         }
                     }
                 )
                 EmailTextField(
-                    estado = userStateViewModel.email,
-                    ehEmailValido = userStateViewModel.emailTaErrado
+                    estado = authViewModel.email,
+                    ehEmailValido = authViewModel.emailTaErrado
                 )
                 SenhaTextField(
-                    estado = userStateViewModel.senha,
-                    ehSenhaValida = userStateViewModel.senhaTaErrada
+                    estado = authViewModel.senha,
+                    ehSenhaValida = authViewModel.senhaTaErrada
                 )
                 OutlinedTextField(
-                    state = userStateViewModel.contato,
+                    state = authViewModel.contato,
                     lineLimits = TextFieldLineLimits.SingleLine,
                     label = { Text("Número para contato (opcional)") },
-                    isError = userStateViewModel.contatoTaErrado
+                    isError = authViewModel.contatoTaErrado
                 )
                 FilledTonalButton(
-                    onClick = { userStateViewModel.cadastro() },
-                    enabled = !userStateViewModel.nomeTaErrado && !userStateViewModel.emailTaErrado && !userStateViewModel.senhaTaErrada && !userStateViewModel.contatoTaErrado && (userState is UiState.Idle || userState is UiState.Erro)
+                    onClick = { authViewModel.cadastro() },
+                    enabled = !authViewModel.nomeTaErrado && !authViewModel.emailTaErrado && !authViewModel.senhaTaErrada && !authViewModel.contatoTaErrado && (userState is UiState.Idle || userState is UiState.Erro)
                 ) {
                     Text("Cadastrar-se")
                 }

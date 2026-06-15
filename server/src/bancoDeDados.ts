@@ -137,9 +137,17 @@ export async function tornarColetor(usuarioId: number, cpf?: string) {
   return resultado.rows[0] || null;
 }
 
-export async function verificarColetor(usuarioId: number): Promise<boolean> {
+export async function checarColetor(usuarioId: number): Promise<boolean> {
   const resultado = await client.query(
     `SELECT 1 FROM coletores WHERE usuario_id = $1`,
+    [usuarioId]
+  );
+  return resultado.rows.length > 0;
+}
+
+export async function checarAjudante(usuarioId: number): Promise<boolean> {
+  const resultado = await client.query(
+    `SELECT 1 FROM usuarios WHERE usuario_id = $1 AND ajudante= TRUE`,
     [usuarioId]
   );
   return resultado.rows.length > 0;
