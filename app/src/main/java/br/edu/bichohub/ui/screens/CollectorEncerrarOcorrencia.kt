@@ -22,9 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import br.edu.bichohub.api.RetrofitObject
-import br.edu.bichohub.api.datac.EncerrarRequest
-import br.edu.bichohub.ui.theme.Template
+import br.edu.bichohub.api.model.EncerrarRequest
+import br.edu.bichohub.ui.components.MenuLateral
+import br.edu.bichohub.api.NetworkModule
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
@@ -43,13 +45,21 @@ fun CollectorEncerrarOcorrenciaScreen(
     var descricaoSoltura by remember { mutableStateOf("") }
     var carregando by remember { mutableStateOf(false) }
 
+    val meuOkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
+
+    val cliente = NetworkModule.retrofitClient(meuOkHttpClient)
+    val bichoHubServiceAPI = NetworkModule.provideBichoHubService(cliente)
+
     val opcoes = listOf(
         "solto" to "Animal solto",
         "sob_cuidados" to "Animal sob cuidados",
         "morto" to "Animal morto"
     )
 
-    Template("Encerrar Chamada", onVoltar = onVoltar) {
+    MenuLateral("Encerrar Chamada", onVoltar = onVoltar) {
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -91,8 +101,8 @@ fun CollectorEncerrarOcorrenciaScreen(
                                 desfecho = desfecho,
                                 descricaoSoltura = descricaoSoltura.ifBlank { null }
                             )
-                            val resp = RetrofitObject.service.encerrarOcorrencia(ocorrenciaId, req)
-                            Toast.makeText(context, resp.mensagem ?: "Chamada encerrada", Toast.LENGTH_SHORT).show()
+                            val resp = bichoHubServiceAPI.encerrarOcorrencia(ocorrenciaId, req)
+                            Toast.makeText(context, resp.message() ?: "Chamada encerrada", Toast.LENGTH_SHORT).show()
                             onEncerrado()
                         } catch (e: Exception) {
                             Toast.makeText(context, "Erro: ${e.message}", Toast.LENGTH_LONG).show()

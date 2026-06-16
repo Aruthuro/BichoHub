@@ -28,12 +28,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import br.edu.bichohub.api.RetrofitObject
-import br.edu.bichohub.api.datac.EditarOcorrenciaRequest
-import br.edu.bichohub.api.datac.OcorrenciaResponse
-import br.edu.bichohub.ui.theme.Template
+import br.edu.bichohub.api.NetworkModule
+import br.edu.bichohub.api.model.EditarOcorrenciaRequest
+import br.edu.bichohub.api.model.OcorrenciaResponse
+import br.edu.bichohub.api.service.BichoHubService
+import br.edu.bichohub.ui.components.MenuLateral
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
 
 @Serializable
 data class CollectorOcorrenciaDetail(val id: Int)
@@ -49,6 +52,14 @@ fun CollectorOcorrenciaDetailScreen(
     var occ by remember { mutableStateOf<OcorrenciaResponse?>(null) }
     var carregando by remember { mutableStateOf(true) }
 
+    val meuOkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
+
+    val cliente = NetworkModule.retrofitClient(meuOkHttpClient)
+    val bichoHubServiceAPI = NetworkModule.provideBichoHubService(cliente)
+
     var estado by remember { mutableStateOf(2) }
     var statusSaude by remember { mutableStateOf("") }
     var observacoes by remember { mutableStateOf("") }
@@ -57,7 +68,7 @@ fun CollectorOcorrenciaDetailScreen(
 
     LaunchedEffect(ocorrenciaId) {
         try {
-            occ = RetrofitObject.service.detalharOcorrencia(ocorrenciaId)
+            occ = bichoHubServiceAPI.detalharOcorrencia(ocorrenciaId).body()
             occ?.let {
                 estado = it.estado
                 statusSaude = it.statusSaude ?: ""
@@ -72,12 +83,12 @@ fun CollectorOcorrenciaDetailScreen(
         }
     }
 
-    Template("Detalhes da Ocorrência", onVoltar = onVoltar) {
+    MenuLateral("Detalhes da Ocorrência", onVoltar = onVoltar) {
         if (carregando) {
             Text("Carregando...")
-            return@Template
+            return@MenuLateral
         }
-        val o = occ ?: return@Template
+        val o = occ ?: return@MenuLateral
 
         Column(
             modifier = Modifier
@@ -143,8 +154,8 @@ fun CollectorOcorrenciaDetailScreen(
                                 risco = risco.ifBlank { null },
                                 equipamentoCaptura = equipamento.ifBlank { null }
                             )
-                            val resp = RetrofitObject.service.editarOcorrencia(ocorrenciaId, req)
-                            Toast.makeText(context, resp.mensagem ?: "Salvo", Toast.LENGTH_SHORT).show()
+                            val resp = bichoHubServiceAPI.editarOcorrencia(ocorrenciaId, req)
+                            Toast.makeText(context, resp.message() ?: "Salvo", Toast.LENGTH_SHORT).show()
                         } catch (e: Exception) {
                             Toast.makeText(context, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
                         }

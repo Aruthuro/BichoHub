@@ -29,12 +29,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import br.edu.bichohub.api.RetrofitObject
-import br.edu.bichohub.api.datac.OcorrenciaResponse
-import br.edu.bichohub.api.datac.ResponderRequest
-import br.edu.bichohub.ui.theme.Template
+import br.edu.bichohub.api.NetworkModule
+import br.edu.bichohub.api.model.OcorrenciaResponse
+import br.edu.bichohub.api.model.ResponderRequest
+import br.edu.bichohub.ui.components.MenuLateral
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
 
 @Serializable
 object CollectorOcorrenciasAbertas
@@ -49,11 +51,19 @@ fun CollectorOcorrenciasAbertasScreen(
     var ocorrencias by remember { mutableStateOf<List<OcorrenciaResponse>>(emptyList()) }
     var carregando by remember { mutableStateOf(true) }
 
+    val meuOkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
+
+    val cliente = NetworkModule.retrofitClient(meuOkHttpClient)
+    val bichoHubServiceAPI = NetworkModule.provideBichoHubService(cliente)
+
     fun carregar() {
         scope.launch {
             carregando = true
             try {
-                ocorrencias = RetrofitObject.service.listarOcorrenciasAbertas()
+                ocorrencias = bichoHubServiceAPI.listarOcorrenciasAbertas().body() ?: emptyList()
             } catch (e: Exception) {
                 Toast.makeText(context, "Erro ao carregar: ${e.message}", Toast.LENGTH_LONG).show()
             } finally {
@@ -64,7 +74,7 @@ fun CollectorOcorrenciasAbertasScreen(
 
     LaunchedEffect(Unit) { carregar() }
 
-    Template("Solicitações Abertas", onVoltar = onVoltar) {
+    MenuLateral("Solicitações Abertas", onVoltar = onVoltar) {
         if (carregando) {
             Text("Carregando...")
         } else if (ocorrencias.isEmpty()) {
@@ -113,10 +123,10 @@ fun CollectorOcorrenciasAbertasScreen(
                                     onClick = {
                                         scope.launch {
                                             try {
-                                                val resp = RetrofitObject.service.responderOcorrencia(
+                                                val resp = bichoHubServiceAPI.responderOcorrencia(
                                                     occ.id, ResponderRequest("aceitar")
                                                 )
-                                                Toast.makeText(context, resp.mensagem ?: "Aceita", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, resp.message() ?: "Aceita", Toast.LENGTH_SHORT).show()
                                                 onOcorrenciaAceita(occ.id)
                                             } catch (e: Exception) {
                                                 Toast.makeText(context, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
@@ -131,7 +141,7 @@ fun CollectorOcorrenciasAbertasScreen(
                                     onClick = {
                                         scope.launch {
                                             try {
-                                                RetrofitObject.service.responderOcorrencia(
+                                                bichoHubServiceAPI.responderOcorrencia(
                                                     occ.id, ResponderRequest("rejeitar")
                                                 )
                                                 ocorrencias = ocorrencias.filter { it.id != occ.id }

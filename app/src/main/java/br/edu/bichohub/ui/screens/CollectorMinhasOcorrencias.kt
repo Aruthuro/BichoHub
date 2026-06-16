@@ -26,11 +26,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import br.edu.bichohub.api.RetrofitObject
-import br.edu.bichohub.api.datac.OcorrenciaResponse
-import br.edu.bichohub.ui.theme.Template
+import br.edu.bichohub.api.NetworkModule
+import br.edu.bichohub.api.model.OcorrenciaResponse
+import br.edu.bichohub.ui.components.MenuLateral
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
 
 @Serializable
 object CollectorMinhasOcorrencias
@@ -54,6 +56,15 @@ fun CollectorMinhasOcorrenciasScreen(
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    val meuOkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
+
+    val cliente = NetworkModule.retrofitClient(meuOkHttpClient)
+    val bichoHubServiceAPI = NetworkModule.provideBichoHubService(cliente)
+
     var ocorrencias by remember { mutableStateOf<List<OcorrenciaResponse>>(emptyList()) }
     var carregando by remember { mutableStateOf(true) }
 
@@ -61,7 +72,7 @@ fun CollectorMinhasOcorrenciasScreen(
         scope.launch {
             carregando = true
             try {
-                ocorrencias = RetrofitObject.service.listarMinhasOcorrencias()
+                ocorrencias = bichoHubServiceAPI.listarMinhasOcorrencias().body() ?: emptyList()
             } catch (e: Exception) {
                 Toast.makeText(context, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
             } finally {
@@ -72,7 +83,7 @@ fun CollectorMinhasOcorrenciasScreen(
 
     LaunchedEffect(Unit) { carregar() }
 
-    Template("Histórico do Coletor", onVoltar = onVoltar) {
+    MenuLateral("Histórico do Coletor", onVoltar = onVoltar) {
         Button(
             onClick = { carregar() },
             modifier = Modifier.padding(16.dp),

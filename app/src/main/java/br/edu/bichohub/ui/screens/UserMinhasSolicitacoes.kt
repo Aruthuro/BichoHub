@@ -26,11 +26,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import br.edu.bichohub.api.RetrofitObject
-import br.edu.bichohub.api.datac.OcorrenciaResponse
-import br.edu.bichohub.ui.theme.Template
+import br.edu.bichohub.api.NetworkModule
+import br.edu.bichohub.api.model.OcorrenciaResponse
+import br.edu.bichohub.ui.components.MenuLateral
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
 
 @Serializable
 object UserMinhasSolicitacoes
@@ -56,11 +58,19 @@ fun UserMinhasSolicitacoesScreen(
     var solicitacoes by remember { mutableStateOf<List<OcorrenciaResponse>>(emptyList()) }
     var carregando by remember { mutableStateOf(true) }
 
+    val meuOkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
+
+    val cliente = NetworkModule.retrofitClient(meuOkHttpClient)
+    val userServiceAPI = NetworkModule.provideUserService(cliente)
+
     fun carregar() {
         scope.launch {
             carregando = true
             try {
-                solicitacoes = RetrofitObject.service.listarSolicitacoes()
+                solicitacoes = userServiceAPI.listarSolicitacoes().body() ?: emptyList()
             } catch (e: Exception) {
                 Toast.makeText(context, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
             } finally {
@@ -71,7 +81,7 @@ fun UserMinhasSolicitacoesScreen(
 
     LaunchedEffect(Unit) { carregar() }
 
-    Template("Minhas Solicitações", onVoltar = onVoltar) {
+    MenuLateral("Minhas Solicitações", onVoltar = onVoltar) {
         Button(
             onClick = { carregar() },
             modifier = Modifier.padding(16.dp),
