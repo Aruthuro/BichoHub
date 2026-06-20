@@ -1,4 +1,4 @@
-import { Router, type NextFunction } from "express";
+import { Router, type Response, type Request, type NextFunction } from "express";
 
 import {
   criarTabelaMensagens,
@@ -23,6 +23,7 @@ import {
 } from "../bancoDeDados.js";
 import { verificarToken, verificarColetor, realizarLogin, cadastrarUsuario, verificarAdminMiddleware } from "../middlewares/authService.js";
 import { type CustomRequest } from "../middlewares/authService.js"
+import { identificarAnimal, type RequestComAnimal } from "../middlewares/deteccaoAnimal.js";
 
 const router = Router();
 
@@ -536,5 +537,35 @@ router.delete("/v1/admin/usuarios/:id", verificarToken, verificarAdminMiddleware
     next(erro);
   }
 });
+
+  identificação do animal
+*/
+router.post("/v1/animais/identificar", 
+  identificarAnimal, 
+  async (req: RequestComAnimal, res: Response, next: NextFunction) => {
+    try {
+      // Verificar se o middleware realmente identificou algo
+      if (!req.animalIdentificado) {
+        return res.status(404).json({
+          success: false,
+          mensagem: "Nenhum animal foi identificado na imagem"
+        });
+      }
+
+      // Retornar o resultado da identificação
+      res.json({
+        success: true,
+        animal: req.animalIdentificado.especie,
+        confidence: req.animalIdentificado.confidence,
+        confianca_percentual: `${(req.animalIdentificado.confidence * 100).toFixed(2)}%`,
+        pipeline: req.animalIdentificado.pipeline,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {/
+      console.log(`Error: ${error}`)
+      next(error);
+    }
+  }
+);
 
 export default router;
