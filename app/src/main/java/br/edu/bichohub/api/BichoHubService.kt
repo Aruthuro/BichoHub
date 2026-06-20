@@ -2,6 +2,7 @@ package br.edu.bichohub.api
 
 import br.edu.bichohub.api.datac.CadastroRequest
 import br.edu.bichohub.api.datac.CadastroResponse
+import br.edu.bichohub.api.datac.DashboardResponse
 import br.edu.bichohub.api.datac.EditarOcorrenciaRequest
 import br.edu.bichohub.api.datac.EncerrarRequest
 import br.edu.bichohub.api.datac.LoginRequest
@@ -10,11 +11,14 @@ import br.edu.bichohub.api.datac.MensagemResponse
 import br.edu.bichohub.api.datac.OcorrenciaRequest
 import br.edu.bichohub.api.datac.OcorrenciaResponse
 import br.edu.bichohub.api.datac.ResponderRequest
+import br.edu.bichohub.api.datac.UsuarioResponse
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface BichoHubService {
     @POST("v1/usuarios/login")
@@ -46,4 +50,25 @@ interface BichoHubService {
 
     @PATCH("v1/coletores/ocorrencias/encerrar/{id}")
     suspend fun encerrarOcorrencia(@Path("id") id: Int, @Body req: EncerrarRequest): MensagemResponse
+
+    @GET("v1/admin/dashboard")
+    suspend fun dashboard(): DashboardResponse
+
+    @GET("v1/admin/usuarios")
+    suspend fun listarUsuarios(): List<UsuarioResponse>
+
+    @GET("v1/admin/ocorrencias")
+    suspend fun listarOcorrenciasAdmin(@Query("filtro") filtro: String? = null): List<OcorrenciaResponse>
+
+    @GET("v1/admin/ocorrencias/{id}")
+    suspend fun detalharOcorrenciaAdmin(@Path("id") id: Int): OcorrenciaResponse
+
+    @POST("v1/admin/usuarios/{id}/tornar-admin")
+    suspend fun tornarAdmin(@Path("id") id: Int): MensagemResponse
+
+    @POST("v1/admin/usuarios/{id}/tornar-coletor")
+    suspend fun tornarColetorAdmin(@Path("id") id: Int): MensagemResponse
+
+    @DELETE("v1/admin/usuarios/{id}")
+    suspend fun removerUsuario(@Path("id") id: Int): MensagemResponse
 }

@@ -6,6 +6,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitObject {
+    // Para emulador Android local:      http://10.0.2.2:6969/api/
+    // Para ngrok (expor na internet):   https://teu-subdomain.ngrok-free.app/api/
     private const val URL = "http://10.0.2.2:6969/api/"
 
     private val authInterceptor = Interceptor { chain ->

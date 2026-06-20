@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     nome VARCHAR(150) NOT NULL,
     reputacao REAL NOT NULL DEFAULT 0.0,
     contato VARCHAR(20),
+    numero_whatsapp VARCHAR(20),
     ajudante BOOLEAN NOT NULL DEFAULT FALSE,
     criado_em TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -67,6 +68,9 @@ CREATE TABLE IF NOT EXISTS ocorrencias (
     equipamento_captura VARCHAR(100),
     referencia_imagem VARCHAR(255),
 
+    classificacao VARCHAR(100),
+    confianca_classificacao REAL,
+
     estado INTEGER NOT NULL DEFAULT 0,
     tipo INTEGER NOT NULL,
 
@@ -82,6 +86,32 @@ CREATE TABLE IF NOT EXISTS animais (
     especie VARCHAR(100),
     quant_avistamentos INTEGER NOT NULL DEFAULT 0
 );
+
+CREATE TABLE IF NOT EXISTS whatsapp_sessoes (
+    id SERIAL PRIMARY KEY,
+    numero VARCHAR(20) NOT NULL UNIQUE,
+    estado VARCHAR(50) NOT NULL,
+    dados JSONB,
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION atualizar_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.atualizado_em = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_whatsapp_atualizado ON whatsapp_sessoes;
+CREATE TRIGGER trg_whatsapp_atualizado
+    BEFORE UPDATE ON whatsapp_sessoes
+    FOR EACH ROW
+    EXECUTE FUNCTION atualizar_timestamp();
+
+CREATE INDEX IF NOT EXISTS idx_whatsapp_numero
+    ON whatsapp_sessoes (numero);
 
 CREATE INDEX IF NOT EXISTS idx_gps_origem_ocorrencias
     ON ocorrencias USING GIST (origem_gps);

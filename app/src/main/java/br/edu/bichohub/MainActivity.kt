@@ -13,6 +13,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import br.edu.bichohub.api.TokenManager
+import br.edu.bichohub.ui.screens.AdminDashboard
+import br.edu.bichohub.ui.screens.AdminDashboardScreen
+import br.edu.bichohub.ui.screens.AdminOcorrencias
+import br.edu.bichohub.ui.screens.AdminOcorrenciasScreen
+import br.edu.bichohub.ui.screens.AdminUsuarios
+import br.edu.bichohub.ui.screens.AdminUsuariosScreen
 import br.edu.bichohub.ui.screens.CollectorEncerrarOcorrencia
 import br.edu.bichohub.ui.screens.CollectorEncerrarOcorrenciaScreen
 import br.edu.bichohub.ui.screens.CollectorMinhasOcorrencias
@@ -58,6 +64,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onNavigateToHistoricoColetor = {
                                 navController.navigate(CollectorMinhasOcorrencias)
+                            },
+                            onNavigateToAdmin = {
+                                navController.navigate(AdminDashboard)
                             },
                             onLogout = {
                                 TokenManager.logout()
@@ -144,6 +153,23 @@ class MainActivity : ComponentActivity() {
                                     popUpTo(Main) { inclusive = true }
                                 }
                             },
+                            onVoltar = { navController.popBackStack() }
+                        )
+                    }
+                    composable<AdminDashboard> {
+                        AdminDashboardScreen(
+                            onNavigateToUsuarios = { navController.navigate(AdminUsuarios) },
+                            onNavigateToOcorrencias = { navController.navigate(AdminOcorrencias) },
+                            onVoltar = { navController.popBackStack() }
+                        )
+                    }
+                    composable<AdminUsuarios> {
+                        AdminUsuariosScreen(
+                            onVoltar = { navController.popBackStack() }
+                        )
+                    }
+                    composable<AdminOcorrencias> {
+                        AdminOcorrenciasScreen(
                             onVoltar = { navController.popBackStack() }
                         )
                     }

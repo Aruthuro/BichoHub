@@ -33,6 +33,7 @@ fun MainScreen(
     onNavigateToCollectorOcorrencias: () -> Unit,
     onNavigateToMinhasOcorrencias: () -> Unit,
     onNavigateToHistoricoColetor: () -> Unit,
+    onNavigateToAdmin: () -> Unit,
     onLogout: () -> Unit
 ) {
     val login = TokenManager.isLogado()
@@ -87,6 +88,14 @@ fun MainScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
                 ) {
                     Text("Histórico (Coletor)")
+                }
+                Button(
+                    onClick = onNavigateToAdmin,
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A))
+                ) {
+                    Text("Admin")
                 }
                 Spacer(Modifier.weight(1f))
                 Button(

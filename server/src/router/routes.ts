@@ -14,9 +14,14 @@ import {
   editarOcorrencia,
   encerrarOcorrencia,
   criarOcorrencia,
-  tornarColetor
+  tornarColetor,
+  listarTodosUsuarios,
+  listarTodasOcorrencias,
+  obterDashboard,
+  tornarAdministrador,
+  removerUsuario
 } from "../bancoDeDados.js";
-import { verificarToken, verificarColetor, realizarLogin, cadastrarUsuario} from "../middlewares/authService.js";
+import { verificarToken, verificarColetor, realizarLogin, cadastrarUsuario, verificarAdminMiddleware } from "../middlewares/authService.js";
 import { type CustomRequest } from "../middlewares/authService.js"
 
 const router = Router();
@@ -423,6 +428,111 @@ router.post("/v1/teste/tornar-coletor/:id", async (req, res, next) => {
     if (erro.code === "23503") {
       return res.status(404).json({ erro: "Usuário não encontrado" });
     }
+    next(erro);
+  }
+});
+
+/*
+  =====================================================
+  ROTAS DE ADMINISTRADOR (protegidas por token + admin)
+  =====================================================
+*/
+
+router.get("/v1/admin/dashboard", verificarToken, verificarAdminMiddleware, async (req, res, next) => {
+  try {
+    const stats = await obterDashboard();
+    res.status(200).json(stats);
+  } catch (erro) {
+    console.error(erro);
+    next(erro);
+  }
+});
+
+router.get("/v1/admin/usuarios", verificarToken, verificarAdminMiddleware, async (req, res, next) => {
+  try {
+    const usuarios = await listarTodosUsuarios();
+    res.status(200).json(usuarios);
+  } catch (erro) {
+    console.error(erro);
+    next(erro);
+  }
+});
+
+router.get("/v1/admin/ocorrencias", verificarToken, verificarAdminMiddleware, async (req, res, next) => {
+  try {
+    const filtro = req.query.filtro as string | undefined;
+    const ocorrencias = await listarTodasOcorrencias(filtro);
+    res.status(200).json(ocorrencias);
+  } catch (erro) {
+    console.error(erro);
+    next(erro);
+  }
+});
+
+router.get("/v1/admin/ocorrencias/:id", verificarToken, verificarAdminMiddleware, async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    const ocorrencia = await buscarOcorrenciaPorId(id);
+    if (!ocorrencia) {
+      return res.status(404).json({ erro: "Ocorrência não encontrada" });
+    }
+    res.status(200).json(ocorrencia);
+  } catch (erro) {
+    console.error(erro);
+    next(erro);
+  }
+});
+
+router.post("/v1/admin/usuarios/:id/tornar-admin", verificarToken, verificarAdminMiddleware, async (req, res, next) => {
+  try {
+    const usuarioId = Number(req.params.id);
+    const body = req.body || {};
+    const { cpf } = body;
+    const resultado = await tornarAdministrador(usuarioId, cpf);
+    if (!resultado) {
+      return res.status(409).json({ erro: "Usuário já é administrador" });
+    }
+    res.status(201).json({ mensagem: "Administrador promovido", usuario_id: resultado.usuario_id });
+  } catch (erro: any) {
+    if (erro.code === "23503") {
+      return res.status(404).json({ erro: "Usuário não encontrado" });
+    }
+    next(erro);
+  }
+});
+
+router.post("/v1/admin/usuarios/:id/tornar-coletor", verificarToken, verificarAdminMiddleware, async (req, res, next) => {
+  try {
+    const usuarioId = Number(req.params.id);
+    const body = req.body || {};
+    const { cpf } = body;
+    const resultado = await tornarColetor(usuarioId, cpf);
+    if (!resultado) {
+      return res.status(409).json({ erro: "Usuário já é coletor" });
+    }
+    res.status(201).json({ mensagem: "Coletor promovido", usuario_id: resultado.usuario_id });
+  } catch (erro: any) {
+    if (erro.code === "23503") {
+      return res.status(404).json({ erro: "Usuário não encontrado" });
+    }
+    next(erro);
+  }
+});
+
+router.delete("/v1/admin/usuarios/:id", verificarToken, verificarAdminMiddleware, async (req, res, next) => {
+  try {
+    const usuarioId = Number(req.params.id);
+    const adminRequisitante = (req as CustomRequest).usuario.id;
+    if (usuarioId === adminRequisitante) {
+      return res.status(400).json({ erro: "Não é possível remover a si mesmo" });
+    }
+    const resultado = await removerUsuario(usuarioId);
+    if (!resultado) {
+      return res.status(404).json({ erro: "Usuário não encontrado" });
+    }
+    res.status(200).json({ mensagem: "Usuário removido", id: resultado.id });
+  } catch (erro) {
+    console.error(erro);
     next(erro);
   }
 });
