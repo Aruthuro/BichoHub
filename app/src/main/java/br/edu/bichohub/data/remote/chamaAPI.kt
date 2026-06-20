@@ -1,4 +1,4 @@
-package br.edu.bichohub.data
+package br.edu.bichohub.data.remote
 
 import br.edu.bichohub.api.model.ErrorResponse
 import com.google.gson.Gson
@@ -41,6 +41,6 @@ suspend fun <T> chamaApi(chamada: suspend () -> Response<T>): Resposta<T> {
     } catch (_: SocketTimeoutException) {
         Resposta.Erro(-1, "Tempo de conexão esgotado")
     } catch (erro: Exception) {
-        Resposta.ErroException(-2, erro)
+        Resposta.Erro(-2, erro.message.toString())
     }
 }

@@ -12,11 +12,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import br.edu.bichohub.ui.theme.BichoHubTheme
 import br.edu.bichohub.ui.components.MenuLateral
 import br.edu.bichohub.ui.viewmodels.AuthViewModel
 import kotlinx.serialization.Serializable
@@ -26,17 +24,21 @@ object Main
 
 /**
  * A tela principal do aplicativo
- * @param onNavigateToSignIn função que navega para a tela de cadastro.
+ * @param onNavigateToSignUp função que navega para a tela de cadastro.
  * @param onNavigateToLogIn função que navega para a tela de log-in.
- * @param onNavigateToOcorr função que navega para a tela de ocorrências.
+ * @param onNavigateToOcorrencia função que navega para a tela de registrar ocorrências.
+ * @param onNavigateToOcorrenciasAbertas função que navega para a tela de ocorrências abertas.
+ * @param onNavigateToMinhasSolicitacoes função que navega para a tela de ocorrências feitas pelo usuário.
+ * @param onNavigateToHistoricoColetor função que navega para a tela de ocorrências concluídas pelo usuário.
+ * @param onNavigateToPlantoes função que navega para a tela de plantões.
  */
 @Composable
 fun MainScreen(
-    onNavigateToSignIn: () -> Unit,
+    onNavigateToSignUp: () -> Unit,
     onNavigateToLogIn: () -> Unit,
-    onNavigateToOcorr: () -> Unit,
-    onNavigateToCollectorOcorrencias: () -> Unit,
-    onNavigateToMinhasOcorrencias: () -> Unit,
+    onNavigateToOcorrencia: () -> Unit,
+    onNavigateToOcorrenciasAbertas: () -> Unit,
+    onNavigateToMinhasSolicitacoes: () -> Unit,
     onNavigateToHistoricoColetor: () -> Unit,
     onNavigateToPlantoes: () -> Unit
 ){
@@ -48,14 +50,14 @@ fun MainScreen(
     if (login) {
         MenuLateral("BichoHub", content = {
             Row(modifier = Modifier.fillMaxSize()) {
-                Button(shape = RectangleShape, onClick = { onNavigateToOcorr() }) {
+                Button(shape = RectangleShape, onClick = { onNavigateToOcorrencia() }) {
                     Text("Ocorrência")
                 }
-                Button(shape = RectangleShape, onClick = { onNavigateToMinhasOcorrencias() }) {
+                Button(shape = RectangleShape, onClick = { onNavigateToMinhasSolicitacoes() }) {
                     Text("Minhas Solicitações")
                 }
                 if (ajudante || coletor){
-                    Button(shape = RectangleShape, onClick = { onNavigateToCollectorOcorrencias() }) {
+                    Button(shape = RectangleShape, onClick = { onNavigateToOcorrenciasAbertas() }) {
                         Text("Solicitações Abertas")
                     }
                 }
@@ -77,31 +79,12 @@ fun MainScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(onClick = { onNavigateToSignIn() }) {
+            Button(onClick = { onNavigateToSignUp() }) {
                 Text("Cadastrar-se")
             }
             Button(onClick = { onNavigateToLogIn() }) {
                 Text("Log-in")
             }
         }
-    }
-}
-
-/**
- * @see MainScreen
- */
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreview(){
-    BichoHubTheme {
-        MainScreen(
-            onNavigateToSignIn = {},
-            onNavigateToLogIn = {},
-            onNavigateToOcorr = {},
-            onNavigateToCollectorOcorrencias = {},
-            onNavigateToMinhasOcorrencias = {},
-            onNavigateToHistoricoColetor = {},
-            onNavigateToPlantoes = {}
-        )
     }
 }

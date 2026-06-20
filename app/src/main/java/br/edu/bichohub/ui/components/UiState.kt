@@ -1,4 +1,4 @@
-package br.edu.bichohub.data
+package br.edu.bichohub.ui.components
 
 sealed interface UiState<out T> {
     object Idle: UiState<Nothing>

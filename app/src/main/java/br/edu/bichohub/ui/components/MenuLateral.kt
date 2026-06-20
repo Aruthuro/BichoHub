@@ -14,8 +14,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.ModalNavigationDrawer
@@ -50,7 +48,6 @@ import br.edu.bichohub.ui.viewmodels.AuthViewModel
 fun MenuLateral(titulo: String, onVoltar: (() -> Unit)? = null, content: @Composable (onShowSnackbar: (String) -> Unit) -> Unit) {
     val meuDrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val temVoltar = onVoltar != null
     val snackbarHostState = remember { SnackbarHostState() }
     val authViewModel: AuthViewModel = viewModel<AuthViewModel>()
     val context = LocalContext.current
@@ -100,20 +97,11 @@ fun MenuLateral(titulo: String, onVoltar: (() -> Unit)? = null, content: @Compos
                 TopAppBar(
                     title = { Text(titulo) },
                     navigationIcon = {
-                        if (temVoltar) {
-                            IconButton(onClick = onVoltar) {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowBack,
-                                    contentDescription = "Voltar"
-                                )
-                            }
-                        } else {
-                            IconButton(onClick = { scope.launch { meuDrawerState.apply { if (isClosed) open() else close() } } }) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.menu_24px),
-                                    contentDescription = "Abrir menu lateral"
-                                )
-                            }
+                        IconButton(onClick = { scope.launch { meuDrawerState.apply { if (isClosed) open() else close() } } }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.menu_24px),
+                                contentDescription = "Abrir menu lateral"
+                            )
                         }
                     }
                 )

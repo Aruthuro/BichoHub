@@ -4,14 +4,15 @@ import br.edu.bichohub.api.auth.TokenDataStoreManager
 import br.edu.bichohub.api.model.CadastroRequest
 import br.edu.bichohub.api.model.LoginRequest
 import br.edu.bichohub.api.model.LoginResponse
-import br.edu.bichohub.data.AuthRemoteDataSource
-import br.edu.bichohub.data.Resposta
+import br.edu.bichohub.data.remote.AuthRemoteDataSource
+import br.edu.bichohub.data.remote.Resposta
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
  * Repositório para funções relacionadas a autenticação.
  * @param tokenManager o gerenciador de tokens de acesso.
+ * @param remoteDataSource fonte de dados.
  */
 class AuthRepository @Inject constructor(
     private val tokenManager: TokenDataStoreManager,
@@ -39,7 +40,6 @@ class AuthRepository @Inject constructor(
                 409 -> Resposta.Erro(409, "O cadastro já foi realizado. Por favor, faça log-in.")
                 else -> resultado
             }
-            is Resposta.ErroException -> resultado
         }
     }
 
@@ -55,7 +55,6 @@ class AuthRepository @Inject constructor(
                 403 -> Resposta.Erro(403, "Credenciais inválidas.")
                 else -> resultado
             }
-            is Resposta.ErroException -> resultado
         }
     }
 }

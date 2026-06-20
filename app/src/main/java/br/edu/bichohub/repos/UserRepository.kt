@@ -1,38 +1,18 @@
 package br.edu.bichohub.repos
 
-import android.location.Location
-import br.edu.bichohub.api.model.OcorrenciaRequest
 import br.edu.bichohub.api.model.OcorrenciaResponse
 import br.edu.bichohub.api.model.PlantoesResponse
-import br.edu.bichohub.data.Resposta
-import br.edu.bichohub.data.UserRemoteDataSource
+import br.edu.bichohub.data.remote.Resposta
+import br.edu.bichohub.data.remote.UserRemoteDataSource
 import javax.inject.Inject
 
 /**
  * Repositório para funções de ações do usuário
- * @param remoteDataSource a DataSource consumida por este repositório.
+ * @param remoteDataSource fonte de dados.
  */
-class UserRepository @Inject constructor(private val remoteDataSource: UserRemoteDataSource) {
-    suspend fun registraOcorrencia(
-        tipo: Int,
-        gpsOrigem: Location,
-        descricaoOrigem: String?,
-        observacoes: String?,
-        risco: String,
-        imagem: String?
-    ): Resposta<Unit> {
-        val req = OcorrenciaRequest(tipo, gpsOrigem, descricaoOrigem, observacoes, risco, imagem)
-
-        return when (val resultado = remoteDataSource.registraOcorrencia(req)) {
-            is Resposta.Sucesso<*> -> resultado
-            is Resposta.Erro -> when (resultado.code) {
-                401 -> Resposta.Erro(401, "Usuário não autorizado.")
-                else -> resultado
-            }
-            is Resposta.ErroException -> resultado
-        }
-    }
-
+class UserRepository @Inject constructor(
+    private val remoteDataSource: UserRemoteDataSource
+) {
     suspend fun listarSolicitacoes(): Resposta<List<OcorrenciaResponse>> {
         return when (val resultado = remoteDataSource.listarSolicitacoes()) {
             is Resposta.Sucesso<List<OcorrenciaResponse>> -> resultado
@@ -40,7 +20,6 @@ class UserRepository @Inject constructor(private val remoteDataSource: UserRemot
                 401 -> Resposta.Erro(401, "Usuário não autorizado.")
                 else -> resultado
             }
-            is Resposta.ErroException -> resultado
         }
     }
 
@@ -51,7 +30,6 @@ class UserRepository @Inject constructor(private val remoteDataSource: UserRemot
                 401 -> Resposta.Erro(401, "Usuário não autorizado.")
                 else -> resultado
             }
-            is Resposta.ErroException -> resultado
         }
     }
 }

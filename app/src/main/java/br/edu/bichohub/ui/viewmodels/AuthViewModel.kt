@@ -7,9 +7,9 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.edu.bichohub.api.model.LoginResponse
-import br.edu.bichohub.data.Resposta
-import br.edu.bichohub.data.UiState
+import br.edu.bichohub.data.remote.Resposta
 import br.edu.bichohub.repos.AuthRepository
+import br.edu.bichohub.ui.components.UiState
 import com.auth0.android.jwt.JWT
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -116,9 +116,6 @@ class AuthViewModel @Inject constructor(private val authRepository: AuthReposito
                 is Resposta.Erro -> {
                     _userState.value = UiState.Erro(result.msg)
                 }
-                is Resposta.ErroException -> {
-                    _userState.value = UiState.Erro("Erro de conexão. Tente novamente.")
-                }
             }
         }
     }
@@ -138,9 +135,6 @@ class AuthViewModel @Inject constructor(private val authRepository: AuthReposito
                 }
                 is Resposta.Erro -> {
                     _userState.value = UiState.Erro(result.msg)
-                }
-                is Resposta.ErroException -> {
-                    _userState.value = UiState.Erro("Erro de conexão. Tente novamente.")
                 }
             }
         }

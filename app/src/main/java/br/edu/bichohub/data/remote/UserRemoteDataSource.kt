@@ -1,9 +1,6 @@
-package br.edu.bichohub.data
+package br.edu.bichohub.data.remote
 
 import br.edu.bichohub.api.service.UserService
-import br.edu.bichohub.api.model.CadastroRequest
-import br.edu.bichohub.api.model.LoginRequest
-import br.edu.bichohub.api.model.LoginResponse
 import br.edu.bichohub.api.model.OcorrenciaRequest
 import br.edu.bichohub.api.model.OcorrenciaResponse
 import br.edu.bichohub.api.model.PlantoesResponse

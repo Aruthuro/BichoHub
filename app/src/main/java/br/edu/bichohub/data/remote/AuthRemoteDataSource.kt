@@ -1,4 +1,4 @@
-package br.edu.bichohub.data
+package br.edu.bichohub.data.remote
 
 import br.edu.bichohub.api.model.CadastroRequest
 import br.edu.bichohub.api.model.LoginRequest

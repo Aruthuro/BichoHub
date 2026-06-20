@@ -1,9 +1,11 @@
 import express, { type Request, type Response, type NextFunction } from 'express';
 import path from 'path';
-import { engine } from 'express-handlebars';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import webRouter from './router/webRoutes.js';
+import session from "express-session";
+import { engine } from 'express-handlebars';
+import { v4 as uuidv4 } from "uuid";
 
 dotenv.config();
 
@@ -26,7 +28,18 @@ app.set('views', path.join(process.cwd(), 'src', 'views'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
+app.use(session({
+	name: "sid",
+	genid: () => uuidv4(),
+	secret: process.env.SECRET!,
+	resave: false,
+	saveUninitialized: false,
+	rolling: true,
+	cookie: {
+		httpOnly: true,
+		maxAge: 2 * 60 * 60 * 1000
+	}
+}));
 app.use((req: Request, res: Response, next: NextFunction) => {
     res.locals.logado = !!req.cookies?.token;
     next();

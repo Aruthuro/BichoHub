@@ -8,7 +8,7 @@ const webRouter = Router();
 webRouter.get("/", requireToken, (_req, res) => res.redirect("/ocorrencias/abertas"));
 
 webRouter.all("/login", authController.login);
-webRouter.all("/register", authController.signin);
+webRouter.all("/signin", authController.signup);
 webRouter.get("/logout", authController.logout);
 
 webRouter.get("/ocorrencias/abertas", requireToken, ocorrenciaController.listarAbertas);
