@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { type Request, type Response, type NextFunction } from "express";
 import { env } from "../env.js"
 import jwt from "jsonwebtoken";
-import { buscarCredencialPorEmail, type Credencial, client} from "../bancoDeDados.js";
+import { buscarCredencialPorEmail, type Credencial, client, verificarColetor as checarColetor, verificarAdmin as checarAdmin } from "../bancoDeDados.js";
 
 export interface CustomRequest extends Request {
   usuario?: any;
@@ -32,6 +32,30 @@ export function verificarToken(req: CustomRequest, res: Response, next: NextFunc
   } catch (erro) {
     return res.status(401).json({ erro: "Token inválido ou expirado" });
   }
+}
+
+export async function verificarAdminMiddleware(req: CustomRequest, res: Response, next: NextFunction) {
+  const usuarioId = req.usuario?.id;
+  if (!usuarioId) {
+    return res.status(401).json({ erro: "Usuário não autenticado" });
+  }
+  const isAdmin = await checarAdmin(usuarioId);
+  if (!isAdmin) {
+    return res.status(403).json({ erro: "Acesso restrito a administradores" });
+  }
+  next();
+}
+
+export async function verificarColetor(req: CustomRequest, res: Response, next: NextFunction) {
+  const usuarioId = req.usuario?.id;
+  if (!usuarioId) {
+    return res.status(401).json({ erro: "Usuário não autenticado" });
+  }
+  const isColetor = await checarColetor(usuarioId);
+  if (!isColetor) {
+    return res.status(403).json({ erro: "Usuário não é um coletor" });
+  }
+  next();
 }
 
 /*
