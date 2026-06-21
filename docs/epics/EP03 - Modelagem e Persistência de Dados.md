@@ -8,7 +8,7 @@ Estruturar o banco de dados e garantir persistência consistente das informaçõ
 
 ---
 
-# E04 - Implementação do Esquema do Banco de Dados
+# E01 - Implementação do Esquema do Banco de Dados
 
 ## Área
 
@@ -38,29 +38,31 @@ Implementar a estrutura inicial do banco de dados do sistema.
   - [x] Cancelada.
 - [x] O banco deve permitir armazenamento geográfico de origem e destino das ocorrências;
 - [x] O banco deve permitir associação de imagens às ocorrências;
-- [X] O banco deve permitir gerenciamento de plantões e disponibilidade de coletores.
+- [x] O banco deve permitir gerenciamento de plantões e disponibilidade de coletores;
+- [x] O banco deve possuir tabela para registro de espécies animais (`animais`) e avistamentos (F13).
 
 ## Critérios Técnicos
 
 - [x] Definir chaves primárias e estrangeiras;
 - [x] Definir constraints de integridade;
-- [x] Definir índices necessários para consultas geográficas.
+- [x] Definir índices necessários para consultas geográficas;
+- [x] Utilizar PostGIS para dados geoespaciais.
 
 ## Artefatos
 
-- [x] Script SQL do esquema do banco.
+- [x] Script SQL do esquema do banco (`database/schema.sql`).
 
 ## Dependências
 
-- E03 - Ambiente de desenvolvimento Back-end
+- EP01 - Infraestrutura e Ambiente de Desenvolvimento
 
 ## Definition of Done
 
-- [ ] Esquema sem erros de execução SQL.
+- [x] Esquema sem erros de execução SQL.
 
 ---
 
-# E06 - Transações, Consistência e Recuperação de Falhas
+# E02 - Transações, Consistência e Recuperação de Falhas
 
 ## Área
 
@@ -68,7 +70,7 @@ Back-end
 
 ## Objetivo
 
-Definir e implementar transação, consistência e recuperação de falhas no sistema BichoHub.
+Definir e implementar transações, consistência e recuperação de falhas no sistema.
 
 ## Critérios Funcionais
 
@@ -95,27 +97,26 @@ Falha durante transação SQL:
 ## Critérios Técnicos
 
 - [ ] Utilizar rollback em caso de falha;
-- [ ] Garantir integridade de referencia entre entidades.
+- [ ] Garantir integridade de referência entre entidades;
+- [ ] Recuperação de dados em menos de 5 segundos (NF04).
 
 ## Fluxos Cobertos
 
-- [ ] Cadastro de usuário;
+- [x] Cadastro de usuário (transação `usuarios` + `credenciais`);
 - [ ] Registro de chamada;
 - [ ] Associação de imagens a uma chamada;
-- [ ] Atualização de status de chamada.
+- [x] Atualização de estado de chamada.
 
 ## Artefatos
 
 - [ ] Serviços transacionais implementados;
 - [ ] Fluxo de rollback implementado;
-- [ ] Estratégia de remoção de arquivos órfãos;
-- [ ] Documentação ou descrição básica do fluxo transacional.
+- [ ] Estratégia de remoção de arquivos órfãos.
 
 ## Dependências
 
-- E04 - Implementação do esquema do banco de dados
-- E05 - Estrutura da API
-- Implementação do sistema de upload de imagens
+- E01 - Esquema do banco de dados
+- E03 - Upload e Armazenamento de Imagens
 
 ## Definition of Done
 
@@ -126,7 +127,7 @@ Falha durante transação SQL:
 
 ---
 
-# E07 — Sistema de Upload e Armazenamento de Imagens
+# E03 - Sistema de Upload e Armazenamento de Imagens
 
 ## Área
 
@@ -134,48 +135,48 @@ Back-end
 
 ## Objetivo
 
-Implementar o sistema de upload, armazenamento e recuperação de imagens do BichoHub utilizando armazenamento em sistema de arquivos local, por simplicidade.
+Implementar o sistema de upload, armazenamento e recuperação de imagens do BichoHub.
 
 ## Critérios Funcionais
 
-- [ ] O sistema deve permitir upload de imagens;
-- [ ] O sistema deve armazenar imagens no servidor;
+- [x] O sistema deve permitir upload de imagens (multer configurado em `modeloRoutes.ts`);
+- [x] O sistema deve armazenar imagens no servidor (diretório `uploads/`);
 - [ ] O sistema deve permitir recuperação de imagens armazenadas;
-- [ ] O sistema deve associar imagens a chamadas.
+- [ ] O sistema deve associar imagens a chamadas (referencia_imagem na tabela ocorrencias);
+- [x] O sistema deve suportar formato JPEG, padrão para fotos de câmera (NF07).
 
 ## Critérios Técnicos
 
-- [ ] Utilizr armazenamento em sistema de arquivos local;
+- [x] Utilizar armazenamento em sistema de arquivos local;
 - [ ] Organizar imagens em diretórios padronizados;
-- [ ] Gerar nomes únicos para arquivos armazenados;
+- [x] Gerar nomes únicos para arquivos armazenados (multer + timestamp);
 - [ ] Permitir acesso HTTP às imagens armazenadas;
-- [ ] Garantir compatibilidade com volumes do Docker;
-- [ ] Armazenar apenas referências/paths no PostgreSQL.
+- [x] Garantir compatibilidade com volumes do Docker (volume montado);
+- [x] Armazenar apenas referências/paths no PostgreSQL (coluna `referencia_imagem`).
 
 ## Exemplo de diretórios
 
-``/uploads/chamadas``
+`/uploads/chamadas`
 
-## Entregáveis / Artefatos
+## Artefatos
 
-- [ ] Middleware de upload implementado;
-- [ ] Sistema de armazenamento local implementado;
-- [ ] Serviço de geração de nomes únicos;
+- [x] Middleware de upload implementado (multer);
+- [x] Sistema de armazenamento local implementado;
+- [x] Serviço de geração de nomes únicos;
 - [ ] Serviço de recuperação de imagens;
-- [ ] Diretório de uploads configurado;
+- [x] Diretório de uploads configurado;
 - [ ] Integração HTTP para acesso às imagens.
 
 ## Dependências
 
-- E03 — Ambiente de desenvolvimento Back-end
-- E04 — Implementação do esquema do banco de dados
-- E05 — Estrutura da API
+- E01 - Esquema do banco de dados
+- EP02 - Arquitetura Backend e API
 
 ## Definition of Done
 
-- [ ] Upload de imagens funcionando corretamente;
+- [x] Upload de imagens funcionando (para classificação de IA);
 - [ ] Recuperação HTTP de imagens funcionando;
 - [ ] Arquivos inválidos sendo rejeitados;
-- [ ] Arquivos armazenados corretamente no servidor;
-- [ ] Nomes únicos sendo gerados corretamente;
-- [ ] Integração com Docker funcionando.
+- [x] Arquivos armazenados corretamente no servidor;
+- [x] Nomes únicos sendo gerados corretamente;
+- [x] Integração com Docker funcionando.

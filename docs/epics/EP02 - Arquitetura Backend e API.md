@@ -8,24 +8,28 @@ Definir a arquitetura do backend e toda comunicação entre frontend e servidor.
 
 ---
 
-# E05 - Implementação de esquema de API
+# E01 - Implementação de Esquema de API
+
+## Área
+
+Back-end
 
 ## Objetivo
 
-Implementação de uma API para facilitar comunicação entre front-end e back-end.
+Implementar uma API REST documentada para comunicação entre front-end e back-end.
 
 ## Critérios Funcionais
 
 - [x] A API deve possuir rotas documentadas;
-- [x] A aPI deve definir rotas protegidas por perfil.
+- [x] A API deve definir rotas protegidas por perfil.
 
 ## Critérios Técnicos
 
-- [x] Swagger UI.
+- [x] Swagger UI (especificação OpenAPI em `docs/api/apiV1.yaml`).
 
 ## Artefatos
 
-- [x] Especificação OpenAPI;
+- [x] Especificação OpenAPI (`docs/api/apiV1.yaml`);
     APIs públicas:
 
     - [x] Criação de usuário;
@@ -45,23 +49,60 @@ Implementação de uma API para facilitar comunicação entre front-end e back-e
 
 ## Dependências
 
-- E04 - Implementação do esquema de banco de dados
+- EP03 - Modelagem e Persistência de Dados
 
 ## Definition of Done
 
-- [ ] Especificação válida OpenAPi;
-- [ ] Rotas documentadas.
+- [x] Especificação válida OpenAPI;
+- [x] Rotas documentadas (`docs/endpoints.md`).
 
 ---
 
-## Sistema global de validação
+# E02 - Middleware de Autenticação e Autorização
 
-- [ ] Validação de payloads.
+## Área
+
+Back-end
+
+## Objetivo
+
+Implementar middlewares de autenticação JWT e autorização por perfil.
+
+## Critérios Funcionais
+
+- [x] JWT (authService.ts: `verificarToken`, `verificarColetor`, `verificarAdminMiddleware`).
+
+## Definition of Done
+
+- [x] Middleware de autenticação implementado e funcional.
 
 ---
 
-## Middleware de autenticação e autorização
+# E03 - Integração com Google Maps API
 
-- [ ] JWT.
+## Área
 
----
+Back-end
+
+## Objetivo
+
+Integrar a API do Google Maps para exibição do mapa da UFAM e geolocalização (NF12).
+
+## Critérios Funcionais
+
+- [ ] Sistema deve suportar a API do Google Maps para exibir o mapa da UFAM (NF12);
+- [ ] Exibir pontos de ocorrências e aparições de animais no mapa (F03);
+- [ ] Integrar com PostGIS para consultas espaciais.
+
+## Critérios Técnicos
+
+- [ ] Chave de API do Google Maps configurada;
+- [ ] Endpoint para consulta de ocorrências georreferenciadas.
+
+## Dependências
+
+- EP03 - Modelagem e Persistência de Dados (PostGIS)
+
+## Definition of Done
+
+- [ ] Mapa da UFAM com pontos de ocorrências funcional.
