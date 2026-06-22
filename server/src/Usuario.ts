@@ -1,27 +1,14 @@
 /*
     classe Usuario
 */
-
-
-CREATE TABLE IF NOT EXISTS usuarios (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(150) NOT NULL,
-    reputacao real NOT NULL DEFAULT 0.0,
-    contato VARCHAR(20),
-    ajudante boolean NOT NULL DEFAULT FALSE,
-    criado_em TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-);
-
-
 export class Usuario {
     private id:number;
     private nome:string;
     private reputacao:number;
-    private contato:string[20];
+    private contato:number;
     private ajudante:boolean;
 
-    constructor(id:number, nome:string,reputacao:number, contato:string[20],ajudante:boolean){
+    constructor(id:number, nome:string,reputacao:number, contato:number,ajudante:boolean){
         this.id = id;
         this.nome = nome;
         this.reputacao = reputacao;
@@ -41,7 +28,7 @@ export class Usuario {
         return this.reputacao;
     }
 
-    public getContato():string[20]{
+    public getContato():number{
         return this.contato;
     }
 
@@ -61,7 +48,7 @@ export class Usuario {
         this.reputacao = reputacao;
     }
 
-    private setContato(contato:string[20]){
+    private setContato(contato:number){
         this.contato = contato;
     }
 

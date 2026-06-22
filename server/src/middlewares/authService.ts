@@ -115,7 +115,7 @@ export async function cadastrarUsuario(
   nome: string,
   email: string,
   senha: string,
-  contato?: string
+  contato: number
 ) {
   // Verifica se o email já está em uso
   const existente = await client.query(
@@ -134,20 +134,12 @@ export async function cadastrarUsuario(
     await client.query("BEGIN");
 
     const usuarioResult = await client.query(
-      `INSERT INTO usuarios (nome)
-       VALUES ($1)
+      `INSERT INTO usuarios (nome, contato)
+       VALUES ($1, $2)
        RETURNING id`,
-      [nome]
+      [nome, contato]
     );
     const usuarioId = usuarioResult.rows[0].id;
-    
-    if (contato){
-      await client.query(
-        `INSERT INTO coletores (usuario_id, contato)
-         VALUES ($1, $2)`,
-        [usuarioId, contato]
-      );
-    }
 
     await client.query(
       `INSERT INTO credenciais (usuario_id, email, senha)

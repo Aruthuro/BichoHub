@@ -90,7 +90,7 @@ export async function removerMensagem(id: number) {
 export async function listarColetoresDisponiveisNoHorario(horario: string) {
   const resultado = await client.query(
     `
-    SELECT u.nome, c.contato, p.inicio AS inicio_plantao, p.fim AS fim_plantao
+    SELECT u.nome, u.contato, p.inicio AS inicio_plantao, p.fim AS fim_plantao
     FROM plantoes p
     JOIN coletores c ON c.usuario_id = p.coletor_id
     JOIN usuarios u ON u.id = c.usuario_id
@@ -122,13 +122,13 @@ export async function listarSolicitacoes(usuarioId: number) {
 }
 
 
-export async function tornarColetor(usuarioId: number, contato: string) {
+export async function tornarColetor(usuarioId: number) {
   const resultado = await client.query(
-    `INSERT INTO coletores (usuario_id, contato)
-     VALUES ($1, $2)
+    `INSERT INTO coletores (usuario_id)
+     VALUES ($1)
      ON CONFLICT (usuario_id) DO NOTHING
      RETURNING usuario_id`,
-    [usuarioId, contato]
+    [usuarioId]
   );
   return resultado.rows[0] || null;
 }
@@ -146,10 +146,9 @@ export async function listarOcorrenciasAbertas() {
     SELECT o.id, o.tipo, o.data_captura, o.descricao_origem,
            o.observacoes, o.risco, o.ultimo_caso, o.estado,
            ST_AsText(o.origem_gps) AS origem_gps,
-           u.nome AS solicitante_nome, c.contato AS solicitante_contato
+           u.nome AS solicitante_nome, u.contato AS solicitante_contato
     FROM ocorrencias o
     JOIN usuarios u ON u.id = o.origem_solicitacao_id
-    LEFT JOIN coletores c ON c.usuario_id = u.id
     WHERE o.estado = 0
     ORDER BY o.ultimo_caso DESC, o.data_captura ASC
   `);
@@ -160,10 +159,9 @@ export async function buscarOcorrenciaPorId(id: number) {
   const resultado = await client.query(
     `SELECT o.*, ST_AsText(o.origem_gps) AS origem_gps,
             ST_AsText(o.destino_gps) AS destino_gps,
-            u.nome AS solicitante_nome, c.contato AS solicitante_contato
+            u.nome AS solicitante_nome, u.contato AS solicitante_contato
      FROM ocorrencias o
      JOIN usuarios u ON u.id = o.origem_solicitacao_id
-     LEFT JOIN coletores c ON c.usuario_id = u.id
      WHERE o.id = $1`,
     [id]
   );
@@ -327,7 +325,7 @@ export async function verificarAdmin(usuarioId: number): Promise<boolean> {
 
 export async function listarTodosUsuarios() {
   const resultado = await client.query(`
-    SELECT u.id, u.nome, u.reputacao, c.contato, u.ajudante, u.criado_em,
+    SELECT u.id, u.nome, u.reputacao, u.contato, u.ajudante, u.criado_em,
           CASE WHEN c.usuario_id IS NOT NULL THEN true ELSE false END AS eh_coletor,
           CASE WHEN a.usuario_id IS NOT NULL THEN true ELSE false END AS eh_admin,
           cred.email
@@ -346,11 +344,10 @@ export async function listarTodasOcorrencias(filtro?: string) {
           ST_AsText(o.origem_gps) AS origem_gps,
           ST_AsText(o.destino_gps) AS destino_gps,
           u_sol.nome AS solicitante_nome,
-          c_sol.contato AS solicitante_contato,
+          u_sol.contato AS solicitante_contato,
           u_col.nome AS coletor_nome
     FROM ocorrencias o
     JOIN usuarios u_sol ON u_sol.id = o.origem_solicitacao_id
-    LEFT JOIN coletores c_sol ON c_sol.usuario_id = u_sol.id
     LEFT JOIN coletores c ON c.usuario_id = o.coletor_id
     LEFT JOIN usuarios u_col ON u_col.id = c.usuario_id
   `;
