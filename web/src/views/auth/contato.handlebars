@@ -1,0 +1,24 @@
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="card-title text-center mb-4">Informe seu contato.</h3>
+
+                {{#if error}}
+                    <div class="alert alert-danger text-center" role="alert">
+                        {{error}}
+                    </div>
+                {{/if}}
+
+                <form action="/auth/google/quasela" method="POST" onsubmit="this.contato.value=this.contato.value.replace(/\D/g,'')">
+                    <div class="mb-3">
+                        <label for="contato" class="form-label">Contato</label>
+                        <input type="tel" class="form-control" id="contato" name="contato" placeholder="Número de telefone" pattern="^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$" maxlength="15" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100">Cadastrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

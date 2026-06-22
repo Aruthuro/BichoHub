@@ -1,5 +1,5 @@
 function handleCredentialResponse(response) {
-    fetch('/googleauth', {
+    fetch('/auth/google', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: response.credential })
@@ -8,8 +8,10 @@ function handleCredentialResponse(response) {
     .then(data => {
         if (data.success) {
             window.location.href = "/ocorrencias/abertas";
+        } else if (data.redirect) {
+            window.location.href = data.redirect;
         } else {
-            console.log("Falha na autenticação");
+            console.log(data.error || "Falha na autenticação");
         }
     })
     .catch(err => console.error(err));

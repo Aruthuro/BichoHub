@@ -1,4 +1,3 @@
-import { publicPath } from './constants.js';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import morgan from "morgan";
 import cookieParser from 'cookie-parser';
@@ -8,12 +7,14 @@ import session from "express-session";
 import { engine } from 'express-handlebars';
 import { v4 as uuidv4 } from "uuid";
 import validateEnv from './utils/validateEnv.js';
+import { erroFaltando, erroServidor } from './middleware/erros.js';
 
 dotenv.config();
 validateEnv();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+export const publicPath = `${process.cwd()}/public`;
 
 app.use(morgan("short"));
 
@@ -29,6 +30,7 @@ app.use(session({
 	rolling: true,
 	cookie: {
 		httpOnly: true,
+        sameSite: "lax",
 		maxAge: 24 * 60 * 60 * 1000
 	}
 }));
@@ -63,13 +65,8 @@ app.use("/sobre", (_req, res) => {
         description2: "O intúito é permitir a fácil vizualização desses registros."
     });
 });
-app.use((_req, res) => {
-    res.status(404).render("error", { status: 404, message: "Página não encontrada." });
-});
-app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    console.error(err);
-    res.status(500).render("error", { status: 500, message: "Erro interno do servidor." });
-});
+app.use(erroFaltando);
+app.use(erroServidor);
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);

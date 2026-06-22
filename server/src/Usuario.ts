@@ -5,10 +5,10 @@ export class Usuario {
     private id:number;
     private nome:string;
     private reputacao:number;
-    private contato:number;
+    private contato:string[12];
     private ajudante:boolean;
 
-    constructor(id:number, nome:string,reputacao:number, contato:number,ajudante:boolean){
+    constructor(id:number, nome:string,reputacao:number, contato:string[12], ajudante:boolean){
         this.id = id;
         this.nome = nome;
         this.reputacao = reputacao;
@@ -28,7 +28,7 @@ export class Usuario {
         return this.reputacao;
     }
 
-    public getContato():number{
+    public getContato():string[12]{
         return this.contato;
     }
 
@@ -48,7 +48,7 @@ export class Usuario {
         this.reputacao = reputacao;
     }
 
-    private setContato(contato:number){
+    private setContato(contato:string[12]){
         this.contato = contato;
     }
 
