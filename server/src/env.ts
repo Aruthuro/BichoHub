@@ -24,5 +24,6 @@ export const env = cleanEnv(process.env, {
     default: `http://localhost:${process.env.PORT_YOLO || 8001}` 
   }),
 
-  JWT_SECRET: str() 
+  JWT_SECRET: str(),
+  WEB_CLIENT_ID: str()
 })

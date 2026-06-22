@@ -1,0 +1,53 @@
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="card-title text-center mb-4">Entrar</h3>
+
+                {{#if error}}
+                    <div class="alert alert-danger text-center" role="alert">
+                        {{error}}
+                    </div>
+                {{/if}}
+
+                <p class="text-center mt-3 mb-0">
+                    Não tem conta?
+                </p>
+                <br>
+                <div class="google-signin-wrapper">
+                    <div
+                        id="g_id_onload"
+                        data-auto_prompt="false"
+                        data-callback="handleCredentialResponse"
+                        data-client_id="{{client_id}}"
+                    ></div>
+                    <div class="g_id_signin"></div>
+                </div>
+                <p class="text-center mt-3 mb-0">
+                    ou <a href="/signup">Cadastre-se</a>.
+                </p>
+                <br>
+
+                <form id="loginForm" action="/login" method="POST">
+                    <input type="hidden" name="redirect" value="{{redirect}}">
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="seu@email.com" required autofocus>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Sua senha" required>
+                    </div>
+
+                    <div class="alert alert-danger text-center d-none" id="loginError" role="alert"></div>
+
+                    <button type="submit" class="btn btn-dark w-100">Entrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/handleCredentialResponse.js"></script>

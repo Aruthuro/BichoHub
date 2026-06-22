@@ -8,6 +8,7 @@ import {
   listarSolicitacoes,
   listarColetoresDisponiveisNoHorario,
   listarOcorrenciasAbertas,
+  listarOcorrenciasGPS,
   buscarOcorrenciaPorId,
   aceitarOcorrencia,
   listarOcorrenciasDoColetor,
@@ -21,7 +22,7 @@ import {
   tornarAdministrador,
   removerUsuario
 } from "../bancoDeDados.js";
-import { verificarToken, verificarColetor, realizarLogin, cadastrarUsuario, verificarAdminMiddleware } from "../middlewares/authService.js";
+import { verificarToken, verificarTokenGoogle, verificarColetor, realizarLogin, realizarLoginGoogle, cadastrarUsuario, verificarAdminMiddleware } from "../middlewares/authService.js";
 import { type CustomRequest } from "../middlewares/authService.js"
 import { identificarAnimal, type RequestComAnimal } from "../middlewares/deteccaoAnimal.js";
 
@@ -168,19 +169,33 @@ router.get("/v1/usuarios/listar", verificarToken, async (req, res, next) => {
 });
 
 /*
+ * loging com google
+*/
+router.post("/v1/usuarios/google", verificarTokenGoogle, async (req, res, next) => {
+  try {
+    const resultado = await realizarLoginGoogle(req.googleUser);
+    return res.json(resultado);
+  } catch (erro: any) {
+    console.log(erro)
+    erro.status = 400;
+    next(erro);
+  }
+});
+
+/*
   login do usuario
 */
 router.post("/v1/usuarios/login", async (req, res, next) => {
   try {
     const { email, senha } = req.body;
     if (!email || !senha) {
-      return res.status(400).json({ erro: "Email e senha são obrigatórios" });
+      return res.status(403).json({ erro: "Email e senha são obrigatórios" });
     }
     const resultado = await realizarLogin(email, senha);
     return res.json(resultado);
   } catch (erro: any) {
     console.log(erro)
-    erro.status = 403;
+    erro.status = 400;
     next(erro);
   }
 });
@@ -262,13 +277,32 @@ router.get(
   listar historico de ocorrencias do coletor autenticado
 */
 router.get(
-  "/v1/coletores/ocorrencias/listar",
+  "/v1/coletores/ocorrencias/historico",
   verificarToken,
   verificarColetor,
   async (req, res, next) => {
     try {
       const coletorId = (req as CustomRequest).usuario.id;
       const ocorrencias = await listarOcorrenciasDoColetor(coletorId);
+      res.status(200).json(ocorrencias);
+    } catch (erro) {
+      console.error(erro);
+      next(erro);
+    }
+  }
+);
+
+/*
+  listar todas as ocorrências
+*/
+router.get(
+  "/v1/coletores/ocorrencias/listar",
+  verificarToken,
+  verificarColetor,
+  async (req, res, next) => {
+    try {
+      const coletorId = (req as CustomRequest).usuario.id;
+      const ocorrencias = await listarOcorrenciasGPS();
       res.status(200).json(ocorrencias);
     } catch (erro) {
       console.error(erro);
@@ -411,29 +445,6 @@ router.patch(
 );
 
 /*
-  transforma um usuario em coletor (apenas para testes, sem autenticacao)
-*/
-router.post("/v1/teste/tornar-coletor/:id", async (req, res, next) => {
-  try {
-    const usuarioId = Number(req.params.id);
-    if (!usuarioId || isNaN(usuarioId)) {
-      return res.status(400).json({ erro: "ID inválido" });
-    }
-    const { cpf } = req.body;
-    const resultado = await tornarColetor(usuarioId, cpf);
-    if (!resultado) {
-      return res.status(409).json({ erro: "Usuário já é um coletor" });
-    }
-    res.status(201).json({ mensagem: "Usuário transformado em coletor", usuario_id: resultado.usuario_id });
-  } catch (erro: any) {
-    if (erro.code === "23503") {
-      return res.status(404).json({ erro: "Usuário não encontrado" });
-    }
-    next(erro);
-  }
-});
-
-/*
   =====================================================
   ROTAS DE ADMINISTRADOR (protegidas por token + admin)
   =====================================================
@@ -488,8 +499,7 @@ router.post("/v1/admin/usuarios/:id/tornar-admin", verificarToken, verificarAdmi
   try {
     const usuarioId = Number(req.params.id);
     const body = req.body || {};
-    const { cpf } = body;
-    const resultado = await tornarAdministrador(usuarioId, cpf);
+    const resultado = await tornarAdministrador(usuarioId);
     if (!resultado) {
       return res.status(409).json({ erro: "Usuário já é administrador" });
     }
@@ -506,8 +516,8 @@ router.post("/v1/admin/usuarios/:id/tornar-coletor", verificarToken, verificarAd
   try {
     const usuarioId = Number(req.params.id);
     const body = req.body || {};
-    const { cpf } = body;
-    const resultado = await tornarColetor(usuarioId, cpf);
+    const { contato } = body;
+    const resultado = await tornarColetor(usuarioId, contato);
     if (!resultado) {
       return res.status(409).json({ erro: "Usuário já é coletor" });
     }
@@ -538,6 +548,7 @@ router.delete("/v1/admin/usuarios/:id", verificarToken, verificarAdminMiddleware
   }
 });
 
+/*
   identificação do animal
 */
 router.post("/v1/animais/identificar", 
@@ -561,7 +572,7 @@ router.post("/v1/animais/identificar",
         pipeline: req.animalIdentificado.pipeline,
         timestamp: new Date().toISOString()
       });
-    } catch (error) {/
+    } catch (error) {
       console.log(`Error: ${error}`)
       next(error);
     }

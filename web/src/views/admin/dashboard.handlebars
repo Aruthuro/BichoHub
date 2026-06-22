@@ -1,0 +1,64 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3>Dashboard</h3>
+</div>
+
+{{#if erro}}
+<div class="alert alert-danger">{{erro}}</div>
+{{/if}}
+
+{{#if stats}}
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="card shadow-sm border-info">
+      <div class="card-body text-center">
+        <h1 class="text-info">{{stats.total_usuarios}}</h1>
+        <p class="text-muted mb-0">Usuários</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm border-info">
+      <div class="card-body text-center">
+        <h1 class="text-info">{{stats.total_ocorrencias}}</h1>
+        <p class="text-muted mb-0">Ocorrências</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm border-info">
+      <div class="card-body text-center">
+        <h1 class="text-info">{{stats.ocorrencias_abertas}}</h1>
+        <p class="text-muted mb-0">Abertas</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm border-info">
+      <div class="card-body text-center">
+        <h1 class="text-info">{{stats.total_coletores}}</h1>
+        <p class="text-muted mb-0">Coletores</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-light"><h5 class="mb-0">Últimas Ocorrências</h5></div>
+      <ul class="list-group list-group-flush">
+        {{#each stats.ultimas_ocorrencias}}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <a href="/admin/ocorrencias/{{id}}">#{{id}} - {{solicitante_nome}}</a>
+          <span class="badge bg-secondary">{{data_captura}}</span>
+        </li>
+        {{else}}
+        <li class="list-group-item text-muted">Nenhuma ocorrência</li>
+        {{/each}}
+      </ul>
+    </div>
+  </div>
+</div>
+{{else}}
+<div class="alert alert-info">Nenhum dado disponível.</div>
+{{/if}}

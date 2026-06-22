@@ -1,0 +1,41 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3>Ocorrências que atendi</h3>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-hover align-middle shadow-sm bg-white rounded">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Tipo</th>
+        <th>Solicitante</th>
+        <th>Data</th>
+        <th>Estado</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each ocorrencias}}
+      <tr>
+        <td>{{id}}</td>
+        <td>{{tipo}}</td>
+        <td>{{solicitante_nome}}</td>
+        <td>{{data_captura}}</td>
+        <td>
+            {{#if (eq estado 0)}}<span class="badge bg-danger">Aberta</span>{{/if}}
+            {{#if (eq estado 2)}}<span class="badge bg-warning text-dark">Em Andamento</span>{{/if}}
+            {{#if (eq estado 3)}}<span class="badge bg-success">Encerrada</span>{{/if}}
+            {{#if (eq estado 5)}}<span class="badge bg-info">Sob Cuidados</span>{{/if}}
+        </td>
+        <td class="text-end">
+          <a href="/ocorrencias/{{id}}" class="btn btn-sm btn-outline-primary">Detalhes</a>
+        </td>
+      </tr>
+      {{else}}
+      <tr>
+        <td colspan="6" class="text-center py-4">Você ainda não aceitou nenhuma ocorrência.</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>

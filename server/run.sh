@@ -72,13 +72,12 @@ run_make_admin() {
     fi
 
     ID="$2"
-    CPF=$(printf "%011d" "$ID")
 
     echo "============================================"
     echo "  Promovendo usuario $ID a administrador..."
     echo "============================================"
 
-    docker compose --env-file "$ENV_FILE" exec -T db_postgres psql -U postgres -d bichohub -c "INSERT INTO administrador (usuario_id, cpf) VALUES ($ID, '$CPF') ON CONFLICT (usuario_id) DO NOTHING;"
+    docker compose --env-file "$ENV_FILE" exec -T db_postgres psql -U postgres -d bichohub -c "INSERT INTO administrador (usuario_id) VALUES ($ID) ON CONFLICT (usuario_id) DO NOTHING;"
 
     if [ $? -eq 0 ]; then
         echo ""
