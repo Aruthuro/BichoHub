@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import cv2
@@ -162,12 +162,13 @@ async def detect_animal(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/detect/base64")
-async def detect_animal_base64(data: dict):
+async def detect_animal_base64(request: Request):
     """Endpoint que recebe imagem em base64"""
     try:
         import base64
         
-        image_data = base64.b64decode(data['imagem'])
+        body = await request.json()
+        image_data = base64.b64decode(body['imagem'])
         resultado = classificador.classificar_animal(image_data)
         
         return JSONResponse(content=resultado)
