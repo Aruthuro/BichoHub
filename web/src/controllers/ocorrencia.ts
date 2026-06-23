@@ -52,8 +52,8 @@ const responder = async (req: Request, res: Response) => {
 };
 
 const editar = async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
     try {
-        const id = Number(req.params.id);
         const { estado, status_saude, observacoes, risco, equipamento_captura, descricao_destino, destino_gps } = req.body;
 
         await ocorrenciaService.atualizarOcorrencia(req.token!, id, {
