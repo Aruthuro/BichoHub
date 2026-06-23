@@ -21,7 +21,7 @@ const detalhes = async (req: Request, res: Response) => {
 
 const listarMinhas = async (req: Request, res: Response) => {
     const ocorrencias = await ocorrenciaService.getOcorrenciasByColetor(req.token!);
-    res.render("ocorrencias/listar", { ocorrencias });
+    res.render("ocorrencias/historico", { ocorrencias });
 };
 
 const responder = async (req: Request, res: Response) => {
@@ -63,7 +63,7 @@ const encerrar = async (req: Request, res: Response) => {
     const { desfecho, descricao_soltura } = req.body;
 
     await ocorrenciaService.finalizarOcorrencia(req.token!, id, desfecho, descricao_soltura);
-    res.redirect("/ocorrencias/listar");
+    res.redirect("/ocorrencias/historico");
 };
 
 export default { listarAbertas, detalhes, listarMinhas, mapa, responder, editar, encerrar }

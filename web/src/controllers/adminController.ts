@@ -22,6 +22,29 @@ const listarUsuarios = async (req: Request, res: Response) => {
     }
 };
 
+const listarOcorrencias = async (req: Request, res: Response) => {
+    try {
+        const filtro = req.query.filtro as string | undefined;
+        const ocorrencias = await adminService.getOcorrencias(req.token!, filtro);
+        res.render("admin/ocorrencias", { ocorrencias, filtro });
+    } catch (erro: any) {
+        const msg = erro?.response?.data?.erro || erro?.message || "Erro ao listar ocorrências";
+        res.render("admin/ocorrencias", { ocorrencias: [], erro: msg });
+    }
+};
+
+const detalhes = async (req: Request, res: Response) => {
+    try {
+        const id = Number(req.params.id);
+        const ocorrencia = await adminService.getOcorrenciaById(req.token!, id);
+        if (!ocorrencia) return res.status(404).send("Ocorrência não encontrada");
+        res.render("ocorrencias/detalhes", { ocorrencia });
+    } catch (erro: any) {
+        const msg = erro?.response?.data?.erro || erro?.message || "Erro ao carregar ocorrência";
+        res.status(500).send(msg);
+    }
+};
+
 const promoverAdmin = async (req: Request, res: Response) => {
     try {
         const id = Number(req.params.id);
@@ -56,4 +79,4 @@ const remover = async (req: Request, res: Response) => {
     }
 };
 
-export default { dashboard, listarUsuarios, promoverAdmin, promoverColetor, remover };
+export default { dashboard, listarUsuarios, listarOcorrencias, detalhes, promoverAdmin, promoverColetor, remover };
