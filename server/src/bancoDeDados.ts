@@ -110,6 +110,7 @@ export async function listarSolicitacoes(usuarioId: number) {
     `
     SELECT o.id, o.data_captura, o.descricao_origem, o.descricao_destino,
           o.observacoes, o.risco, o.tipo, o.estado, o.referencia_imagem,
+          o.classificacao, o.confianca_classificacao,
           u_coletor.nome AS coletor_nome
     FROM ocorrencias o
     LEFT JOIN coletores c ON o.coletor_id = c.usuario_id
@@ -146,6 +147,7 @@ export async function listarOcorrenciasAbertas() {
   const resultado = await client.query(`
     SELECT o.id, o.tipo, o.data_captura, o.descricao_origem,
            o.observacoes, o.risco, o.ultimo_caso, o.estado,
+           o.referencia_imagem, o.classificacao, o.confianca_classificacao,
            ST_AsText(o.origem_gps) AS origem_gps,
            u.nome AS solicitante_nome, u.contato AS solicitante_contato
     FROM ocorrencias o
@@ -185,6 +187,7 @@ export async function listarOcorrenciasDoColetor(coletorId: number) {
     `SELECT o.id, o.tipo, o.data_captura, o.descricao_origem,
             o.observacoes, o.risco, o.estado, o.status_saude,
             o.desfecho, o.descricao_soltura,
+            o.referencia_imagem, o.classificacao, o.confianca_classificacao,
             ST_AsText(o.origem_gps) AS origem_gps,
             ST_AsText(o.destino_gps) AS destino_gps,
             u.nome AS solicitante_nome
@@ -414,5 +417,16 @@ export async function buscarCredencialPorEmail(email: string): Promise<Credencia
     [email]
   );
 
+  return resultado.rows[0] || null;
+}
+
+export async function atualizarClassificacao(id: number, classificacao: string, confianca: number) {
+  const resultado = await client.query(
+    `UPDATE ocorrencias
+     SET classificacao = $1, confianca_classificacao = $2
+     WHERE id = $3
+     RETURNING id`,
+    [classificacao, confianca, id]
+  );
   return resultado.rows[0] || null;
 }

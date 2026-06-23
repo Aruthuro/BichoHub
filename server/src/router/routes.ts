@@ -20,11 +20,13 @@ import {
   listarTodasOcorrencias,
   obterDashboard,
   tornarAdministrador,
-  removerUsuario
+  removerUsuario,
+  atualizarClassificacao
 } from "../bancoDeDados.js";
 import { verificarToken, verificarTokenGoogle, verificarColetor, realizarLogin, realizarLoginGoogle, cadastrarUsuario, verificarAdminMiddleware, type AutenticateRequest } from "../middlewares/authService.js";
 import { type CustomRequest } from "../middlewares/authService.js"
 import { identificarAnimal, type RequestComAnimal } from "../middlewares/deteccaoAnimal.js";
+import yoloService from "../services/yoloServices.js";
 
 const router = Router();
 
@@ -244,6 +246,15 @@ router.post("/v1/usuarios/registrar-ocorrencia", verificarToken, async (req, res
       usuarioId, tipo, gps_origem, data_captura,
       descricao_origem, observacoes, risco, referencia_imagem
     );
+
+    if (referencia_imagem) {
+      yoloService.classificarAnimalBase64(referencia_imagem).then(resultado => {
+        if (resultado.success && resultado.classificacao_final) {
+          atualizarClassificacao(ocorrencia.id, resultado.classificacao_final, resultado.confidence_final || 0)
+            .catch(err => console.error("Erro ao atualizar classificação:", err));
+        }
+      }).catch(err => console.error("Erro na classificação YOLO:", err));
+    }
 
     res.status(201).json({
       mensagem: "Ocorrência registrada",

@@ -11,5 +11,7 @@ data class OcorrenciaRequest(
     @SerializedName("descricao_origem")
     val descricaoOrigem: String? = null,
     val observacoes: String? = null,
-    val risco: String? = null
+    val risco: String? = null,
+    @SerializedName("referencia_imagem")
+    val referenciaImagem: String? = null
 )

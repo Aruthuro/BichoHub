@@ -1,6 +1,10 @@
 package br.edu.bichohub.ui.screens
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -34,6 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import br.edu.bichohub.api.RetrofitObject
 import br.edu.bichohub.api.datac.OcorrenciaRequest
@@ -42,8 +48,10 @@ import br.edu.bichohub.ui.theme.Template
 import br.edu.bichohub.ui.utils.NotificationHelper
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.Instant
+import java.util.Base64
 import java.util.UUID
 
 @Serializable
@@ -71,6 +79,18 @@ fun OcorrenciaScreen(onSuccess: () -> Unit, onVoltar: () -> Unit) {
     ) { sucesso ->
         if (!sucesso) {
             fotoURI = null
+        }
+    }
+
+    val permissaoCamera = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { concedida ->
+        if (concedida) {
+            val uri = criaURI(context)
+            fotoURI = uri
+            gerenteCamera.launch(uri)
+        } else {
+            Toast.makeText(context, "Permissão de câmera necessária.", Toast.LENGTH_SHORT).show()
         }
     }
     val gerenteGaleria = rememberLauncherForActivityResult(
@@ -112,7 +132,31 @@ fun OcorrenciaScreen(onSuccess: () -> Unit, onVoltar: () -> Unit) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = { gerenteCamera.launch(criaURI(context)) },
+                        onClick = {
+                            when {
+                                ContextCompat.checkSelfPermission(
+                                    context, Manifest.permission.CAMERA
+                                ) == PackageManager.PERMISSION_GRANTED -> {
+                                    val uri = criaURI(context)
+                                    fotoURI = uri
+                                    gerenteCamera.launch(uri)
+                                }
+                                ActivityCompat.shouldShowRequestPermissionRationale(
+                                    context as android.app.Activity,
+                                    Manifest.permission.CAMERA
+                                ) -> {
+                                    Toast.makeText(
+                                        context,
+                                        "Conceda permissão para tirar fotos.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    permissaoCamera.launch(Manifest.permission.CAMERA)
+                                }
+                                else -> {
+                                    permissaoCamera.launch(Manifest.permission.CAMERA)
+                                }
+                            }
+                        },
                         modifier = Modifier.weight(1f)
                     ) {
                         Text("Tirar foto")
@@ -173,6 +217,24 @@ fun OcorrenciaScreen(onSuccess: () -> Unit, onVoltar: () -> Unit) {
                 carregando = true
                 scope.launch {
                     try {
+                        val imagemBase64 = fotoURI?.let { uri ->
+                            context.contentResolver.openInputStream(uri)?.use { stream ->
+                                val bitmap = BitmapFactory.decodeStream(stream)
+                                val maxDim = 720f
+                                val escala = minOf(
+                                    maxDim / bitmap.width.coerceAtLeast(1),
+                                    maxDim / bitmap.height.coerceAtLeast(1),
+                                    1f
+                                )
+                                val w = (bitmap.width * escala).toInt()
+                                val h = (bitmap.height * escala).toInt()
+                                val comprimida = Bitmap.createScaledBitmap(bitmap, w, h, true)
+                                val saida = ByteArrayOutputStream()
+                                comprimida.compress(Bitmap.CompressFormat.JPEG, 50, saida)
+                                Base64.getEncoder().encodeToString(saida.toByteArray())
+                            }
+                        }
+
                         RetrofitObject.service.registrarOcorrencia(
                             OcorrenciaRequest(
                                 tipo = tipoChamada!!.apiValue,
@@ -180,7 +242,8 @@ fun OcorrenciaScreen(onSuccess: () -> Unit, onVoltar: () -> Unit) {
                                 dataCaptura = Instant.now().toString(),
                                 descricaoOrigem = descricao.text.toString().ifBlank { null },
                                 observacoes = null,
-                                risco = null
+                                risco = null,
+                                referenciaImagem = imagemBase64
                             )
                         )
                         NotificationHelper.showNotification(
