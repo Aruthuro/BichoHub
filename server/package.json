@@ -12,6 +12,14 @@
     "start": "cross-env NODE_ENV=production node build/index.js"
   },
   "dependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^25.9.0",
+    "@types/pg": "^8.20.0",
+    "@types/qrcode-terminal": "^0.12.2",
     "axios": "^1.17.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
@@ -26,14 +34,6 @@
     "whatsapp-web.js": "^1.26.0"
   },
   "devDependencies": {
-    "@types/bcrypt": "^6.0.0",
-    "@types/express": "^5.0.6",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/morgan": "^1.9.10",
-    "@types/multer": "^1.4.12",
-    "@types/node": "^25.9.0",
-    "@types/pg": "^8.20.0",
-    "@types/qrcode-terminal": "^0.12.2",
     "cross-env": "^10.1.0",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
