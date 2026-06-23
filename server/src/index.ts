@@ -18,7 +18,7 @@ const publicPath = `${process.cwd()}/public`;
   middleware para converter JSON do body
   em objeto JavaScript acessível por req.body
 */ 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 
 // para logs
 app.use(logger);
