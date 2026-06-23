@@ -16,6 +16,14 @@ export interface LoginResultado {
   nome: string;
 }
 
+export interface AutenticateRequest extends Request {
+  googleUser:{
+    googleId:string,
+    email:string,
+    name:string
+  }
+}
+
 export async function verificarTokenGoogle(req: Request, res: Response, next: NextFunction) {
   const { token } = req.body;
   if (!token) {
@@ -30,8 +38,12 @@ export async function verificarTokenGoogle(req: Request, res: Response, next: Ne
     if (!payload || !payload.email || !payload.name) {
       return res.status(401).json({ erro: "Token mal formatado" });
     }
-    req.googleUser = { googleId: payload.sub, email: payload.email, name: payload.name };
-    
+
+    (req as AutenticateRequest).googleUser = { 
+      googleId: payload.sub, 
+      email: payload.email, 
+      name: payload.name 
+    };
     next();
   } catch (erro) {
     return res.status(401).json({ erro: "Token inválido ou expirado" });

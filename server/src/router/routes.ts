@@ -22,7 +22,7 @@ import {
   tornarAdministrador,
   removerUsuario
 } from "../bancoDeDados.js";
-import { verificarToken, verificarTokenGoogle, verificarColetor, realizarLogin, realizarLoginGoogle, cadastrarUsuario, verificarAdminMiddleware } from "../middlewares/authService.js";
+import { verificarToken, verificarTokenGoogle, verificarColetor, realizarLogin, realizarLoginGoogle, cadastrarUsuario, verificarAdminMiddleware, type AutenticateRequest } from "../middlewares/authService.js";
 import { type CustomRequest } from "../middlewares/authService.js"
 import { identificarAnimal, type RequestComAnimal } from "../middlewares/deteccaoAnimal.js";
 
@@ -173,7 +173,8 @@ router.get("/v1/usuarios/listar", verificarToken, async (req, res, next) => {
 */
 router.post("/v1/usuarios/google", verificarTokenGoogle, async (req, res, next) => {
   try {
-    const resultado = await realizarLoginGoogle(req.googleUser);
+    const authReq = req as AutenticateRequest;
+    const resultado = await realizarLoginGoogle(authReq.googleUser);
     return res.json(resultado);
   } catch (erro: any) {
     console.log(erro)
@@ -517,7 +518,7 @@ router.post("/v1/admin/usuarios/:id/tornar-coletor", verificarToken, verificarAd
     const usuarioId = Number(req.params.id);
     const body = req.body || {};
     const { contato } = body;
-    const resultado = await tornarColetor(usuarioId, contato);
+    const resultado = await tornarColetor(usuarioId);
     if (!resultado) {
       return res.status(409).json({ erro: "Usuário já é coletor" });
     }
