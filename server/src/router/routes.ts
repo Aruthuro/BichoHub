@@ -250,7 +250,7 @@ router.post("/v1/usuarios/registrar-ocorrencia", verificarToken, async (req, res
     if (referencia_imagem) {
       yoloService.classificarAnimalBase64(referencia_imagem).then(resultado => {
         if (resultado.success && resultado.classificacao_final) {
-          atualizarClassificacao(ocorrencia.id, resultado.classificacao_final, resultado.confidence_final || 0)
+          atualizarClassificacao(ocorrencia.id, resultado.classificacao_final, Math.round((resultado.confidence_final || 0) * 100))
             .catch(err => console.error("Erro ao atualizar classificação:", err));
         }
       }).catch(err => console.error("Erro na classificação YOLO:", err));
