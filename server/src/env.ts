@@ -9,7 +9,7 @@ dotenv.config({
 export const env = cleanEnv(process.env, {
   NODE_ENV: str(),
   PORT: port(),
-  PORT_YOLO: port(),
+  PORT_YOLO: port({ default: 6767 }),
 
   DIR_LOG: str({ default: "logs" }),
   FORMAT_LOG: str({ default: "simple" }),

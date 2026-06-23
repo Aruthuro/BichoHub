@@ -83,9 +83,13 @@ async function iniciarServidor() {
 
   if (env.NODE_ENV !== "test") {
     try {
-      iniciarWhatsAppBot();
+      if (!process.env.RENDER) {
+        iniciarWhatsAppBot();
+      } else {
+        console.log("WhatsApp Bot desabilitado — sem Chromium no Render");
+      }
     } catch (e) {
-      console.log("WhatsApp bot nao iniciou (rode novamente com npm run dev)");
+      console.log("WhatsApp bot nao disponivel neste ambiente");
     }
   }
 }
