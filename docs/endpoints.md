@@ -11,7 +11,7 @@ GET /api/status
 Exemplo:
 
 ```txt
-http://localhost:6969/api/status
+https://bichohub-server.onrender.com/api/status
 ```
 
 ---

@@ -7,8 +7,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitObject {
     // Para emulador Android local:      http://10.0.2.2:6969/api/
-    // Para ngrok (expor na internet):   https://teu-subdomain.ngrok-free.app/api/
-    private const val URL = "http://10.0.2.2:6969/api/"
+    // Produção (Render):                https://bichohub-server.onrender.com/api/
+    private const val URL = "https://bichohub-server.onrender.com/api/"
 
     private val authInterceptor = Interceptor { chain ->
         val request = chain.request().newBuilder()

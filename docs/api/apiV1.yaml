@@ -6,7 +6,7 @@ info:
   description: API para catalogação, resgate, coleta e condução de animais.
 
 servers:
-  - url: http://localhost:6969
+  - url: https://bichohub-server.onrender.com
 
 tags:
   - name: Usuários
