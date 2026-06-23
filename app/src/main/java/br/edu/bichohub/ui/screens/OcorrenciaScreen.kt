@@ -39,6 +39,7 @@ import br.edu.bichohub.api.RetrofitObject
 import br.edu.bichohub.api.datac.OcorrenciaRequest
 import br.edu.bichohub.ui.theme.BichoHubTheme
 import br.edu.bichohub.ui.theme.Template
+import br.edu.bichohub.ui.utils.NotificationHelper
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.io.File
@@ -182,9 +183,17 @@ fun OcorrenciaScreen(onSuccess: () -> Unit, onVoltar: () -> Unit) {
                                 risco = null
                             )
                         )
+                        NotificationHelper.showNotification(
+                            context,
+                            title = "Ocorrência Registrada",
+                            message = "Sua ocorrência foi enviada com sucesso!")
                         Toast.makeText(context, "Ocorrência registrada!", Toast.LENGTH_SHORT).show()
                         onSuccess()
                     } catch (e: Exception) {
+                        NotificationHelper.showNotification(
+                            context,
+                            title = "Ocorreu um erro!",
+                            message = "Ocorreu um erro durante o envio da ocorrência,")
                         Toast.makeText(context, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
                     } finally {
                         carregando = false
