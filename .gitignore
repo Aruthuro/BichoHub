@@ -12,4 +12,5 @@ server/.wwebjs_auth/
 server/.wwebjs_cache/
 .env.development
 .env.production
+.env
 !.env.example
