@@ -9,10 +9,17 @@
   <h3>Mapa de Ocorrências</h3>
 </div>
 
+{{#if ocorrencias.length}}
 <div class="card shadow-sm">
   <div class="card-body p-2">
     <div id="map"></div>
   </div>
 </div>
-
+<script>
+console.log("Ocorrências:", {{json ocorrencias}});
+const ocorrencias = {{{json ocorrencias}}};
+</script>
 <script src="/js/mapa.js"></script>
+{{else}}
+<div class="alert alert-info text-center">Nenhuma ocorrência registrada.</div>
+{{/if}}

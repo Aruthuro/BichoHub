@@ -13,6 +13,7 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
       - ../models:/usr/src/app/models
+      - /usr/src/app/.wwebjs_auth
 
     environment:
       - YOLO_MODELS_DIR=/usr/src/app/models/runs/classify/Triagem

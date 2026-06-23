@@ -1,8 +1,21 @@
 import { api } from "../constants.js"
 
-export async function logingoogle(credential: string): Promise<string> {
+const headers = (token: string) => ({ Authorization: `Bearer ${token}` });
+
+export async function checkRole(token: string): Promise<{ eh_admin: boolean; eh_coletor: boolean }> {
+    const [admin, coletor] = await Promise.allSettled([
+        api.get('/admin/dashboard', { headers: headers(token) }),
+        api.get('/coletores/ocorrencias/abertas', { headers: headers(token) })
+    ]);
+    return {
+        eh_admin: admin.status === "fulfilled",
+        eh_coletor: coletor.status === "fulfilled"
+    };
+}
+
+export async function logingoogle(credential: string): Promise<any> {
     const resp = await api.post('/usuarios/google', { token: credential });
-    return resp.data.token as string;
+    return resp.data;
 }
 
 export async function login(email: string, senha: string): Promise<string> {

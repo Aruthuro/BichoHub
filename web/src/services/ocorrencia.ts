@@ -24,7 +24,7 @@ export async function getOcorrenciasByColetor(token: string): Promise<Ocorrencia
 }
 
 export async function getOcorrencias(token: string): Promise<Ocorrencia[]> {
-    const resp = await api.get('/coletores/ocorrencias/listar', { headers: headers(token) });
+    const resp = await api.get('/coletores/ocorrencias/historico', { headers: headers(token) });
     return resp.data;
 }
 

@@ -115,7 +115,7 @@ export async function cadastrarUsuario(
   nome: string,
   email: string,
   senha: string,
-  contato: number
+  contato: string
 ) {
   // Verifica se o email já está em uso
   const existente = await client.query(
@@ -156,11 +156,11 @@ export async function cadastrarUsuario(
   }
 }
 
-export async function realizarLoginGoogle(googleUser: { email: string; name: string; googleId: string }): Promise<LoginResultado> {
+export async function realizarLoginGoogle(googleUser: { email: string; name: string; googleId: string }) {
   let credencial = await buscarCredencialPorEmail(googleUser.email);
   if (!credencial) {
     // Não precisa criar uma senha de verdade, já que o usuário fará login com o google
-    credencial = await cadastrarUsuario(googleUser.name, googleUser.email, Math.random().toString(32));
+    return { nome: googleUser.name, email: googleUser.email, senha: Math.random().toString(32) };
   }
   const payload = { id: credencial.usuario_id, email: credencial.email };
   const token = jwt.sign(payload, env.JWT_SECRET, { expiresIn: "1d" });

@@ -8,16 +8,16 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 const markers = [];
 
 ocorrencias.forEach(function(ocor) {
-    if (!ocor.origem_gps) return;
+    if (!ocor.origem_gps || !ocor.id) return;
     const coords = JSON.parse(ocor.origem_gps);
     if (!coords) return;
 
-    const marker = L.marker(parseFloat(coords[1]), parseFloat(coords[0])).addTo(map);
+    const marker = L.marker([parseFloat(coords[1]), parseFloat(coords[0])]).addTo(map);
     marker.bindPopup(
         `
         <b>${ocor.classificacao}</b><br>
         Data: ${ocor.data_captura}<br>
-        Risco: ${ocrr.risco}<br>
+        Risco: ${ocor.risco}<br>
         ${(ocor.status_saude ? `Saúde: ${ocor.status_saude}<br>` : '')}
         <a href="/ocorrencias/${ocor.id}" class="btn btn-sm btn-outline-primary mt-1">Detalhes</a>
         `
