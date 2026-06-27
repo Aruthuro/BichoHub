@@ -5,16 +5,11 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -59,16 +54,12 @@ class MainActivity : ComponentActivity() {
                 var ehAdmin by mutableStateOf(TokenManager.isAdmin())
                 var ehColetor by mutableStateOf(TokenManager.isColetor())
                 var papeisCarregados by remember { mutableStateOf(false) }
-                var carregandoPapeis by remember { mutableStateOf(false) }
 
                 LaunchedEffect(login) {
                     if (login && !papeisCarregados) {
                         papeisCarregados = true
-                        carregandoPapeis = true
-                        var adminOk = false
-                        var coletorOk = false
-                        try { RetrofitObject.service.dashboard(); adminOk = true } catch (_: Exception) {}
-                        try { RetrofitObject.service.listarOcorrenciasAbertas(); coletorOk = true } catch (_: Exception) {}
+                        val adminOk = try { RetrofitObject.service.dashboard(); true } catch (_: Exception) { false }
+                        val coletorOk = try { RetrofitObject.service.listarOcorrenciasAbertas(); true } catch (_: Exception) { false }
                         ehAdmin = adminOk
                         ehColetor = coletorOk
                         TokenManager.salvarToken(
@@ -77,75 +68,71 @@ class MainActivity : ComponentActivity() {
                             adminOk,
                             coletorOk
                         )
-                        carregandoPapeis = false
                     }
                 }
 
-                if (carregandoPapeis) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                val start = if (login) Main else LogIn
+                NavHost(navController, startDestination = start) {
+                    composable<Main> {
+                        MainScreen(
+                            login = login,
+                            nome = TokenManager.getNome(),
+                            ehAdmin = ehAdmin,
+                            ehColetor = ehColetor,
+                            onNavigateToSignIn = { navController.navigate(SignIn) },
+                            onNavigateToLogIn = { navController.navigate(LogIn) },
+                            onNavigateToOcorr = { navController.navigate(Ocorrencia) },
+                            onNavigateToCollectorOcorrencias = {
+                                navController.navigate(CollectorOcorrenciasAbertas)
+                            },
+                            onNavigateToMinhasOcorrencias = {
+                                navController.navigate(UserMinhasSolicitacoes)
+                            },
+                            onNavigateToHistoricoColetor = {
+                                navController.navigate(CollectorMinhasOcorrencias)
+                            },
+                            onNavigateToAdmin = {
+                                navController.navigate(AdminDashboard)
+                            },
+                            onLogout = {
+                                TokenManager.logout()
+                                login = false
+                                ehAdmin = false
+                                ehColetor = false
+                                navController.navigate(LogIn) {
+                                    popUpTo(Main) { inclusive = true }
+                                }
+                            }
+                        )
                     }
-                } else {
-                    val start = if (login) Main else LogIn
-                    NavHost(navController, startDestination = start) {
-                        composable<Main> {
-                            MainScreen(
-                                ehAdmin = ehAdmin,
-                                ehColetor = ehColetor,
-                                onNavigateToSignIn = { navController.navigate(SignIn) },
-                                onNavigateToLogIn = { navController.navigate(LogIn) },
-                                onNavigateToOcorr = { navController.navigate(Ocorrencia) },
-                                onNavigateToCollectorOcorrencias = {
-                                    navController.navigate(CollectorOcorrenciasAbertas)
-                                },
-                                onNavigateToMinhasOcorrencias = {
-                                    navController.navigate(UserMinhasSolicitacoes)
-                                },
-                                onNavigateToHistoricoColetor = {
-                                    navController.navigate(CollectorMinhasOcorrencias)
-                                },
-                                onNavigateToAdmin = {
-                                    navController.navigate(AdminDashboard)
-                                },
-                                onLogout = {
-                                    TokenManager.logout()
-                                    login = false
-                                    ehAdmin = false
-                                    ehColetor = false
-                                    navController.navigate(LogIn) {
-                                        popUpTo(Main) { inclusive = true }
-                                    }
+                    composable<SignIn> {
+                        SignInScreen(
+                            onCadastroSuccess = {
+                                Toast.makeText(this@MainActivity, "Faça login para continuar", Toast.LENGTH_SHORT).show()
+                                navController.navigate(LogIn) {
+                                    popUpTo(SignIn) { inclusive = true }
                                 }
-                            )
-                        }
-                        composable<SignIn> {
-                            SignInScreen(
-                                onCadastroSuccess = {
-                                    Toast.makeText(this@MainActivity, "Faça login para continuar", Toast.LENGTH_SHORT).show()
-                                    navController.navigate(LogIn) {
-                                        popUpTo(SignIn) { inclusive = true }
-                                    }
-                                },
-                                onVoltar = {
-                                    navController.navigate(LogIn) {
-                                        popUpTo(SignIn) { inclusive = true }
-                                    }
+                            },
+                            onVoltar = {
+                                navController.navigate(LogIn) {
+                                    popUpTo(SignIn) { inclusive = true }
                                 }
-                            )
-                        }
-                        composable<LogIn> {
-                            LogInScreen(
-                                onNavigateToSignIn = { navController.navigate(SignIn) },
-                                onLoginSuccess = { admin, coletor ->
-                                    ehAdmin = admin
-                                    ehColetor = coletor
-                                    login = true
-                                    navController.navigate(Main) {
-                                        popUpTo(LogIn) { inclusive = true }
-                                    }
+                            }
+                        )
+                    }
+                    composable<LogIn> {
+                        LogInScreen(
+                            onNavigateToSignIn = { navController.navigate(SignIn) },
+                            onLoginSuccess = { admin, coletor ->
+                                ehAdmin = admin
+                                ehColetor = coletor
+                                login = true
+                                navController.navigate(Main) {
+                                    popUpTo(LogIn) { inclusive = true }
                                 }
-                            )
-                        }
+                            }
+                        )
+                    }
                     composable<Ocorrencia> {
                         OcorrenciaScreen(
                             onSuccess = {
@@ -215,7 +202,6 @@ class MainActivity : ComponentActivity() {
                         AdminOcorrenciasScreen(
                             onVoltar = { navController.popBackStack() }
                         )
-                    }
                     }
                 }
             }

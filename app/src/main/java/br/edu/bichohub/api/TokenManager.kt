@@ -26,7 +26,7 @@ object TokenManager {
             .putString(KEY_NOME, nome)
             .putBoolean(KEY_ADMIN, ehAdmin)
             .putBoolean(KEY_COLETOR, ehColetor)
-            .apply()
+            .commit()
     }
 
     fun getToken(): String? = prefs.getString(KEY_TOKEN, null)
@@ -45,6 +45,6 @@ object TokenManager {
             .remove(KEY_NOME)
             .remove(KEY_ADMIN)
             .remove(KEY_COLETOR)
-            .apply()
+            .commit()
     }
 }
