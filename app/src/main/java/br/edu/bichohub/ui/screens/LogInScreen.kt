@@ -36,7 +36,7 @@ import kotlinx.serialization.Serializable
 object LogIn
 
 @Composable
-fun LogInScreen(onNavigateToSignIn: () -> Unit, onLoginSuccess: () -> Unit) {
+fun LogInScreen(onNavigateToSignIn: () -> Unit, onLoginSuccess: (ehAdmin: Boolean, ehColetor: Boolean) -> Unit) {
     val emailViewModel: EmailViewModel = viewModel<EmailViewModel>()
     val senha = rememberTextFieldState()
     var senhaInvisivel by rememberSaveable { mutableStateOf(true) }
@@ -86,9 +86,9 @@ fun LogInScreen(onNavigateToSignIn: () -> Unit, onLoginSuccess: () -> Unit) {
                                 senha = senha.text.toString()
                             )
                         )
-                        TokenManager.salvarToken(resp.token, resp.nome)
+                        TokenManager.salvarToken(resp.token, resp.nome, resp.eh_admin, resp.eh_coletor)
                         Toast.makeText(context, "Bem-vindo, ${resp.nome}!", Toast.LENGTH_SHORT).show()
-                        onLoginSuccess()
+                        onLoginSuccess(resp.eh_admin, resp.eh_coletor)
                     } catch (e: Exception) {
                         Toast.makeText(context, "Erro ao fazer login: ${e.message}", Toast.LENGTH_LONG).show()
                     } finally {

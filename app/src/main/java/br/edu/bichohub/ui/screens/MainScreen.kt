@@ -27,6 +27,8 @@ object Main
 
 @Composable
 fun MainScreen(
+    ehAdmin: Boolean,
+    ehColetor: Boolean,
     onNavigateToSignIn: () -> Unit,
     onNavigateToLogIn: () -> Unit,
     onNavigateToOcorr: () -> Unit,
@@ -74,28 +76,32 @@ fun MainScreen(
                 ) {
                     Text("Minhas Solicitações")
                 }
-                Button(
-                    onClick = onNavigateToCollectorOcorrencias,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Solicitações Abertas (Coletor)")
+                if (ehColetor || ehAdmin) {
+                    Button(
+                        onClick = onNavigateToCollectorOcorrencias,
+                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Solicitações Abertas (Coletor)")
+                    }
+                    Button(
+                        onClick = onNavigateToHistoricoColetor,
+                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+                    ) {
+                        Text("Histórico (Coletor)")
+                    }
                 }
-                Button(
-                    onClick = onNavigateToHistoricoColetor,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
-                ) {
-                    Text("Histórico (Coletor)")
-                }
-                Button(
-                    onClick = onNavigateToAdmin,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A))
-                ) {
-                    Text("Admin")
+                if (ehAdmin) {
+                    Button(
+                        onClick = onNavigateToAdmin,
+                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A))
+                    ) {
+                        Text("Admin")
+                    }
                 }
                 Spacer(Modifier.weight(1f))
                 Button(

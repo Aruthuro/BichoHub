@@ -14,6 +14,8 @@ export interface CustomRequest extends Request {
 export interface LoginResultado {
   token: string;
   nome: string;
+  eh_admin: boolean;
+  eh_coletor: boolean;
 }
 
 export interface AutenticateRequest extends Request {
@@ -117,9 +119,17 @@ export async function realizarLogin(email: string, senha: string): Promise<Login
   const payload = { id: credencial.usuario_id, email: credencial.email };
   const token = jwt.sign(payload, env.JWT_SECRET, { expiresIn: "1d" });
 
+  // 4. Verifica os papéis do usuário
+  const [eh_admin, eh_coletor] = await Promise.all([
+    checarAdmin(credencial.usuario_id),
+    checarColetor(credencial.usuario_id),
+  ]);
+
   return {
     token,
     nome: credencial.nome,
+    eh_admin,
+    eh_coletor,
   };
 }
 
@@ -177,8 +187,15 @@ export async function realizarLoginGoogle(googleUser: { email: string; name: str
   const payload = { id: credencial.usuario_id, email: credencial.email };
   const token = jwt.sign(payload, env.JWT_SECRET, { expiresIn: "1d" });
 
+  const [eh_admin, eh_coletor] = await Promise.all([
+    checarAdmin(credencial.usuario_id),
+    checarColetor(credencial.usuario_id),
+  ]);
+
   return {
     token,
     nome: credencial.nome,
+    eh_admin,
+    eh_coletor,
   };
 }
