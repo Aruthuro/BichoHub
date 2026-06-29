@@ -10,7 +10,25 @@
                     </div>
                 {{/if}}
 
-                <form action="/login" method="POST">
+                <p class="text-center mt-3 mb-0">
+                    Não tem conta?
+                </p>
+                <br>
+                <div class="google-signin-wrapper">
+                    <div
+                        id="g_id_onload"
+                        data-auto_prompt="false"
+                        data-callback="handleCredentialResponse"
+                        data-client_id="{{client_id}}"
+                    ></div>
+                    <div class="g_id_signin"></div>
+                </div>
+                <p class="text-center mt-3 mb-0">
+                    ou <a href="/auth/signup">Cadastre-se</a>.
+                </p>
+                <br>
+
+                <form id="loginForm" action="/auth/login" method="POST">
                     <input type="hidden" name="redirect" value="{{redirect}}">
 
                     <div class="mb-3">
@@ -23,13 +41,13 @@
                         <input type="password" class="form-control" id="password" name="password" placeholder="Sua senha" required>
                     </div>
 
+                    <div class="alert alert-danger text-center d-none" id="loginError" role="alert"></div>
+
                     <button type="submit" class="btn btn-dark w-100">Entrar</button>
                 </form>
-
-                <p class="text-center mt-3 mb-0">
-                    Não tem conta? <a href="/signup">Cadastre-se</a>
-                </p>
             </div>
         </div>
     </div>
 </div>
+
+<script src="/js/handleCredentialResponse.js"></script>

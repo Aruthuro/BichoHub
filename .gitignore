@@ -8,6 +8,10 @@ server/.env.development
 server/.env.production
 server/.env.JWT_SECRET
 server/logs/
+server/.wwebjs_auth/
+server/.wwebjs_cache/
 .env.development
 .env.production
+.env
 !.env.example
+server/scripts/

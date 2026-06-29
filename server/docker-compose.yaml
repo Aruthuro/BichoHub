@@ -4,12 +4,19 @@ services:
 
     container_name: express_backend
 
+    restart: unless-stopped
+
     ports:
       - "${PORT}:${PORT}"
 
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+      - ../models:/usr/src/app/models
+      - /usr/src/app/.wwebjs_auth
+
+    environment:
+      - YOLO_MODELS_DIR=/usr/src/app/models/runs/classify/Triagem
 
     env_file:
       - .env.development

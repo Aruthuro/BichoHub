@@ -1,6 +1,8 @@
 package br.edu.bichohub.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +20,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.bichohub.ui.components.MenuLateral
 import br.edu.bichohub.ui.viewmodels.AuthViewModel
 import kotlinx.serialization.Serializable
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Serializable
 object Main

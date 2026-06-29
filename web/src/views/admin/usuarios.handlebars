@@ -1,0 +1,56 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3>Gerenciar Usuários</h3>
+</div>
+
+{{#if erro}}
+<div class="alert alert-danger">{{erro}}</div>
+{{/if}}
+
+<div class="table-responsive">
+  <table class="table table-hover align-middle shadow-sm bg-white rounded">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Contato</th>
+        <th>Coletor</th>
+        <th>Admin</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each usuarios}}
+      <tr>
+        <td>{{id}}</td>
+        <td>{{nome}}</td>
+        <td>{{email}}</td>
+        <td>{{contato}}</td>
+        <td>{{#if eh_coletor}}<span class="badge bg-primary">Sim</span>{{else}}<span class="badge bg-secondary">Não</span>{{/if}}</td>
+        <td>{{#if eh_admin}}<span class="badge bg-primary">Sim</span>{{else}}<span class="badge bg-secondary">Não</span>{{/if}}</td>
+        <td class="text-end">
+          <div class="d-flex justify-content-end gap-1">
+            {{#unless eh_coletor}}
+            <form action="/admin/usuarios/{{id}}/tornar-coletor" method="POST" class="d-inline">
+              <button type="submit" class="btn btn-sm btn btn-outline-secondary">Tornar Coletor</button>
+            </form>
+            {{/unless}}
+            {{#unless eh_admin}}
+            <form action="/admin/usuarios/{{id}}/tornar-admin" method="POST" class="d-inline">
+              <button type="submit" class="btn btn-sm btn btn-outline-secondary">Tornar Admin</button>
+            </form>
+            {{/unless}}
+            <form action="/admin/usuarios/{{id}}/remover" method="POST" class="d-inline" onsubmit="return confirm('Remover usuário {{nome}}?')">
+              <button type="submit" class="btn btn-sm btn-outline-danger" title="Remover">Remover</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {{else}}
+      <tr>
+        <td colspan="7" class="text-center py-4">Nenhum usuário encontrado.</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>

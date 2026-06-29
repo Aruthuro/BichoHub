@@ -8,31 +8,76 @@ Estabelecer toda a base técnica necessária para desenvolvimento, execução, t
 
 ---
 
-## E01 - Ambiente Front-end
+# E01 - Ambiente Front-end
 
-- [x] Fazer um template reutilizável;
+## Área
+
+Front-end
+
+## Objetivo
+
+Configurar o ambiente de desenvolvimento front-end (app Android).
+
+## Critérios Funcionais
+
 - [x] Configurações de desenvolvimento padronizadas e de fácil configuração;
 - [x] Aplicativo base mostrando uma mensagem genérica;
 - [x] Escolher o design do app.
 
----
+## Artefatos
 
-## E03 - Ambiente Back-end
+- [x] Template reutilizável.
 
-- [x] Ambiente docker configurado.
-- [x] Conexão com banco de dados Postgree configurado.
-- [x] Deve existir um servidor:
-  - [x] Com um endpoint básico de teste funcionando.
-  - [x] Capaz de armazenar dados e recuperar dados em um banco de dados.
+## Definition of Done
+
+- [x] Ambiente front-end configurado e funcional.
 
 ---
 
-## Configuração de deploy
+# E02 - Ambiente Back-end
 
-- [ ] Pipeline de deploy
+## Área
+
+Back-end
+
+## Objetivo
+
+Configurar o ambiente de desenvolvimento back-end com Docker e banco de dados.
+
+## Critérios Funcionais
+
+- [x] Ambiente Docker configurado;
+- [x] Conexão com banco de dados PostgreSQL configurado;
+- [x] Servidor com endpoint básico de teste funcionando;
+- [x] Servidor capaz de armazenar e recuperar dados do banco de dados.
+
+## Artefatos
+
+- [x] Dockerfile e docker-compose.yaml;
+- [x] Script de inicialização.
+
+## Definition of Done
+
+- [x] Back-end rodando em container Docker.
 
 ---
 
-## Logs
+# E03 - Logs Estruturados
 
-- [ ] Logs estruturados
+## Área
+
+Back-end
+
+## Objetivo
+
+Implementar sistema de logs estruturados para monitoramento do servidor.
+
+## Critérios Funcionais
+
+- [x] Logs estruturados (logger.ts com `logs/geral.log` e `logs/erro.log`).
+
+## Definition of Done
+
+- [x] Sistema de logs implementado e funcional.
+
+---

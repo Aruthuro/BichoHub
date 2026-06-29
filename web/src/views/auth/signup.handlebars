@@ -10,7 +10,7 @@
                     </div>
                 {{/if}}
 
-                <form action="/signup" method="POST">
+                <form action="/auth/signup" method="POST">
                     <div class="mb-3">
                         <label for="nome" class="form-label">Nome</label>
                         <input type="text" class="form-control" id="nome" name="nome" placeholder="Seu nome" required autofocus>
@@ -28,14 +28,14 @@
 
                     <div class="mb-3">
                         <label for="contato" class="form-label">Contato</label>
-                        <input type="text" class="form-control" id="contato" name="contato" placeholder="(opcional)">
+                        <input type="text" class="form-control" id="contato" name="contato" placeholder="Telefone">
                     </div>
 
                     <button type="submit" class="btn btn-dark w-100">Cadastrar</button>
                 </form>
 
                 <p class="text-center mt-3 mb-0">
-                    Já tem conta? <a href="/login">Entre</a>
+                    Já tem conta? <a href="/auth/login">Entre</a>.
                 </p>
             </div>
         </div>

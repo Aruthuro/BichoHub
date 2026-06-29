@@ -1,4 +1,4 @@
-import { cleanEnv, str, port } from "envalid";
+import { cleanEnv, str, port, url } from "envalid";
 import dotenv from "dotenv";
 
 // configuracao do env com base na variavel escolhida (DEVELOPMENT ou PRODUCTION)
@@ -9,6 +9,7 @@ dotenv.config({
 export const env = cleanEnv(process.env, {
   NODE_ENV: str(),
   PORT: port(),
+  PORT_YOLO: port({ default: 6767 }),
 
   DIR_LOG: str({ default: "logs" }),
   FORMAT_LOG: str({ default: "simple" }),
@@ -19,5 +20,10 @@ export const env = cleanEnv(process.env, {
   POSTGRES_HOST: str(),
   POSTGRES_PORT: port(),
 
-  JWT_SECRET: str()
+  YOLO_SERVICE_URL: url({ 
+    default: `http://localhost:${process.env.PORT_YOLO || 8001}` 
+  }),
+
+  JWT_SECRET: str(),
+  WEB_CLIENT_ID: str()
 })

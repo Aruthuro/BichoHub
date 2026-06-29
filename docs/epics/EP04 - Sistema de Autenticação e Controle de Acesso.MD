@@ -4,272 +4,253 @@
 
 ## Objetivo
 
-Gerenciar login, cadastro e permissões de usuários.
+Gerenciar login, cadastro e permissões de usuários, incluindo hierarquia de coletores e posição na UFAM.
 
 ---
 
-# F01 - Tela de Cadastro de Usuário
+# E01 - Tela de Cadastro de Usuário
 
 ## Área
 
-Frontend.
+Front-end
 
-## História de Usuário
+## Objetivo
 
-Como usuário,
-quero acessar uma tela de cadastro,
-para criar minha conta no sistema.
+Criar tela de cadastro para criação de conta no sistema.
 
 ## Critérios Funcionais
 
-- [ ] O formulário deve conter:
-  - [ ] Nome;
-  - [ ] Email;
-  - [ ] Senha;
-  - [ ] Idade;
-  - [ ] Empresa/instituição (opcional).
-
-- [ ] O sistema deve validar campos obrigatórios;
-- [ ] O sistema deve exibir mensagens de erro;
-- [ ] O sistema deve exibir confirmação de sucesso.
+- [x] O formulário deve conter:
+  - [x] Nome;
+  - [x] Email;
+  - [x] Senha;
+  - [x] Contato (implementado como campo opcional).
+- [x] O sistema deve validar campos obrigatórios;
+- [x] O sistema deve exibir mensagens de erro (Toast);
+- [x] O sistema deve exibir confirmação de sucesso.
 
 ## Artefatos
 
-- [ ] Tela de cadastro com formulário implementada;
-- [ ] Sistema de validação visual do formulário;
-- [ ] Indicador de estado do cadastro;
-- [ ] Navegação para tela de login.
+- [x] Tela de cadastro com formulário implementada (`SignInScreen.kt`);
+- [x] Sistema de validação visual do formulário (`NomeViewModel`, `EmailViewModel`);
+- [x] Indicador de estado do cadastro;
+- [x] Navegação para tela de login.
 
 ## Dependências
 
-- F02 - Endpoint de Cadastro
+- E02 - Endpoint de Cadastro
 
 ## Definition of Done
 
-- [ ] Tela e função de cadastro funcionando corretamente;
-- [ ] Validação de informações inseridas testado.
+- [x] Tela e função de cadastro funcionando corretamente.
 
 ---
 
-# F02 - Endpoint de Cadastro
+# E02 - Endpoint de Cadastro
 
 ## Área
 
 Back-end
 
-## História de Usuário
+## Objetivo
 
-Como sistema,
-quero receber requisições de cadastro,
-para persistir novos usuários.
+Receber requisições de cadastro e persistir novos usuários no banco.
 
 ## Critérios Funcionais
 
-- [ ] O sistema deve receber requisições da API de cadastro;
-- [ ] O sistema deve validar os dados recebidos;
-- [ ] O sistema deve impedir emails duplicados;
-- [ ] O sistema deve persistir o usuário no banco.
+- [x] O sistema deve receber requisições da API de cadastro;
+- [x] O sistema deve validar os dados recebidos;
+- [x] O sistema deve impedir emails duplicados;
+- [x] O sistema deve persistir o usuário no banco.
 
 ## Critérios Técnicos
 
-- [ ] Retornar códigos HTTP apropriados;
-- [ ] Utilizar transação salvar dados no banco de dados (salvar imagem, então salvar os dados na tabela).
+- [x] Retornar códigos HTTP apropriados;
+- [x] Utilizar transação para salvar dados no banco de dados.
 
 ## Artefatos
 
-- [ ] Endpoint funcional;
-- [ ] Controller de cadastro;
-- [ ] DTO de validação;
-- [ ] Servico de cadastro.
+- [x] Endpoint funcional (`POST /api/v1/usuarios/cadastrar`);
+- [x] Controller de cadastro (inline em `routes.ts`);
+- [x] Serviço de cadastro (`cadastrarUsuario` em `authService.ts`).
 
 ## Dependências
 
-- E04 - Esquema do banco de dados
-- F04 - Persistência de Credenciais
+- EP03 - Modelagem e Persistência de Dados
+- E04 - Persistência de Credenciais
 
 ## Definition of Done
 
-- [ ] O backend deve processar requisições de cadastro corretamente;
+- [x] O backend deve processar requisições de cadastro corretamente.
 
 ---
 
-# F03 - Autenticação JWT
+# E03 - Autenticação JWT
 
 ## Área
 
 Back-end
 
-## História de Usuário
+## Objetivo
 
-Como usuário,
-quero ser autenticado após login ou cadastro,
-para acessar funcionalidades protegidas.
+Implementar autenticação via JWT para acesso a rotas protegidas.
 
 ## Critérios Funcionais
 
-- [ ] O sistema deve gerar JWT válido após autenticação;
-- [ ] O sistema deve validar tokens protegidos;
-- [ ] O sistema deve rejeitar tokens inválidos.
+- [x] O sistema deve gerar JWT válido após autenticação;
+- [x] O sistema deve validar tokens em rotas protegidas;
+- [x] O sistema deve rejeitar tokens inválidos.
 
 ## Critérios Técnicos
 
-- [ ] Utilizar JWT;
-- [ ] Configurar middleware de autenticação;
-- [ ] Configurar expiração de token.
+- [x] Utilizar JWT;
+- [x] Configurar middleware de autenticação;
+- [x] Configurar expiração de token (1 dia).
 
 ## Artefatos
 
-- [ ] Serviço de geração de JWT;
-- [ ] Middleware de autenticação;
-- [ ] Configuração de segredo JWT;
-- [ ] Rotas protegidas por autenticação.
+- [x] Serviço de geração de JWT (`authService.ts`);
+- [x] Middleware de autenticação (`verificarToken`);
+- [x] Configuração de segredo JWT (`.env.JWT_SECRET`);
+- [x] Rotas protegidas por autenticação.
 
 ## Dependências
 
-- F02 - Endpoint de Cadastro
-- F04 - Persistência de Credenciais
+- E02 - Endpoint de Cadastro
+- E04 - Persistência de Credenciais
 
 ## Definition of Done
 
-- [ ] O sistema deve gerar tokens válidos;
-- [ ] O middleware de autenticação deve verificar tokens a cada requisição.
+- [x] O sistema deve gerar tokens válidos;
+- [x] O middleware de autenticação deve verificar tokens a cada requisição.
 
 ---
 
-# F04 - Persistência Segura de Credenciais
+# E04 - Persistência Segura de Credenciais
 
 ## Área
 
 Back-end
 
-## História de Usuário
+## Objetivo
 
-Como sistema,
-quero armazenar credenciais de forma segura,
-para proteger os usuários.
+Armazenar credenciais de forma segura, protegendo os usuários.
 
 ## Critérios Funcionais
 
-- [ ] O sistema deve armazenar senhas criptografadas;
-- [ ] O sistema nunca deve persistir senhas em texto puro.
+- [x] O sistema deve armazenar senhas criptografadas;
+- [x] O sistema nunca deve persistir senhas em texto puro.
 
 ## Critérios Técnicos
 
-- [ ] Utilizar bcrypt ou outra ferramenta equivalente;
-- [ ] Garantir unicidade de email.
+- [x] Utilizar bcrypt (10 salt rounds);
+- [x] Garantir unicidade de email (constraint UNIQUE + verificação em código).
 
 ## Artefatos
 
-- [ ] Implementação de hash de senha;
-- [ ] Implementação de verificação de senha;
-- [ ] Integração com fluxo de cadastro;
+- [x] Implementação de hash de senha;
+- [x] Implementação de verificação de senha;
+- [x] Integração com fluxo de cadastro.
 
 ## Dependências
 
-- E04 - Esquema do banco de dados
+- EP03 - Modelagem e Persistência de Dados
 
 ## Definition of Done
 
-- [ ] O sistema deve salvar a senha de forma encriptada na tabela;
-- [ ] É preciso encriptar senhas no momento de cadastro de usuários;
+- [x] O sistema deve salvar a senha de forma encriptada na tabela;
+- [x] É preciso encriptar senhas no momento de cadastro de usuários.
 
 ---
 
-# F05 - Tela de Login de Usuário
+# E05 - Tela de Login de Usuário
 
 ## Área
 
-Frontend.
+Front-end
 
-## História de Usuário
+## Objetivo
 
-Como usuário,
-quero acessar uma tela de login,
-para entrar no sistema utilizando minhas credenciais.
+Criar tela de login para autenticação com credenciais.
 
 ## Critérios Funcionais
 
-- [ ] O formulário deve conter:
-  - [ ] Email;
-  - [ ] Senha.
-
-- [ ] O sistema deve validar campos obrigatórios;
-- [ ] O sistema deve exibir mensagens de erro;
-- [ ] O sistema deve exibir confirmação de autenticação;
-- [ ] O sistema deve permitir navegação para tela de cadastro.
+- [x] O formulário deve conter:
+  - [x] Email;
+  - [x] Senha (com toggle de visibilidade).
+- [x] O sistema deve validar campos obrigatórios;
+- [x] O sistema deve exibir mensagens de erro (Toast);
+- [x] O sistema deve exibir confirmação de autenticação;
+- [x] O sistema deve permitir navegação para tela de cadastro.
 
 ## Artefatos
 
-- [ ] Tela de login implementada;
-- [ ] Sistema de validação visual do formulário;
-- [ ] Indicador de estado do login;
-- [ ] Navegação para tela de cadastro;
-- [ ] Integração visual com fluxo de autenticação.
+- [x] Tela de login implementada (`LogInScreen.kt`);
+- [x] Sistema de validação visual do formulário;
+- [x] Indicador de estado do login;
+- [x] Navegação para tela de cadastro;
+- [x] Integração visual com fluxo de autenticação.
 
 ## Dependências
 
-- F07 - Endpoint de Login
+- E06 - Endpoint de Login
 
 ## Definition of Done
 
-- [ ] Tela de login funcionando corretamente;
-- [ ] Validação de informações inseridas testada;
-- [ ] Fluxo visual de autenticação validado.
+- [x] Tela de login funcionando corretamente;
+- [x] Validação de informações inseridas testada;
+- [x] Fluxo visual de autenticação validado.
 
 ---
 
-# F06 - Endpoint de Login
+# E06 - Endpoint de Login
 
 ## Área
 
 Back-end
 
-## História de Usuário
+## Objetivo
 
-Como sistema,
-quero autenticar usuários utilizando email e senha,
-para permitir acesso às funcionalidades protegidas.
+Autenticar usuários utilizando email e senha para acesso ao sistema.
 
 ## Critérios Funcionais
 
-- [ ] O sistema deve receber requisições HTTP de login;
-- [ ] O sistema deve validar credenciais recebidas;
-- [ ] O sistema deve impedir autenticação com credenciais inválidas;
-- [ ] O sistema deve retornar JWT válido após autenticação;
-- [ ] O sistema deve retornar informações básicas do usuário autenticado.
+- [x] O sistema deve receber requisições HTTP de login;
+- [x] O sistema deve validar credenciais recebidas;
+- [x] O sistema deve impedir autenticação com credenciais inválidas;
+- [x] O sistema deve retornar JWT válido após autenticação;
+- [x] O sistema deve retornar informações básicas do usuário autenticado.
 
 ## Critérios Técnicos
 
-- [ ] Validar senha utilizando hash seguro;
-- [ ] Utilizar JWT para autenticação;
-- [ ] Retornar códigos HTTP apropriados;
-- [ ] Implementar middleware de autenticação para rotas protegidas.
+- [x] Validar senha utilizando hash seguro (bcrypt.compare);
+- [x] Utilizar JWT para autenticação;
+- [x] Retornar códigos HTTP apropriados;
+- [x] Implementar middleware de autenticação para rotas protegidas.
 
 ## Artefatos
 
-- [ ] Endpoint HTTP funcional;
-- [ ] Controller de login;
-- [ ] DTO de autenticação;
-- [ ] Service de autenticação;
-- [ ] Middleware de autenticação;
-- [ ] Geração de JWT;
-- [ ] Documentação da rota.
+- [x] Endpoint HTTP funcional (`POST /api/v1/usuarios/login`);
+- [x] Serviço de autenticação (`realizarLogin` em `authService.ts`);
+- [x] Middleware de autenticação (`verificarToken`);
+- [x] Geração de JWT;
+- [x] Documentação da rota (`docs/endpoints.md`).
 
 ## Dependências
 
-- F03 - Autenticação JWT
-- F04 - Persistência Segura de Credenciais
+- E03 - Autenticação JWT
+- E04 - Persistência Segura de Credenciais
 
 ## Definition of Done
 
-- [ ] O backend deve autenticar usuários corretamente;
-- [ ] O sistema deve rejeitar credenciais inválidas;
-- [ ] O sistema deve retornar JWT válido após login;
-- [ ] Middleware de autenticação validado manualmente.
+- [x] O backend deve autenticar usuários corretamente;
+- [x] O sistema deve rejeitar credenciais inválidas;
+- [x] O sistema deve retornar JWT válido após login;
+- [x] Middleware de autenticação validado.
 
 ---
 
-# F07 - Integração Front-end e Back-end de Cadastro e Login
+# E07 - Integração Front-end e Back-end de Cadastro e Login
 
 ## Área
 
@@ -277,38 +258,75 @@ Full-stack
 
 ## Objetivo
 
-Testar e verificar a integração das funções de cadastro e login de usuários no sistema.
+Integrar as funções de cadastro e login entre front-end e back-end.
 
 ## Critérios Funcionais
 
-- [ ] O frontend deve enviar dados para a API;
-- [ ] O frontend deve tratar respostas de erro;
-- [ ] O frontend deve armazenar JWT após autenticação;
-- [ ] O usuário deve permanecer autenticado após cadastro;
-- [ ] O usuário deve permanecer autenticado após login.
+- [x] O frontend deve enviar dados para a API;
+- [x] O frontend deve tratar respostas de erro;
+- [x] O frontend deve armazenar JWT após autenticação;
+- [x] O usuário deve permanecer autenticado após cadastro;
+- [x] O usuário deve permanecer autenticado após login.
 
 ## Critérios Técnicos
 
-- [ ] Ulitizar as APIs nas requisições;
-- [ ] Persistir JWT localmente de forma segura.
+- [x] Utilizar as APIs nas requisições;
+- [x] Persistir JWT localmente de forma segura (SharedPreferences via `TokenManager`).
 
-# Artefatos
+## Artefatos
 
-- [ ] Integração do formulário com API;
-- [ ] Tratamento de erros de requisição;
-- [ ] Armazenamento local do JWT;
-- [ ] Persistência de sessão do usuário;
+- [x] Integração do formulário com API;
+- [x] Tratamento de erros de requisição;
+- [x] Armazenamento local do JWT;
+- [x] Persistência de sessão do usuário.
 
 ## Dependências
 
-- F01 - Tela de Cadastro de Usuário
-- F02 - Endpoint de Cadastro
-- F03 - Autenticação JWT
-- F05 - Tela de Login de Usuário
-- F06 - Endpoint de Login
+- E01 - Tela de Cadastro de Usuário
+- E02 - Endpoint de Cadastro
+- E03 - Autenticação JWT
+- E05 - Tela de Login de Usuário
+- E06 - Endpoint de Login
 
 ## Definition of Done
 
-- [ ] Fluxo completo validado manualmente:
-  - [ ] Cadastro;
-  - [ ] Login;
+- [x] Fluxo completo validado:
+  - [x] Cadastro;
+  - [x] Login.
+
+---
+
+# E08 - Login via Conta Google (OAuth)
+
+## Área
+
+Full-stack
+
+## Objetivo
+
+Implementar login via conta Google como alternativa ao cadastro interno (F15, NF08).
+
+## Critérios Funcionais
+
+- [ ] Usuário pode fazer login com conta Google (F15);
+- [ ] Sistema deve suportar API de autenticação do Google (NF08);
+- [ ] Usuário pode escolher entre login Google ou cadastro interno.
+
+## Critérios Técnicos
+
+- [ ] Integrar com Google Sign-In SDK (Android);
+- [ ] Backend deve validar token Google (OAuth 2.0);
+- [ ] Criar usuário automaticamente se não existir.
+
+## Artefatos
+
+- [ ] Botão "Login com Google" nas telas de cadastro/login;
+- [ ] Endpoint de verificação de token Google no backend.
+
+## Dependências
+
+- E07 - Integração Front-end e Back-end de Cadastro e Login
+
+## Definition of Done
+
+- [ ] Login via Google funcional (criação e autenticação).

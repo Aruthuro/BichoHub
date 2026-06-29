@@ -45,6 +45,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -53,6 +55,7 @@ import br.edu.bichohub.ui.components.UiState
 import br.edu.bichohub.ui.viewmodels.RegistroViewModel
 import coil3.compose.AsyncImage
 import kotlinx.serialization.Serializable
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.UUID
 
@@ -80,6 +83,18 @@ fun OcorrenciaScreen(onShowSnackBar: (String) -> Unit, onNavigateToMain: () -> U
     ) { sucesso ->
         if (!sucesso) {
             fotoURI = null
+        }
+    }
+
+    val permissaoCamera = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { concedida ->
+        if (concedida) {
+            val uri = criaURI(context)
+            fotoURI = uri
+            gerenteCamera.launch(uri)
+        } else {
+            Toast.makeText(context, "Permissão de câmera necessária.", Toast.LENGTH_SHORT).show()
         }
     }
     val gerenteGaleria = rememberLauncherForActivityResult(

@@ -1,0 +1,55 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3>Todas as Ocorrências</h3>
+  <form method="GET" class="d-flex gap-2">
+    <select name="filtro" class="form-select" onchange="this.form.submit()">
+      <option value="">Todas</option>
+      <option value="abertas" {{#if (eq filtro "abertas")}}selected{{/if}}>Abertas</option>
+      <option value="andamento" {{#if (eq filtro "andamento")}}selected{{/if}}>Em Andamento</option>
+      <option value="encerradas" {{#if (eq filtro "encerradas")}}selected{{/if}}>Encerradas</option>
+    </select>
+  </form>
+</div>
+
+{{#if erro}}
+<div class="alert alert-danger">{{erro}}</div>
+{{/if}}
+
+<div class="table-responsive">
+  <table class="table table-hover align-middle shadow-sm bg-white rounded">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Tipo</th>
+        <th>Solicitante</th>
+        <th>Coletor</th>
+        <th>Data</th>
+        <th>Estado</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each ocorrencias}}
+      <tr>
+        <td>{{id}}</td>
+        <td>{{tipo}}</td>
+        <td>{{solicitante_nome}}</td>
+        <td>{{coletor_nome}}</td>
+        <td>{{data_captura}}</td>
+        <td>
+            {{#if (eq estado 0)}}<span class="badge bg-danger">Aberta</span>{{/if}}
+            {{#if (eq estado 2)}}<span class="badge bg-warning text-dark">Em Andamento</span>{{/if}}
+            {{#if (eq estado 3)}}<span class="badge bg-success">Encerrada</span>{{/if}}
+            {{#if (eq estado 5)}}<span class="badge bg-info">Sob Cuidados</span>{{/if}}
+        </td>
+        <td class="text-end">
+          <a href="/admin/ocorrencias/{{id}}" class="btn btn-sm btn-outline-primary">Detalhes</a>
+        </td>
+      </tr>
+      {{else}}
+      <tr>
+        <td colspan="7" class="text-center py-4">Nenhuma ocorrência encontrada.</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
