@@ -200,6 +200,24 @@ export async function listarOcorrenciasDoColetor(coletorId: number) {
   return resultado.rows;
 }
 
+export async function listarOcorrenciasAtivas(coletorId: number) {
+  const resultado = await client.query(
+    `SELECT o.id, o.tipo, o.data_captura, o.descricao_origem,
+            o.observacoes, o.risco, o.ultimo_caso, o.estado,
+            o.coletor_id,
+            ST_AsText(o.origem_gps) AS origem_gps,
+            u.nome AS solicitante_nome, u.contato AS solicitante_contato,
+            c.nome AS coletor_nome
+     FROM ocorrencias o
+     JOIN usuarios u ON u.id = o.origem_solicitacao_id
+     LEFT JOIN usuarios c ON c.id = o.coletor_id
+     WHERE o.coletor_id = $1 AND o.estado IN (2, 5)
+     ORDER BY o.data_captura DESC`,
+    [coletorId]
+  );
+  return resultado.rows;
+}
+
 export async function listarOcorrenciasGPS() {
   const resultado = await client.query(
     `SELECT o.id, o.data_captura, o.risco, o.status_saude, o.classificacao,

@@ -45,6 +45,17 @@
       </div>
     </div>
 
+    {{#if ocorrencia.referencia_imagem}}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Imagem da Ocorrência</h5>
+      </div>
+      <div class="card-body text-center">
+        <img src="data:image/jpeg;base64,{{ocorrencia.referencia_imagem}}" class="img-fluid rounded" alt="Imagem da ocorrência" style="max-height: 400px;">
+      </div>
+    </div>
+    {{/if}}
+
     {{#if (or (eq ocorrencia.estado 2) (eq ocorrencia.estado 5))}}
     <div class="card shadow-sm">
       <div class="card-header bg-warning-subtle">
@@ -80,6 +91,18 @@
           <input type="hidden" name="resposta" value="aceitar">
           <button type="submit" class="btn btn-success w-100">Aceitar Chamada</button>
         </form>
+      </div>
+    </div>
+    {{/if}}
+
+    {{#if ocorrencia.classificacao}}
+    <div class="card shadow-sm border-info mt-3">
+      <div class="card-body">
+        <h5 class="card-title text-info">Classificação</h5>
+        <p class="card-text">
+          <strong>Animal:</strong> {{ocorrencia.classificacao}}<br>
+          <strong>Confiança:</strong> {{ocorrencia.confianca_classificacao}}%
+        </p>
       </div>
     </div>
     {{/if}}

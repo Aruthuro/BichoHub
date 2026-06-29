@@ -12,6 +12,7 @@ import {
   buscarOcorrenciaPorId,
   aceitarOcorrencia,
   listarOcorrenciasDoColetor,
+  listarOcorrenciasAtivas,
   editarOcorrencia,
   encerrarOcorrencia,
   criarOcorrencia,
@@ -277,6 +278,25 @@ router.get(
   async (req, res, next) => {
     try {
       const ocorrencias = await listarOcorrenciasAbertas();
+      res.status(200).json(ocorrencias);
+    } catch (erro) {
+      console.error(erro);
+      next(erro);
+    }
+  }
+);
+
+/*
+  listar ocorrencias ativas do coletor autenticado (estado 2 ou 5)
+*/
+router.get(
+  "/v1/coletores/ocorrencias/ativas",
+  verificarToken,
+  verificarColetor,
+  async (req, res, next) => {
+    try {
+      const coletorId = (req as CustomRequest).usuario!.id;
+      const ocorrencias = await listarOcorrenciasAtivas(coletorId);
       res.status(200).json(ocorrencias);
     } catch (erro) {
       console.error(erro);

@@ -5,13 +5,16 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import br.edu.bichohub.api.RetrofitObject
 import br.edu.bichohub.api.TokenManager
 import br.edu.bichohub.ui.screens.AdminDashboard
 import br.edu.bichohub.ui.screens.AdminDashboardScreen
@@ -48,11 +51,34 @@ class MainActivity : ComponentActivity() {
             BichoHubTheme {
                 val navController = rememberNavController()
                 var login by mutableStateOf(TokenManager.isLogado())
-                val start = if (login) Main else LogIn
+                var ehAdmin by mutableStateOf(TokenManager.isAdmin())
+                var ehColetor by mutableStateOf(TokenManager.isColetor())
+                var papeisCarregados by remember { mutableStateOf(false) }
 
+                LaunchedEffect(login) {
+                    if (login && !papeisCarregados) {
+                        papeisCarregados = true
+                        val adminOk = try { RetrofitObject.service.dashboard(); true } catch (_: Exception) { false }
+                        val coletorOk = try { RetrofitObject.service.listarOcorrenciasAbertas(); true } catch (_: Exception) { false }
+                        ehAdmin = adminOk
+                        ehColetor = coletorOk
+                        TokenManager.salvarToken(
+                            TokenManager.getToken() ?: "",
+                            TokenManager.getNome() ?: "",
+                            adminOk,
+                            coletorOk
+                        )
+                    }
+                }
+
+                val start = if (login) Main else LogIn
                 NavHost(navController, startDestination = start) {
                     composable<Main> {
                         MainScreen(
+                            login = login,
+                            nome = TokenManager.getNome(),
+                            ehAdmin = ehAdmin,
+                            ehColetor = ehColetor,
                             onNavigateToSignIn = { navController.navigate(SignIn) },
                             onNavigateToLogIn = { navController.navigate(LogIn) },
                             onNavigateToOcorr = { navController.navigate(Ocorrencia) },
@@ -71,6 +97,8 @@ class MainActivity : ComponentActivity() {
                             onLogout = {
                                 TokenManager.logout()
                                 login = false
+                                ehAdmin = false
+                                ehColetor = false
                                 navController.navigate(LogIn) {
                                     popUpTo(Main) { inclusive = true }
                                 }
@@ -95,7 +123,9 @@ class MainActivity : ComponentActivity() {
                     composable<LogIn> {
                         LogInScreen(
                             onNavigateToSignIn = { navController.navigate(SignIn) },
-                            onLoginSuccess = {
+                            onLoginSuccess = { admin, coletor ->
+                                ehAdmin = admin
+                                ehColetor = coletor
                                 login = true
                                 navController.navigate(Main) {
                                     popUpTo(LogIn) { inclusive = true }
