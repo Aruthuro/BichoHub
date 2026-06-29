@@ -48,13 +48,14 @@ class BichoHubViewModel @Inject constructor(private val bichoHubRepository: Bich
         }
     }
 
-    fun listarMinhasOcorrencias() {
+    fun listarHistoricoColetor() {
         viewModelScope.launch {
             _minhasOcorrenciasState.value = UiState.Loading
 
-            when (val result = bichoHubRepository.listarMinhasOcorrencias()) {
-                is Resposta.Sucesso -> {
-                    _minhasOcorrenciasState.value = UiState.Successo(result.corpo)
+            when (val result = bichoHubRepository.listarHistoricoColetor()) {
+                is Resposta.Sucesso<*> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    _minhasOcorrenciasState.value = UiState.Successo(result.corpo as List<OcorrenciaResponse>)
                 }
                 is Resposta.Erro -> {
                     _minhasOcorrenciasState.value = UiState.Erro(result.msg)
@@ -69,8 +70,7 @@ class BichoHubViewModel @Inject constructor(private val bichoHubRepository: Bich
 
             when (val result = bichoHubRepository.listarMinhasOcorrencias()) {
                 is Resposta.Sucesso -> {
-                    val ativas = result.corpo.filter { it.estado == 2 || it.estado == 5 }
-                    _chamadasAtivasState.value = UiState.Successo(ativas)
+                    _chamadasAtivasState.value = UiState.Successo(result.corpo)
                 }
                 is Resposta.Erro -> {
                     _chamadasAtivasState.value = UiState.Erro(result.msg)

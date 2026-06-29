@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +27,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import br.edu.bichohub.ui.components.TipoSolicitacao
 import br.edu.bichohub.ui.components.UiState
+import br.edu.bichohub.ui.theme.corEstado
+import br.edu.bichohub.ui.theme.nomeEstado
 import br.edu.bichohub.ui.viewmodels.BichoHubViewModel
 import kotlinx.serialization.Serializable
 
@@ -74,10 +78,25 @@ fun ChamadasAtivasScreen(
                         items(chamadas) { chamada ->
                             Card(modifier = Modifier.fillMaxWidth()) {
                                 Column(modifier = Modifier.padding(12.dp)) {
-                                    Text(TipoSolicitacao.entries.toTypedArray()[chamada.tipo].nome)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        val nomeTipo = TipoSolicitacao.entries.getOrNull(chamada.tipo)?.nome ?: "Desconhecido"
+                                        Text(nomeTipo)
+
+                                        Text(
+                                            nomeEstado(chamada.estado),
+                                            color = corEstado(chamada.estado)
+                                        )
+                                    }
                                     chamada.descricaoOrigem?.let { Text(it, maxLines = 1) }
                                     chamada.solicitanteNome?.let { Text("Solicitante: $it") }
                                     chamada.risco?.let { Text("Risco: $it") }
+                                    chamada.statusSaude?.let { Text("Saúde: $it") }
+
+                                    Spacer(Modifier.height(4.dp))
+
                                     Button(
                                         onClick = { onChamadaSelecionada(chamada.id) },
                                         modifier = Modifier.fillMaxWidth()

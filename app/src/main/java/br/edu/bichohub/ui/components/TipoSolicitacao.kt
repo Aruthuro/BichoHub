@@ -3,8 +3,8 @@ package br.edu.bichohub.ui.components
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class TipoSolicitacao(val nome: String, val definicao: String) {
-    CONDUCAO("Condução", "retirar animal vivo"),
-    RESGATE("Resgate", "retirar animal ferido)"),
-    COLETA("Coleta", "retirar animal morto")
+enum class TipoSolicitacao(val id: Int, val nome: String, val definicao: String) {
+    CONDUCAO(1, "Condução", "retirar animal vivo"),
+    RESGATE(2, "Resgate", "retirar animal ferido"),
+    COLETA(3, "Coleta", "retirar animal morto")
 }

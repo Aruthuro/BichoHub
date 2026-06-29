@@ -72,4 +72,13 @@ class BichoHubRepository @Inject constructor(private val remoteDataSource: Bicho
             }
         }
     }
+    suspend fun listarHistoricoColetor(): Resposta<List<OcorrenciaResponse>> {
+        return when (val resultado = remoteDataSource.listarHistoricoColetor()) {
+            is Resposta.Sucesso -> resultado
+            is Resposta.Erro -> when (resultado.code) {
+                401 -> Resposta.Erro(401, "Usuário não autorizado.")
+                else -> resultado
+            }
+        }
+    }
 }

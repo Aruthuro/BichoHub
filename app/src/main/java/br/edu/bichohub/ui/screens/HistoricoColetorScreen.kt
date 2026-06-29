@@ -41,7 +41,7 @@ fun HistoricoColetorScreen(onOcorrenciaSelecionada: (Int) -> Unit, onShowSnackba
     val minhasOcorrenciasState by bichoHubViewModel.minhasOcorrenciasState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        bichoHubViewModel.listarMinhasOcorrencias()
+        bichoHubViewModel.listarHistoricoColetor()
     }
 
     LaunchedEffect(minhasOcorrenciasState) {
@@ -52,7 +52,7 @@ fun HistoricoColetorScreen(onOcorrenciaSelecionada: (Int) -> Unit, onShowSnackba
 
     PullToRefreshBox(
         isRefreshing = minhasOcorrenciasState is UiState.Loading,
-        onRefresh = { bichoHubViewModel.listarMinhasOcorrencias() }
+        onRefresh = { bichoHubViewModel.listarHistoricoColetor() }
     ) {
         when (val state = minhasOcorrenciasState) {
             is UiState.Loading -> {
@@ -79,7 +79,10 @@ fun HistoricoColetorScreen(onOcorrenciaSelecionada: (Int) -> Unit, onShowSnackba
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        Text(TipoSolicitacao.entries.toTypedArray()[occ.tipo].nome)
+                                        // A correção está aqui: blindando o acesso ao array de tipos
+                                        val nomeTipo = TipoSolicitacao.entries.getOrNull(occ.tipo)?.nome ?: "Desconhecido"
+                                        Text(nomeTipo)
+
                                         Text(
                                             nomeEstado(occ.estado),
                                             color = corEstado(occ.estado)

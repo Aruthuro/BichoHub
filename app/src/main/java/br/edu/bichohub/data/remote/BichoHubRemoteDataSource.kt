@@ -31,4 +31,8 @@ class BichoHubRemoteDataSource @Inject constructor(private val servicoAPI: Bicho
     suspend fun encerrarOcorrencia(id: Int, req: EncerrarRequest): Resposta<Unit> {
         return chamaApi { servicoAPI.encerrarOcorrencia(id, req) }
     }
+
+    suspend fun listarHistoricoColetor(): Resposta<List<OcorrenciaResponse>> {
+        return chamaApi { servicoAPI.listarHistoricoColetor() }
+    }
 }
