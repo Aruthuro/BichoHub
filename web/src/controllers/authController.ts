@@ -5,10 +5,10 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const login = async (req: Request, res: Response) => {
-    if (req.method == "GET"){
+    if (req.method === "GET"){
         const redirect = typeof req.query.redirect === "string" ? req.query.redirect : "/ocorrencias/abertas";
         res.render("auth/login", { client_id: process.env.CLIENT_ID, redirect, error: null });
-    } else if (req.method == "POST"){
+    } else if (req.method === "POST"){
         try {
             const { email, password } = req.body;
             if (!email || !password) {
@@ -48,18 +48,19 @@ const login = async (req: Request, res: Response) => {
 };
 
 const signup = async (req: Request, res: Response) => {
-    if (req.method == "GET"){
+    if (req.method === "GET"){
         res.render("auth/signup", { error: null });
-    } else if (req.method == "POST"){
+    } else if (req.method === "POST"){
         try {
             const { nome, email, senha, contato } = req.body;
             if (!nome || !email || !senha || !contato) {
-                return res.render("auth/signup", { error: "Algum campo faltanto." });
+		return res.render("auth/signup", { error: "Algum campo faltando." });
             }
-            await authService.signup(nome, email, senha, contato);
+            await authService.signup(nome, email, senha, contato.replace(/\D/g, ''));
             res.redirect("/auth/login");
         } catch(erro){
-			res.status(500).render("auth/signup", { error: "Tente novamente." });
+		console.error(erro);
+		res.status(500).render("auth/signup", { error: "Tente novamente." });
         }
     }
 };
@@ -99,9 +100,9 @@ const googleLogin = async (req: Request, res: Response) => {
 };
 
 const askContato = async (req: Request, res: Response) => {
-    if (req.method == "GET"){
+    if (req.method === "GET"){
         res.render("auth/contato", { error: null });
-    } else if (req.method == "POST"){
+    } else if (req.method === "POST"){
         try {
             const { contato } = req.body;
             if (!contato) {
@@ -112,7 +113,7 @@ const askContato = async (req: Request, res: Response) => {
             req.session.pending = null;
             res.redirect("/ocorrencias/abertas");
         } catch(erro){
-			res.status(500).render("auth/signup", { error: "Tente novamente." });
+		res.status(500).render("auth/signup", { error: "Tente novamente." });
         }
     }
 }

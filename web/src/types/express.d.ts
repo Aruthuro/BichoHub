@@ -11,7 +11,7 @@ declare module 'express' {
 
 declare module 'express-session' {
     interface SessionData {
-		uid: string;
+	uid: string;
         token?: string;
         logado?: boolean;
         eh_admin?: boolean;

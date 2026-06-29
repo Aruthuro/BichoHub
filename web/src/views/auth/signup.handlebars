@@ -18,20 +18,20 @@
 
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="seu@email.com" required>
+                        <input type="email" class="form-control" id="email" name="email" pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" placeholder="seu@email.com" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="senha" class="form-label">Senha</label>
-                        <input type="password" class="form-control" id="senha" name="senha" placeholder="Sua senha" required>
+                        <label for="senha" class="form-label">Senha (mínimo de 8 caracteres)</label>
+                        <input type="password" class="form-control" id="senha" name="senha" placeholder="Sua senha" minlength="8" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="contato" class="form-label">Contato</label>
-                        <input type="text" class="form-control" id="contato" name="contato" placeholder="Telefone">
+                        <input type="tel" class="form-control" id="contato" name="contato" placeholder="Número de telefone" pattern="^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$" maxlength="15" required>
                     </div>
 
-                    <button type="submit" class="btn btn-dark w-100">Cadastrar</button>
+                    <button type="submit" class="btn btn-dark w-100" id="botao" disabled>Cadastrar</button>
                 </form>
 
                 <p class="text-center mt-3 mb-0">
@@ -41,3 +41,4 @@
         </div>
     </div>
 </div>
+<script src="/js/validaCampos.js"></script>
