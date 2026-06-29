@@ -27,7 +27,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:6969/api/\"")
+            buildConfigField("String", "BASE_URL", "\"https://bichohub-server.onrender.com/api/\"")
         }
         release {
             isMinifyEnabled = false

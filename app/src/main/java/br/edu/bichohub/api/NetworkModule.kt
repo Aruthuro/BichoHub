@@ -15,14 +15,15 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
-
+import android.util.Log
+import okhttp3.logging.HttpLoggingInterceptor
 /**
  * Objeto único que providencia uma instância do Retrofit para os serviços.
  */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val URL = "http://10.0.0.100:6969/api/"
+    private const val URL = "https://bichohub-server.onrender.com/api/"
 
     @Provides
     @Singleton
@@ -46,11 +47,21 @@ object NetworkModule {
         return AuthInterceptor(tokenDataStoreManager)
     }
 
+
+
     @Provides
     @Singleton
     fun okClient(authInterceptor: AuthInterceptor): OkHttpClient {
+
+        val logging = HttpLoggingInterceptor { message ->
+            Log.d("HTTP", message)
+        }.apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
+            .addInterceptor(logging)
             .build()
     }
 
