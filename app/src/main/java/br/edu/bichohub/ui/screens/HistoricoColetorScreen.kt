@@ -79,8 +79,7 @@ fun HistoricoColetorScreen(onOcorrenciaSelecionada: (Int) -> Unit, onShowSnackba
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        // A correção está aqui: blindando o acesso ao array de tipos
-                                        val nomeTipo = TipoSolicitacao.entries.getOrNull(occ.tipo)?.nome ?: "Desconhecido"
+                                        val nomeTipo = TipoSolicitacao.fromId(occ.tipo)?.nome ?: "Desconhecido"
                                         Text(nomeTipo)
 
                                         Text(

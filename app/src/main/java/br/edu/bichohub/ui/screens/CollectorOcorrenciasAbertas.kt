@@ -39,6 +39,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import br.edu.bichohub.ui.components.TipoSolicitacao
 
 @Serializable
 object CollectorOcorrenciasAbertas
@@ -147,12 +148,7 @@ fun CollectorOcorrenciasAbertasScreen(
                                 CardDefaults.cardColors()
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    text = when (occ.tipo) {
-                                        1 -> "Coleta"; 2 -> "Resgate"; 3 -> "Condução"
-                                        else -> "Tipo ${occ.tipo}"
-                                    }
-                                )
+                                TipoSolicitacao.fromId(occ.tipo)?.nome ?: "Desconhecido"
                                 occ.descricaoOrigem?.let { Text("Descrição: $it") }
                                 occ.solicitanteNome?.let { Text("Solicitante: $it") }
                                 occ.solicitanteContato?.let { Text("Contato: $it") }

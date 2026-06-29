@@ -132,7 +132,8 @@ fun OcorrenciaDetailScreen(
             if (ocorrencia != null) {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(12.dp)) {
-                        Text(TipoSolicitacao.entries.toTypedArray()[ocorrencia.tipo].nome)
+                        val tipo = TipoSolicitacao.entries.firstOrNull { it.id == ocorrencia.tipo }
+                        Text(tipo?.nome ?: "Desconhecido")
                         ocorrencia.solicitanteNome?.let { Text("Solicitante: $it") }
                         ocorrencia.solicitanteContato?.let { Text("Contato: $it") }
                         ocorrencia.descricaoOrigem?.let { Text("Descrição: $it") }

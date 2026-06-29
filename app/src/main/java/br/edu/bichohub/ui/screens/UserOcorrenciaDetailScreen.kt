@@ -67,12 +67,19 @@ fun UserOcorrenciaDetailScreen(
             ) {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(12.dp)) {
+
+                        val tipo = TipoSolicitacao.entries.firstOrNull { it.id == occ.tipo }
+
                         Text(
-                            TipoSolicitacao.entries.toTypedArray()[occ.tipo].nome,
+                            text = tipo?.nome ?: "Desconhecido",
                             color = corEstado(occ.estado)
                         )
+
                         Text("Status: ${nomeEstado(occ.estado)}")
-                        if (occ.ultimoCaso) Text("Sem coletores disponíveis no momento")
+
+                        if (occ.ultimoCaso) {
+                            Text("Sem coletores disponíveis no momento")
+                        }
                     }
                 }
 

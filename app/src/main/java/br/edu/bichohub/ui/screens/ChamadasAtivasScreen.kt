@@ -82,7 +82,7 @@ fun ChamadasAtivasScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        val nomeTipo = TipoSolicitacao.entries.getOrNull(chamada.tipo)?.nome ?: "Desconhecido"
+                                        val nomeTipo = TipoSolicitacao.fromId(chamada.tipo)?.nome ?: "Desconhecido"
                                         Text(nomeTipo)
 
                                         Text(

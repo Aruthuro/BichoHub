@@ -79,7 +79,11 @@ fun MinhasSolicitacoesScreen(onShowSnackbar: (String) -> Unit, onOcorrenciaSelec
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        val nomeTipo = TipoSolicitacao.entries.getOrNull(sol.tipo)?.nome ?: "Desconhecido"
+                                        val nomeTipo = TipoSolicitacao.entries
+                                            .firstOrNull { it.id == sol.tipo }
+                                            ?.nome
+                                            ?: "Desconhecido"
+
                                         Text(nomeTipo)
 
                                         Text(
