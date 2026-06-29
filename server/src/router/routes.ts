@@ -322,7 +322,7 @@ router.get(
   async (req, res, next) => {
     try {
       const coletorId = (req as CustomRequest).usuario.id;
-      const ocorrencias = await listarOcorrenciasGPS();
+      const ocorrencias = await listarOcorrenciasAtivas(coletorId);
       res.status(200).json(ocorrencias);
     } catch (erro) {
       console.error(erro);

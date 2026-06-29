@@ -108,7 +108,8 @@ fun OcorrenciasAbertasScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
-                                    Text(TipoSolicitacao.entries.toTypedArray()[occ.tipo].nome)
+                                    val nomeTipo = TipoSolicitacao.entries.getOrNull(occ.tipo)?.nome ?: "Desconhecido"
+                                    Text(nomeTipo)
                                     occ.descricaoOrigem?.let { Text("Descrição: $it") }
                                     occ.solicitanteNome?.let { Text("Solicitante: $it") }
                                     occ.solicitanteContato?.let { Text("Contato: $it") }

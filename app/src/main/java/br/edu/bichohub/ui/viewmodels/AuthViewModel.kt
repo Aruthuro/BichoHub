@@ -81,7 +81,7 @@ class AuthViewModel @Inject constructor(private val authRepository: AuthReposito
     val senha = TextFieldState()
     val senhaTaErrada by derivedStateOf {
         if (senha.text.isNotEmpty()){
-            !((senha.text.length >= 8) && (senha.text.length <= 255))
+            !((senha.text.length >= 2) && (senha.text.length <= 255))
         } else {
             false
         }

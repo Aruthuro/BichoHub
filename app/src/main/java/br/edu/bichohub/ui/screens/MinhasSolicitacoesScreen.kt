@@ -79,7 +79,9 @@ fun MinhasSolicitacoesScreen(onShowSnackbar: (String) -> Unit, onOcorrenciaSelec
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        Text(TipoSolicitacao.entries.toTypedArray()[sol.tipo].nome)
+                                        val nomeTipo = TipoSolicitacao.entries.getOrNull(sol.tipo)?.nome ?: "Desconhecido"
+                                        Text(nomeTipo)
+
                                         Text(
                                             nomeEstado(sol.estado),
                                             color = corEstado(sol.estado)
