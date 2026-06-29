@@ -7,6 +7,8 @@ object TokenManager {
     private const val PREF_NAME = "bichohub_prefs"
     private const val KEY_TOKEN = "jwt_token"
     private const val KEY_NOME = "usuario_nome"
+    private const val KEY_ADMIN = "eh_admin"
+    private const val KEY_COLETOR = "eh_coletor"
 
     private lateinit var prefs: SharedPreferences
 
@@ -15,15 +17,25 @@ object TokenManager {
     }
 
     fun salvarToken(token: String, nome: String) {
+        salvarToken(token, nome, false, false)
+    }
+
+    fun salvarToken(token: String, nome: String, ehAdmin: Boolean, ehColetor: Boolean) {
         prefs.edit()
             .putString(KEY_TOKEN, token)
             .putString(KEY_NOME, nome)
-            .apply()
+            .putBoolean(KEY_ADMIN, ehAdmin)
+            .putBoolean(KEY_COLETOR, ehColetor)
+            .commit()
     }
 
     fun getToken(): String? = prefs.getString(KEY_TOKEN, null)
 
     fun getNome(): String? = prefs.getString(KEY_NOME, null)
+
+    fun isAdmin(): Boolean = prefs.getBoolean(KEY_ADMIN, false)
+
+    fun isColetor(): Boolean = prefs.getBoolean(KEY_COLETOR, false)
 
     fun isLogado(): Boolean = getToken() != null
 
@@ -31,6 +43,8 @@ object TokenManager {
         prefs.edit()
             .remove(KEY_TOKEN)
             .remove(KEY_NOME)
-            .apply()
+            .remove(KEY_ADMIN)
+            .remove(KEY_COLETOR)
+            .commit()
     }
 }

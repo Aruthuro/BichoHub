@@ -24,6 +24,8 @@ webRouter.post("/ocorrencias/editar/:id", requireToken, requireColetorOuAdmin, o
 webRouter.post("/ocorrencias/encerrar/:id", requireToken, requireColetorOuAdmin, ocorrenciaController.encerrar);
 
 webRouter.get("/admin/dashboard", requireToken, requireAdmin, adminController.dashboard);
+webRouter.get("/admin/ocorrencias", requireToken, requireAdmin, adminController.listarOcorrencias);
+webRouter.get("/admin/ocorrencias/:id", requireToken, requireAdmin, adminController.detalhes);
 webRouter.get("/admin/usuarios", requireToken, requireAdmin, adminController.listarUsuarios);
 webRouter.post("/admin/usuarios/:id/tornar-admin", requireToken, requireAdmin, adminController.promoverAdmin);
 webRouter.post("/admin/usuarios/:id/tornar-coletor", requireToken, requireAdmin, adminController.promoverColetor);

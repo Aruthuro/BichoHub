@@ -1,12 +1,13 @@
 package br.edu.bichohub.ui.screens
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.location.Location
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,19 +15,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,95 +42,162 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import br.edu.bichohub.api.RetrofitObject
-import br.edu.bichohub.api.datac.OcorrenciaRequest
-import br.edu.bichohub.ui.theme.BichoHubTheme
-import br.edu.bichohub.ui.theme.Template
-import br.edu.bichohub.ui.utils.NotificationHelper
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.hilt.navigation.compose.hiltViewModel
+import br.edu.bichohub.ui.components.TipoSolicitacao
+import br.edu.bichohub.ui.components.UiState
+import br.edu.bichohub.ui.viewmodels.RegistroViewModel
+import coil3.compose.AsyncImage
+import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.Serializable
-import java.io.ByteArrayOutputStream
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import java.io.File
-import java.time.Instant
-import java.util.Base64
 import java.util.UUID
 
 @Serializable
 object Ocorrencia
 
-enum class TipoChamada(val nome: String, val apiValue: Int) {
-    CONDUCAO(nome = "Condução", apiValue = 3),
-    RESGATE(nome = "Resgate", apiValue = 2),
-    COLETA(nome = "Coleta", apiValue = 1)
-}
-
-data class FormData(val fotoURI: Uri?, val tipoChamada: TipoChamada, val descricao: String)
-
+/**
+ * Função que adiciona a tela de solicitação de ocorrência.
+ * @param onShowSnackBar função para usar a snackbar.
+ * @param onNavigateToMain para navegar para a tela principal.
+ */
 @Composable
-fun OcorrenciaScreen(onSuccess: () -> Unit, onVoltar: () -> Unit) {
+fun OcorrenciaScreen(onShowSnackBar: (String) -> Unit, onNavigateToMain: () -> Unit){
     val context = LocalContext.current
-    var fotoURI by rememberSaveable { mutableStateOf<Uri?>(null) }
-    var tipoChamada by remember { mutableStateOf<TipoChamada?>(null) }
+    val regViewModel: RegistroViewModel = hiltViewModel<RegistroViewModel>()
+    val ocorrState by regViewModel.ocorrenciaState.collectAsStateWithLifecycle()
+    var fotoUriStr by rememberSaveable { mutableStateOf<String?>(null) }
+    var cameraUri by remember { mutableStateOf<Uri?>(null) }
+    var tipoSolicitacao by remember { mutableStateOf<TipoSolicitacao?>(null) }
     val descricao = rememberTextFieldState()
+    val estadoScroll = rememberScrollState()
+    val activity = context as? Activity
     val scope = rememberCoroutineScope()
-    var carregando by rememberSaveable { mutableStateOf(false) }
 
     val gerenteCamera = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { sucesso ->
-        if (!sucesso) {
-            fotoURI = null
-        }
-    }
-
-    val permissaoCamera = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { concedida ->
-        if (concedida) {
-            val uri = criaURI(context)
-            fotoURI = uri
-            gerenteCamera.launch(uri)
+        if (sucesso) {
+            fotoUriStr = cameraUri?.toString()
         } else {
-            Toast.makeText(context, "Permissão de câmera necessária.", Toast.LENGTH_SHORT).show()
+            fotoUriStr = null
         }
     }
     val gerenteGaleria = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        if (uri != null) {
-            fotoURI = uri
+        if (uri != null){
+            fotoUriStr = uri.toString()
+        }
+    }
+    val permissaoCamera = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { aceitou ->
+        if (!aceitou) {
+            onShowSnackBar("A permissão da câmera é necessária para tirar fotos.")
+        }
+    }
+    val permissaoLocal = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { aceitou ->
+        if (!aceitou) {
+            onShowSnackBar("A localização é necessária para registrar o local.")
         }
     }
 
-    Template("Nova Ocorrência", onVoltar = onVoltar) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+    LaunchedEffect(Unit) {
+        regViewModel.limparRegistroState()
+    }
+
+    LaunchedEffect(ocorrState) {
+        when (val state = ocorrState) {
+            is UiState.Successo -> {
+                onShowSnackBar(state.data)
+                regViewModel.limparRegistroState()
+                onNavigateToMain()
+            }
+            is UiState.Erro -> onShowSnackBar(state.msg)
+            else -> {}
+        }
+    }
+
+    if (ocorrState is UiState.Loading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(modifier = Modifier.size(48.dp))
+        }
+    } else {
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Qual o tipo de serviço?")
+                TipoSolicitacao.entries.forEach { tipo ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        RadioButton(
+                            selected = (tipoSolicitacao == tipo),
+                            onClick = { tipoSolicitacao = tipo }
+                        )
+                        Text("${tipo.nome} (${tipo.definicao})")
+                    }
+                }
+            }
+        }
+
+        Card(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 0.dp),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            OutlinedTextField(
+                state = descricao,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .padding(16.dp)
+                    .verticalScroll(estadoScroll),
+                label = {Text("Descrição do ocorrido")},
+                lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 3)
+            )
+        }
+
+        Card(
+            modifier = Modifier.padding(16.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("Foto")
-                if (fotoURI != null) {
-                    Text(fotoURI.toString())
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp)
-                            .padding(8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(90.dp)
+                        .padding(8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val uri = fotoUriStr?.let { Uri.parse(it) }
+                    if (uri != null){
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = "Foto adicionada",
+                            modifier = Modifier.size(90.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else{
                         Text("Nenhuma foto foi adicionada.")
                     }
                 }
@@ -136,21 +210,15 @@ fun OcorrenciaScreen(onSuccess: () -> Unit, onVoltar: () -> Unit) {
                             when {
                                 ContextCompat.checkSelfPermission(
                                     context, Manifest.permission.CAMERA
-                                ) == PackageManager.PERMISSION_GRANTED -> {
+                                ) == PackageManager.PERMISSION_GRANTED ->{
                                     val uri = criaURI(context)
-                                    fotoURI = uri
+                                    cameraUri = uri
                                     gerenteCamera.launch(uri)
                                 }
-                                ActivityCompat.shouldShowRequestPermissionRationale(
-                                    context as android.app.Activity,
-                                    Manifest.permission.CAMERA
+                                activity != null && ActivityCompat.shouldShowRequestPermissionRationale(
+                                    activity, Manifest.permission.CAMERA
                                 ) -> {
-                                    Toast.makeText(
-                                        context,
-                                        "Conceda permissão para tirar fotos.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    permissaoCamera.launch(Manifest.permission.CAMERA)
+                                    onShowSnackBar("Conceda permissão para tirar fotos.")
                                 }
                                 else -> {
                                     permissaoCamera.launch(Manifest.permission.CAMERA)
@@ -175,100 +243,70 @@ fun OcorrenciaScreen(onSuccess: () -> Unit, onVoltar: () -> Unit) {
             }
         }
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Qual o tipo de serviço?")
-                TipoChamada.entries.forEach { tipo ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        RadioButton(
-                            selected = (tipoChamada == tipo),
-                            onClick = { tipoChamada = tipo }
-                        )
-                        Text(tipo.nome)
-                    }
-                }
-            }
-        }
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            OutlinedTextField(
-                state = descricao,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .padding(16.dp),
-                label = { Text("Descrição") },
-                lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 5)
-            )
-        }
-
         Button(
             onClick = {
-                if (carregando || tipoChamada == null) return@Button
-                carregando = true
-                scope.launch {
-                    try {
-                        val imagemBase64 = fotoURI?.let { uri ->
-                            context.contentResolver.openInputStream(uri)?.use { stream ->
-                                val bitmap = BitmapFactory.decodeStream(stream)
-                                val maxDim = 720f
-                                val escala = minOf(
-                                    maxDim / bitmap.width.coerceAtLeast(1),
-                                    maxDim / bitmap.height.coerceAtLeast(1),
-                                    1f
+                val fineGranted = ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+                val coarseGranted = ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+
+                if (fineGranted || coarseGranted) {
+                    scope.launch {
+                        val location = obterLocalizacao(context, fineGranted)
+                        when (location) {
+                            null -> onShowSnackBar("Não foi possível obter a localização. Verifique se o GPS está ativo.")
+                            else -> {
+                                val wkt = "POINT(${location.longitude} ${location.latitude})"
+                                val agora = java.time.Instant.now().toString()
+                                regViewModel.registrarOcorrencia(
+                                    tipo = tipoSolicitacao!!.id,
+                                    gpsWkt = wkt,
+                                    dataCaptura = agora,
+                                    descricaoOrigem = descricao.text.toString(),
+                                    observacoes = null,
+                                    risco = null,
+                                    imagem = fotoUriStr
                                 )
-                                val w = (bitmap.width * escala).toInt()
-                                val h = (bitmap.height * escala).toInt()
-                                val comprimida = Bitmap.createScaledBitmap(bitmap, w, h, true)
-                                val saida = ByteArrayOutputStream()
-                                comprimida.compress(Bitmap.CompressFormat.JPEG, 50, saida)
-                                Base64.getEncoder().encodeToString(saida.toByteArray())
                             }
                         }
-
-                        RetrofitObject.service.registrarOcorrencia(
-                            OcorrenciaRequest(
-                                tipo = tipoChamada!!.apiValue,
-                                gpsOrigem = "POINT(-60.0217 -3.1190)",
-                                dataCaptura = Instant.now().toString(),
-                                descricaoOrigem = descricao.text.toString().ifBlank { null },
-                                observacoes = null,
-                                risco = null,
-                                referenciaImagem = imagemBase64
-                            )
-                        )
-                        NotificationHelper.showNotification(
-                            context,
-                            title = "Ocorrência Registrada",
-                            message = "Sua ocorrência foi enviada com sucesso!")
-                        Toast.makeText(context, "Ocorrência registrada!", Toast.LENGTH_SHORT).show()
-                        onSuccess()
-                    } catch (e: Exception) {
-                        NotificationHelper.showNotification(
-                            context,
-                            title = "Ocorreu um erro!",
-                            message = "Ocorreu um erro durante o envio da ocorrência,")
-                        Toast.makeText(context, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
-                    } finally {
-                        carregando = false
                     }
+                } else if (activity != null && ActivityCompat.shouldShowRequestPermissionRationale(
+                        activity, Manifest.permission.ACCESS_FINE_LOCATION)
+                ) {
+                    onShowSnackBar("A permissão de localização é necessária.")
+                    permissaoLocal.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                } else {
+                    permissaoLocal.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
             },
-            enabled = tipoChamada != null && !carregando
+            enabled = tipoSolicitacao != null && descricao.text.any { it.isLetter() }
         ) {
-            Text(if (carregando) "Enviando..." else "Submeter")
+            Text("Submeter")
         }
     }
+}
+
+private suspend fun obterLocalizacao(context: Context, fineGranted: Boolean): Location? {
+    val client = LocationServices.getFusedLocationProviderClient(context)
+    return try {
+        // First try the last known location (fastest, works even indoors)
+        val ultima = client.lastLocation.await()
+        if (ultima != null) return ultima
+
+        // Fallback: request a fresh location
+        val priority = if (fineGranted) Priority.PRIORITY_HIGH_ACCURACY else Priority.PRIORITY_BALANCED_POWER_ACCURACY
+        client.getCurrentLocation(priority, null).await()
+    } catch (_: Exception) {
+        null
     }
+}
+
+private suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { cont ->
+    addOnSuccessListener { cont.resume(it) }
+    addOnFailureListener { cont.resumeWithException(it) }
+    addOnCanceledListener { cont.cancel() }
 }
 
 private fun criaURI(context: Context): Uri {
@@ -277,12 +315,4 @@ private fun criaURI(context: Context): Uri {
     if (!pasta.exists()) pasta.mkdirs()
     val arq = File(pasta, "IMG_$num.jpg")
     return FileProvider.getUriForFile(context, "br.edu.bichohub.provider", arq)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun OcorrenciaScreenPreview() {
-    BichoHubTheme {
-        OcorrenciaScreen(onSuccess = {}, onVoltar = {})
-    }
 }

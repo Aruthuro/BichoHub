@@ -2,132 +2,115 @@ package br.edu.bichohub.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import br.edu.bichohub.api.TokenManager
-import br.edu.bichohub.ui.theme.Template
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.hilt.navigation.compose.hiltViewModel
+import br.edu.bichohub.ui.components.MenuLateral
+import br.edu.bichohub.ui.viewmodels.AuthViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable
 object Main
 
+/**
+ * A tela principal do aplicativo
+ * @param onNavigateToSignUp função que navega para a tela de cadastro.
+ * @param onNavigateToLogIn função que navega para a tela de log-in.
+ * @param onNavigateToOcorrencia função que navega para a tela de registrar ocorrências.
+ * @param onNavigateToOcorrenciasAbertas função que navega para a tela de ocorrências abertas.
+ * @param onNavigateToMinhasSolicitacoes função que navega para a tela de ocorrências feitas pelo usuário.
+ * @param onNavigateToHistoricoColetor função que navega para a tela de ocorrências concluídas pelo usuário.
+ * @param onNavigateToPlantoes função que navega para a tela de plantões.
+ */
 @Composable
 fun MainScreen(
-    onNavigateToSignIn: () -> Unit,
+    onNavigateToSignUp: () -> Unit,
     onNavigateToLogIn: () -> Unit,
-    onNavigateToOcorr: () -> Unit,
-    onNavigateToCollectorOcorrencias: () -> Unit,
-    onNavigateToMinhasOcorrencias: () -> Unit,
+    onNavigateToOcorrencia: () -> Unit,
+    onNavigateToOcorrenciasAbertas: () -> Unit,
+    onNavigateToMinhasSolicitacoes: () -> Unit,
     onNavigateToHistoricoColetor: () -> Unit,
-    onNavigateToAdmin: () -> Unit,
-    onLogout: () -> Unit
-) {
-    val login = TokenManager.isLogado()
-    val nome = TokenManager.getNome()
+    onNavigateToChamadasAtivas: () -> Unit,
+    onNavigateToPlantoes: () -> Unit
+){
+    val authViewModel: AuthViewModel = hiltViewModel<AuthViewModel>()
+    val login by authViewModel.taLogado.collectAsStateWithLifecycle()
+    val coletor by authViewModel.ehColetor.collectAsStateWithLifecycle()
+    val ajudante by authViewModel.ehAjudante.collectAsStateWithLifecycle()
 
     if (login) {
-        Template("BichoHub") {
+        MenuLateral("BichoHub", content = {
             Column(
-                modifier = Modifier.fillMaxSize().padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Spacer(Modifier.height(24.dp))
-                if (nome != null) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(
-                            "Bem-vindo, $nome!",
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
+                ItemLista("Ocorrência", onClick = onNavigateToOcorrencia)
+                ItemLista("Minhas Solicitações", onClick = onNavigateToMinhasSolicitacoes)
+                if (ajudante || coletor) {
+                    ItemLista("Solicitações Abertas", onClick = onNavigateToOcorrenciasAbertas)
                 }
-                Spacer(Modifier.height(16.dp))
-                Button(
-                    onClick = onNavigateToOcorr,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Nova Ocorrência")
+                if (coletor) {
+                    ItemLista("Chamadas Ativas", onClick = onNavigateToChamadasAtivas)
+                    ItemLista("Histórico", onClick = onNavigateToHistoricoColetor)
                 }
-                Button(
-                    onClick = onNavigateToMinhasOcorrencias,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Minhas Solicitações")
-                }
-                Button(
-                    onClick = onNavigateToCollectorOcorrencias,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Solicitações Abertas (Coletor)")
-                }
-                Button(
-                    onClick = onNavigateToHistoricoColetor,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
-                ) {
-                    Text("Histórico (Coletor)")
-                }
-                Button(
-                    onClick = onNavigateToAdmin,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A))
-                ) {
-                    Text("Admin")
-                }
-                Spacer(Modifier.weight(1f))
-                Button(
-                    onClick = onLogout,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB71C1C))
-                ) {
-                    Text("Sair")
-                }
-                Spacer(Modifier.height(16.dp))
+                ItemLista("Plantões", onClick = onNavigateToPlantoes)
             }
-        }
+        })
     } else {
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(
-                onClick = onNavigateToSignIn,
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text("Cadastrar-se")
-            }
-            Button(
-                onClick = onNavigateToLogIn,
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text("Log-in")
-            }
+            ItemLista("Cadastrar-se", onClick = onNavigateToSignUp)
+            ItemLista("Log-in", onClick = onNavigateToLogIn)
+        }
+    }
+}
+
+@Composable
+private fun ItemLista(texto: String, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        TextButton(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = texto,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Start,
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }

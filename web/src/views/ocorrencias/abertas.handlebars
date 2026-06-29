@@ -20,8 +20,11 @@
         <p class="card-text"><strong>Data:</strong> {{data_captura}}</p>
         <p class="card-text"><strong>Origem:</strong> {{descricao_origem}}</p>
         <p class="card-text text-truncate"><strong>Obs:</strong> {{observacoes}}</p>
-        <div class="mt-3">
+        <div class="mt-2">
           <span class="badge bg-secondary">Risco: {{risco}}</span>
+          {{#if classificacao}}
+          <span class="badge bg-info text-dark ms-1">{{classificacao}}</span>
+          {{/if}}
         </div>
       </div>
       <div class="card-footer bg-transparent border-0 d-flex flex-column gap-2">

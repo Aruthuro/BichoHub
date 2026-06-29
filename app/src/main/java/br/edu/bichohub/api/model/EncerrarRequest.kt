@@ -1,4 +1,4 @@
-package br.edu.bichohub.api.datac
+package br.edu.bichohub.api.model
 
 import com.google.gson.annotations.SerializedName
 

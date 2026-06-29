@@ -1,5 +1,5 @@
 package br.edu.bichohub.api
-
+import br.edu.bichohub.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -9,6 +9,7 @@ object RetrofitObject {
     // Para emulador Android local:      http://10.0.2.2:6969/api/
     // Produção (Render):                https://bichohub-server.onrender.com/api/
     private const val URL = "https://bichohub-server.onrender.com/api/"
+    // private const val URL = BuildConfig.BASE_URL
 
     private val authInterceptor = Interceptor { chain ->
         val request = chain.request().newBuilder()

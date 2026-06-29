@@ -3,10 +3,6 @@ import { env } from "./env.js"
 
 const { Pool } = pg;
 
-/*
-  conexao ao banco de dados usando Pool (gerencia reconexao automaticamente)
-*/
-
 export const client = new Pool({
   user: env.POSTGRES_USER,
   host: env.POSTGRES_HOST,
@@ -26,11 +22,7 @@ export interface Credencial {
   nome: string;
 }
 
-/*
-  cria tabela
-*/
 export async function criarTabelaMensagens() {
-
   await client.query(`
     CREATE TABLE IF NOT EXISTS mensagens (
       id SERIAL PRIMARY KEY,
@@ -39,11 +31,7 @@ export async function criarTabelaMensagens() {
   `);
 }
 
-/*
-  inserir mensagem
-*/
 export async function inserirMensagem(texto: string) {
-
   const resultado = await client.query(
     `
       INSERT INTO mensagens (texto)
@@ -52,27 +40,17 @@ export async function inserirMensagem(texto: string) {
     `,
     [texto]
   );
-
   return resultado.rows[0];
 }
 
-/*
-  buscar mensagens
-*/
 export async function buscarMensagens() {
-
   const resultado = await client.query(`
     SELECT * FROM mensagens
   `);
-
   return resultado.rows;
 }
 
-/*
-  remover mensagem
-*/
 export async function removerMensagem(id: number) {
-
   const resultado = await client.query(
     `
       DELETE FROM mensagens
@@ -81,13 +59,9 @@ export async function removerMensagem(id: number) {
     `,
     [id]
   );
-
   return resultado.rows[0];
 }
 
-/*
-  mostrar a lista de plantao
-*/
 export async function listarColetoresDisponiveisNoHorario(horario: string) {
   const resultado = await client.query(
     `
@@ -101,7 +75,6 @@ export async function listarColetoresDisponiveisNoHorario(horario: string) {
     `,
     [horario]
   );
-
   return resultado.rows;
 }
 
@@ -123,21 +96,29 @@ export async function listarSolicitacoes(usuarioId: number) {
   return resultado.rows;
 }
 
-
-export async function tornarColetor(usuarioId: number) {
+export async function tornarColetor(usuarioId: number, cpf?: string) {
+  const cpfFinal = cpf || String(usuarioId).padStart(11, "0");
   const resultado = await client.query(
-    `INSERT INTO coletores (usuario_id)
-     VALUES ($1)
+    `INSERT INTO coletores (usuario_id, cpf)
+     VALUES ($1, $2)
      ON CONFLICT (usuario_id) DO NOTHING
      RETURNING usuario_id`,
-    [usuarioId]
+    [usuarioId, cpfFinal]
   );
   return resultado.rows[0] || null;
 }
 
-export async function verificarColetor(usuarioId: number): Promise<boolean> {
+export async function checarColetor(usuarioId: number): Promise<boolean> {
   const resultado = await client.query(
     `SELECT 1 FROM coletores WHERE usuario_id = $1`,
+    [usuarioId]
+  );
+  return resultado.rows.length > 0;
+}
+
+export async function checarAjudante(usuarioId: number): Promise<boolean> {
+  const resultado = await client.query(
+    `SELECT 1 FROM usuarios WHERE id = $1 AND ajudante = TRUE`,
     [usuarioId]
   );
   return resultado.rows.length > 0;
@@ -162,9 +143,12 @@ export async function buscarOcorrenciaPorId(id: number) {
   const resultado = await client.query(
     `SELECT o.*, ST_AsText(o.origem_gps) AS origem_gps,
             ST_AsText(o.destino_gps) AS destino_gps,
-            u.nome AS solicitante_nome, u.contato AS solicitante_contato
+            u.nome AS solicitante_nome, u.contato AS solicitante_contato,
+            u_coletor.nome AS coletor_nome
      FROM ocorrencias o
      JOIN usuarios u ON u.id = o.origem_solicitacao_id
+     LEFT JOIN coletores c ON o.coletor_id = c.usuario_id
+     LEFT JOIN usuarios u_coletor ON c.usuario_id = u_coletor.id
      WHERE o.id = $1`,
     [id]
   );
@@ -200,6 +184,24 @@ export async function listarOcorrenciasDoColetor(coletorId: number) {
   return resultado.rows;
 }
 
+export async function listarOcorrenciasAtivas(coletorId: number) {
+  const resultado = await client.query(
+    `SELECT o.id, o.tipo, o.data_captura, o.descricao_origem,
+            o.observacoes, o.risco, o.ultimo_caso, o.estado,
+            o.coletor_id,
+            ST_AsText(o.origem_gps) AS origem_gps,
+            u.nome AS solicitante_nome, u.contato AS solicitante_contato,
+            c.nome AS coletor_nome
+     FROM ocorrencias o
+     JOIN usuarios u ON u.id = o.origem_solicitacao_id
+     LEFT JOIN usuarios c ON c.id = o.coletor_id
+     WHERE o.coletor_id = $1 AND o.estado IN (2, 5)
+     ORDER BY o.data_captura DESC`,
+    [coletorId]
+  );
+  return resultado.rows;
+}
+
 export async function listarOcorrenciasGPS() {
   const resultado = await client.query(
     `SELECT o.id, o.data_captura, o.risco, o.status_saude, o.classificacao,
@@ -207,6 +209,13 @@ export async function listarOcorrenciasGPS() {
      FROM ocorrencias o`
   );
   return resultado.rows;
+}
+
+export async function atualizarReferenciaImagem(id: number, url: string) {
+  await client.query(
+    `UPDATE ocorrencias SET referencia_imagem = $1 WHERE id = $2`,
+    [url, id]
+  );
 }
 
 export async function editarOcorrencia(
@@ -418,6 +427,25 @@ export async function buscarCredencialPorEmail(email: string): Promise<Credencia
   );
 
   return resultado.rows[0] || null;
+}
+
+export async function inserirOcorrencia(
+  origem_id: number,
+  gps_origem: [number, number],
+  descricao: string | null,
+  imagem: string | null,
+  tipo: number
+) {
+  const resultado = await client.query(
+    `
+      INSERT INTO ocorrencias (origem_solicitacao_id, gps_origem, descricao_origem, referencia_imagem, tipo)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id
+    `,
+    [origem_id, gps_origem, descricao, imagem, tipo]
+  );
+
+  return resultado.rows[0].id;
 }
 
 export async function atualizarClassificacao(id: number, classificacao: string, confianca: number) {

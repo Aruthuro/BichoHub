@@ -1,6 +1,27 @@
-package br.edu.bichohub.api.datac
+package br.edu.bichohub.api.model
 
 import com.google.gson.annotations.SerializedName
+
+data class OcorrenciaRequest(
+    val tipo: Int,
+    @SerializedName("gps_origem")
+    val gpsOrigem: String,
+    @SerializedName("data_captura")
+    val dataCaptura: String,
+    @SerializedName("descricao_origem")
+    val descricaoOrigem: String?,
+    val observacoes: String?,
+    val risco: String?,
+    @SerializedName("referencia_imagem")
+    val imagem: String?
+)
+
+data class OcorrenciaRegistradaResponse(
+    val mensagem: String,
+    val id: Int,
+    @SerializedName("ultimo_caso")
+    val ultimoCaso: Boolean
+)
 
 data class OcorrenciaResponse(
     val id: Int,

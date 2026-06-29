@@ -5,10 +5,16 @@
   "type": "module",
   "scripts": {
     "start": "sass --watch public/scss/custom.scss:public/css/custom.css & nodemon --exec tsx src/index.ts",
-    "deploy": "tsc",
+    "deploy": "sass public/scss/custom.scss:public/css/custom.css --style=compressed --no-source-map && tsc",
     "start:prod": "node build/index.js"
   },
   "dependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.0",
+    "@types/express-session": "^1.19.0",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^22.13.0",
+    "@types/uuid": "^10.0.0",
     "axios": "^1.7.9",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
@@ -21,12 +27,6 @@
     "uuid": "^14.0.0"
   },
   "devDependencies": {
-    "@types/cookie-parser": "^1.4.10",
-    "@types/express": "^5.0.0",
-    "@types/express-session": "^1.19.0",
-    "@types/morgan": "^1.9.10",
-    "@types/node": "^22.13.0",
-    "@types/uuid": "^10.0.0",
     "nodemon": "^3.1.14",
     "tsx": "^4.19.2",
     "typescript": "~6.0.2",
