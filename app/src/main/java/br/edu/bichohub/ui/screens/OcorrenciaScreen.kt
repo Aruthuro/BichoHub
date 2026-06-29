@@ -261,7 +261,7 @@ fun OcorrenciaScreen(onShowSnackBar: (String) -> Unit, onNavigateToMain: () -> U
                                 val wkt = "POINT(${location.longitude} ${location.latitude})"
                                 val agora = java.time.Instant.now().toString()
                                 regViewModel.registrarOcorrencia(
-                                    tipo = tipoSolicitacao!!.ordinal,
+                                    tipo = tipoSolicitacao!!.id,
                                     gpsWkt = wkt,
                                     dataCaptura = agora,
                                     descricaoOrigem = descricao.text.toString(),

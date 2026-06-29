@@ -208,12 +208,34 @@ router.post("/v1/usuarios/registrar-ocorrencia", verificarToken, async (req, res
     );
 
     if (referencia_imagem) {
-      yoloService.classificarAnimalBase64(referencia_imagem).then(resultado => {
+      if (referencia_imagem) {
+        void processarClassificacao(ocorrencia.id, referencia_imagem);
+      }
+    }
+
+    async function processarClassificacao(
+      ocorrenciaId: number,
+      base64: string
+    ) {
+      try {
+        const resultado =
+          await yoloService.classificarAnimalBase64(base64);
+
         if (resultado.success && resultado.classificacao_final) {
-          atualizarClassificacao(ocorrencia.id, resultado.classificacao_final, Math.round((resultado.confidence_final || 0) * 100))
-            .catch(err => console.error("Erro ao atualizar classificação:", err));
+          await atualizarClassificacao(
+            ocorrenciaId,
+            resultado.classificacao_final,
+            Math.round((resultado.confidence_final ?? 0) * 100)
+          );
         }
-      }).catch(err => console.error("Erro na classificação YOLO:", err));
+
+      } catch (err) {
+        console.error(
+          "Erro ao classificar ocorrência",
+          ocorrenciaId,
+          err
+        );
+      }
     }
 
     res.status(201).json({
