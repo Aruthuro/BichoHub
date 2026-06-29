@@ -60,7 +60,7 @@ export function verificarToken(req: CustomRequest, res: Response, next: NextFunc
 
   const token = authHeader.split(" ")[1];
   if (!token) {
-    return res.status(401).json({ erro: "Token mal formatado" });
+    return res.status(403).json({ erro: "Token mal formatado" });
   }
 
   try {
@@ -71,6 +71,11 @@ export function verificarToken(req: CustomRequest, res: Response, next: NextFunc
   } catch (erro) {
     return res.status(401).json({ erro: "Token inválido ou expirado" });
   }
+  const isAdmin = await checarAdmin(usuarioId);
+  if (!isAdmin) {
+    return res.status(403).json({ erro: "Acesso restrito a administradores" });
+  }
+  next();
 }
 
 export async function verificarAdminMiddleware(req: CustomRequest, res: Response, next: NextFunction) {
@@ -116,7 +121,9 @@ export async function realizarLogin(email: string, senha: string): Promise<Login
   }
 
   // 3. Gera o token JWT
-  const payload = { id: credencial.usuario_id, email: credencial.email };
+  const isColetor = await checarColetor(usuarioId);
+  const isAjudante = await checarAjudante(usuarioId);
+  const payload = { id: credencial.usuario_id, coletor: isColetor, ajudante: isAjudante };
   const token = jwt.sign(payload, env.JWT_SECRET, { expiresIn: "1d" });
 
   // 4. Verifica os papéis do usuário
@@ -171,7 +178,13 @@ export async function cadastrarUsuario(
 
     await client.query("COMMIT");
 
-    return { id: usuarioId, nome, email };
+    // Gera o token JWT
+    const isColetor = await checarColetor(usuarioId);
+    const isAjudante = await checarAjudante(usuarioId);
+    const payload = { id: usuarioId, coletor: isColetor, ajudante: isAjudante };
+    const token = jwt.sign(payload, env.JWT_SECRET, { expiresIn: "1d" });
+
+    return { token, id: usuarioId };
   } catch (erro) {
     await client.query("ROLLBACK");
     throw erro;

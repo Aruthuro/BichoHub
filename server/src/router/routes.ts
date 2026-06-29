@@ -125,11 +125,7 @@ router.delete("/mensagens/:id", async (req, res, next) => {
 /* 
   mostra os platoes atuais
 */
-router.get(
-  "/v1/usuarios/coletores-disponiveis",
-  verificarToken,
-  async (req, res, next) => {
-
+router.get("/v1/usuarios/coletores-disponiveis", verificarToken, async (req, res, next) => {
     // extracao segura do horario 
     const raw = req.query.horario;
     let horario: string;
@@ -203,7 +199,6 @@ router.post("/v1/usuarios/login", async (req, res, next) => {
     next(erro);
   }
 });
-
 
 /*
   cadastro do usuario

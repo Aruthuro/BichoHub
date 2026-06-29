@@ -135,9 +135,17 @@ export async function tornarColetor(usuarioId: number) {
   return resultado.rows[0] || null;
 }
 
-export async function verificarColetor(usuarioId: number): Promise<boolean> {
+export async function checarColetor(usuarioId: number): Promise<boolean> {
   const resultado = await client.query(
     `SELECT 1 FROM coletores WHERE usuario_id = $1`,
+    [usuarioId]
+  );
+  return resultado.rows.length > 0;
+}
+
+export async function checarAjudante(usuarioId: number): Promise<boolean> {
+  const resultado = await client.query(
+    `SELECT 1 FROM usuarios WHERE usuario_id = $1 AND ajudante= TRUE`,
     [usuarioId]
   );
   return resultado.rows.length > 0;
@@ -437,6 +445,26 @@ export async function buscarCredencialPorEmail(email: string): Promise<Credencia
 
   return resultado.rows[0] || null;
 }
+
+export async function inserirOcorrencia(
+  origem_id: number,
+  gps_origem: [number, number],
+  descricao: string | null,
+  imagem: string | null,
+  tipo: number
+) {
+  const resultado = await client.query(
+    `
+      INSERT INTO ocorrencias (origem_solicitacao_id, gps_origem, descricao_origem, referencia_imagem, tipo)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id
+    `,
+    [origem_id, gps_origem, descricao, imagem, tipo]
+  );
+
+  return resultado.rows[0].id;
+}
+
 
 export async function atualizarClassificacao(id: number, classificacao: string, confianca: number) {
   const resultado = await client.query(
