@@ -343,8 +343,7 @@ router.get(
   verificarColetor,
   async (req, res, next) => {
     try {
-      const coletorId = (req as CustomRequest).usuario.id;
-      const ocorrencias = await listarOcorrenciasAtivas(coletorId);
+      const ocorrencias = await listarOcorrenciasGPS();
       res.status(200).json(ocorrencias);
     } catch (erro) {
       console.error(erro);

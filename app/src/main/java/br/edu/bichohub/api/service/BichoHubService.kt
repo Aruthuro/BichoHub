@@ -17,7 +17,7 @@ interface BichoHubService {
     @GET("v1/coletores/ocorrencias/abertas")
     suspend fun listarOcorrenciasAbertas(): Response<List<OcorrenciaResponse>>
 
-    @GET("v1/coletores/ocorrencias/listar")
+    @GET("v1/coletores/ocorrencias/ativas")
     suspend fun listarMinhasOcorrencias(): Response<List<OcorrenciaResponse>>
 
     @GET("v1/coletores/ocorrencias/historico")
