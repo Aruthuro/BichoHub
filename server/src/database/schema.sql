@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(150) NOT NULL,
     reputacao REAL NOT NULL DEFAULT 0.0,
-    contato VARCHAR(12) NOT NULL,
+    contato VARCHAR(20),
     numero_whatsapp VARCHAR(20),
     ajudante BOOLEAN NOT NULL DEFAULT FALSE,
     criado_em TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
 CREATE TABLE IF NOT EXISTS coletores (
     usuario_id INTEGER PRIMARY KEY
         REFERENCES usuarios(id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    cpf VARCHAR(11) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS administrador (

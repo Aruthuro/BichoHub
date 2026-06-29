@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { type Request, type Response, type NextFunction } from "express";
 import { env } from "../env.js"
 import jwt from "jsonwebtoken";
-import { buscarCredencialPorEmail, type Credencial, client, verificarColetor as checarColetor, verificarAdmin as checarAdmin } from "../bancoDeDados.js";
+import { buscarCredencialPorEmail, type Credencial, client, checarColetor, checarAjudante, verificarAdmin } from "../bancoDeDados.js";
 import { OAuth2Client } from "google-auth-library";
 
 const googleClient = new OAuth2Client(env.WEB_CLIENT_ID);
@@ -20,9 +20,9 @@ export interface LoginResultado {
 
 export interface AutenticateRequest extends Request {
   googleUser:{
-    googleId:string,
-    email:string,
-    name:string
+    googleId:string;
+    email:string;
+    name:string;
   }
 }
 
@@ -47,7 +47,7 @@ export async function verificarTokenGoogle(req: Request, res: Response, next: Ne
       name: payload.name 
     };
     next();
-  } catch (erro) {
+  } catch {
     return res.status(401).json({ erro: "Token inválido ou expirado" });
   }
 }
@@ -64,18 +64,18 @@ export function verificarToken(req: CustomRequest, res: Response, next: NextFunc
   }
 
   try {
-    // env.JWT_SECRET já é validado na inicialização, não precisa testar
     const payload = jwt.verify(token, env.JWT_SECRET);
     req.usuario = payload;  
     next();
-  } catch (erro) {
-    return res.status(401).json({ erro: "Token inválido ou expirado" });
+  } catch (erro: any) {
+    if (erro.name === "TokenExpiredError" || erro.name === "NotBeforeError") {
+      return res.status(401).json({ erro: "Token expirado" });
+    } else if (erro.name === "JsonWebTokenError") {
+      return res.status(403).json({ erro: "Token inválido" });
+    } else {
+      return res.status(500).json({ erro: "Erro inesperado" });
+    }
   }
-  const isAdmin = await checarAdmin(usuarioId);
-  if (!isAdmin) {
-    return res.status(403).json({ erro: "Acesso restrito a administradores" });
-  }
-  next();
 }
 
 export async function verificarAdminMiddleware(req: CustomRequest, res: Response, next: NextFunction) {
@@ -83,7 +83,7 @@ export async function verificarAdminMiddleware(req: CustomRequest, res: Response
   if (!usuarioId) {
     return res.status(401).json({ erro: "Usuário não autenticado" });
   }
-  const isAdmin = await checarAdmin(usuarioId);
+  const isAdmin = await verificarAdmin(usuarioId);
   if (!isAdmin) {
     return res.status(403).json({ erro: "Acesso restrito a administradores" });
   }
@@ -95,40 +95,43 @@ export async function verificarColetor(req: CustomRequest, res: Response, next: 
   if (!usuarioId) {
     return res.status(401).json({ erro: "Usuário não autenticado" });
   }
-  const [isColetor, isAdmin] = await Promise.all([checarColetor(usuarioId), checarAdmin(usuarioId)]);
+  const [isColetor, isAdmin] = await Promise.all([checarColetor(usuarioId), verificarAdmin(usuarioId)]);
   if (!isColetor && !isAdmin) {
     return res.status(403).json({ erro: "Usuário não é um coletor ou administrador" });
   }
   next();
 }
 
-/*
- * Autentica um usuário com email e senha.
- * Retorna o token JWT e o nome do usuário em caso de sucesso.
- * Lança erro se as credenciais forem inválidas ou ocorrer problema interno.
- */
+export async function verificarAjudante(req: CustomRequest, res: Response, next: NextFunction) {
+  const usuarioId = req.usuario?.id;
+  if (!usuarioId) {
+    return res.status(401).json({ erro: "Usuário não autenticado" });
+  }
+  const isAjudante = await checarAjudante(usuarioId);
+  if (!isAjudante) {
+    return res.status(403).json({ erro: "Usuário não é um ajudante" });
+  }
+  next();
+}
+
 export async function realizarLogin(email: string, senha: string): Promise<LoginResultado> {
-  // 1. Busca a credencial no banco
   const credencial: Credencial | null = await buscarCredencialPorEmail(email);
   if (!credencial) {
     throw new Error("Credenciais inválidas");
   }
 
-  // 2. Verifica a senha com bcrypt
   const senhaValida = await bcrypt.compare(senha, credencial.senha_hash);
   if (!senhaValida) {
     throw new Error("Credenciais inválidas");
   }
 
-  // 3. Gera o token JWT
-  const isColetor = await checarColetor(usuarioId);
-  const isAjudante = await checarAjudante(usuarioId);
+  const isColetor = await checarColetor(credencial.usuario_id);
+  const isAjudante = await checarAjudante(credencial.usuario_id);
   const payload = { id: credencial.usuario_id, coletor: isColetor, ajudante: isAjudante };
   const token = jwt.sign(payload, env.JWT_SECRET, { expiresIn: "1d" });
 
-  // 4. Verifica os papéis do usuário
   const [eh_admin, eh_coletor] = await Promise.all([
-    checarAdmin(credencial.usuario_id),
+    verificarAdmin(credencial.usuario_id),
     checarColetor(credencial.usuario_id),
   ]);
 
@@ -144,9 +147,8 @@ export async function cadastrarUsuario(
   nome: string,
   email: string,
   senha: string,
-  contato: string
+  contato?: string
 ) {
-  // Verifica se o email já está em uso
   const existente = await client.query(
     `SELECT 1 FROM credenciais WHERE email = $1`,
     [email]
@@ -155,10 +157,8 @@ export async function cadastrarUsuario(
     throw new Error("Email já cadastrado");
   }
 
-  // Gera o hash da senha
   const senhaHash = await bcrypt.hash(senha, 10);
 
-  // Insere o usuário e a credencial em uma transação
   try {
     await client.query("BEGIN");
 
@@ -166,7 +166,7 @@ export async function cadastrarUsuario(
       `INSERT INTO usuarios (nome, contato)
        VALUES ($1, $2)
        RETURNING id`,
-      [nome, contato]
+      [nome, contato || null]
     );
     const usuarioId = usuarioResult.rows[0].id;
 
@@ -178,7 +178,6 @@ export async function cadastrarUsuario(
 
     await client.query("COMMIT");
 
-    // Gera o token JWT
     const isColetor = await checarColetor(usuarioId);
     const isAjudante = await checarAjudante(usuarioId);
     const payload = { id: usuarioId, coletor: isColetor, ajudante: isAjudante };
@@ -194,14 +193,13 @@ export async function cadastrarUsuario(
 export async function realizarLoginGoogle(googleUser: { email: string; name: string; googleId: string }) {
   let credencial = await buscarCredencialPorEmail(googleUser.email);
   if (!credencial) {
-    // Não precisa criar uma senha de verdade, já que o usuário fará login com o google
     return { nome: googleUser.name, email: googleUser.email, senha: Math.random().toString(32) };
   }
   const payload = { id: credencial.usuario_id, email: credencial.email };
   const token = jwt.sign(payload, env.JWT_SECRET, { expiresIn: "1d" });
 
   const [eh_admin, eh_coletor] = await Promise.all([
-    checarAdmin(credencial.usuario_id),
+    verificarAdmin(credencial.usuario_id),
     checarColetor(credencial.usuario_id),
   ]);
 

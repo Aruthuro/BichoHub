@@ -13,14 +13,8 @@ import { type Request, type Response, type NextFunction } from "express";
 const app = express();
 const publicPath = `${process.cwd()}/public`;
 
-
-/*
-  middleware para converter JSON do body
-  em objeto JavaScript acessível por req.body
-*/ 
 app.use(express.json({ limit: "100mb" }));
 
-// para logs
 app.use(logger);
 
 app.use("/css", express.static(`${publicPath}/css`));
@@ -31,9 +25,6 @@ app.use("/api", router);
 app.use("/api/modelo", modeloRouter);
 app.use("/api/whatsapp", whatsappRouter);
 
-/*
-  como o router deixa tem as rotas, caso não vá para nenhuma delas não vai para o 404
-*/
 app.use((req, res) => {
   res.status(404).json({ erro: "Rota não encontrada" });
 });
@@ -44,21 +35,16 @@ app.use((erro: any, req: Request, res: Response, next: NextFunction) => {
   res.status(status).json({ erro: erro.message || "Erro interno" });
 });
 
-
-
-/*
-  funcao para esperar um tempo (ms)
-*/
 function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-/*
-  funcao assincrona para iniciar o servidor
-  Pool (pg) conecta sob demanda na primeira query
-*/
 async function iniciarServidor() {
-  // tenta schema.sql com retry (banco pode estar iniciando)
+  const imgDir = path.join(process.cwd(), "public", "img");
+  if (!fs.existsSync(imgDir)) {
+    fs.mkdirSync(imgDir, { recursive: true });
+  }
+
   const schemaPath = path.join(process.cwd(), "src", "database", "schema.sql");
   const schema = fs.readFileSync(schemaPath, "utf8");
 

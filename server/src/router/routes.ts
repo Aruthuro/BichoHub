@@ -1,4 +1,7 @@
 import { Router, type Response, type Request, type NextFunction } from "express";
+import multer from "multer";
+import path from "path";
+import crypto from "crypto";
 
 import {
   criarTabelaMensagens,
@@ -22,18 +25,25 @@ import {
   obterDashboard,
   tornarAdministrador,
   removerUsuario,
-  atualizarClassificacao
+  atualizarClassificacao,
+  atualizarReferenciaImagem
 } from "../bancoDeDados.js";
 import { verificarToken, verificarTokenGoogle, verificarColetor, realizarLogin, realizarLoginGoogle, cadastrarUsuario, verificarAdminMiddleware, type AutenticateRequest } from "../middlewares/authService.js";
 import { type CustomRequest } from "../middlewares/authService.js"
 import { identificarAnimal, type RequestComAnimal } from "../middlewares/deteccaoAnimal.js";
 import yoloService from "../services/yoloServices.js";
 
+const storage = multer.diskStorage({
+  destination: path.join(process.cwd(), "public", "img"),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname) || ".jpg";
+    cb(null, `ocorrencia_${crypto.randomUUID()}${ext}`);
+  }
+});
+const upload = multer({ storage });
+
 const router = Router();
 
-/*
-    rota do status do backend
-*/
 router.get("/status", (req, res) => {
     res.status(200).json({ 
         status: "UP", 
@@ -43,11 +53,8 @@ router.get("/status", (req, res) => {
         uptime: `${process.uptime().toFixed(2)} segundos`
     });
 }); 
-/*
-  setup do banco
-*/
-router.get("/setup", async (req, res, next) => {
 
+router.get("/setup", async (req, res, next) => {
   try {await criarTabelaMensagens();
 
   res.json({
@@ -59,11 +66,7 @@ router.get("/setup", async (req, res, next) => {
   }
 });
 
-/*
-  inserir mensagem
-*/
 router.post("/mensagens", async (req, res, next) => {
-
   try{
     const { texto } = req.body;
     const mensagem = await inserirMensagem(texto);
@@ -72,39 +75,24 @@ router.post("/mensagens", async (req, res, next) => {
     console.error(erro);
     next(erro)
   }
-  
 });
 
-/*
-  buscar mensagens
-*/
 router.get("/mensagens", async (req, res, next) => {
   try{
     const mensagens = await buscarMensagens();
-
     res.json(mensagens);
   }catch(erro){
     console.error(erro);
     next(erro)
   }
-  
 });
 
-/*
-  remover mensagem
-*/
 router.delete("/mensagens/:id", async (req, res, next) => {
-
   try {
     const id = Number(req.params.id);
-
     const mensagemRemovida = await removerMensagem(id);
 
-    /*
-      verifica se a mensagem existia
-    */
     if (!mensagemRemovida) {
-
       return res.status(404).json({
         erro: "Mensagem não encontrada"
       });
@@ -118,15 +106,9 @@ router.delete("/mensagens/:id", async (req, res, next) => {
     console.error(erro);
     next(erro)
   }
-
-  
 });
 
-/* 
-  mostra os platoes atuais
-*/
 router.get("/v1/usuarios/coletores-disponiveis", verificarToken, async (req, res, next) => {
-    // extracao segura do horario 
     const raw = req.query.horario;
     let horario: string;
     if (Array.isArray(raw)) {
@@ -151,15 +133,10 @@ router.get("/v1/usuarios/coletores-disponiveis", verificarToken, async (req, res
   }
 );
 
-/*
-  lista todas as ocorrencias abertas por um usuario
-*/
 router.get("/v1/usuarios/listar", verificarToken, async (req, res, next) => {
   try {
-    // O middleware injeta o payload do token em req.usuario
     const usuarioId = (req as CustomRequest).usuario.id;
     const solicitacoes = await listarSolicitacoes(usuarioId);
-
     res.status(200).json(solicitacoes);
   } catch (erro) {
     console.error(erro);
@@ -167,9 +144,6 @@ router.get("/v1/usuarios/listar", verificarToken, async (req, res, next) => {
   }
 });
 
-/*
- * loging com google
-*/
 router.post("/v1/usuarios/google", verificarTokenGoogle, async (req, res, next) => {
   try {
     const authReq = req as AutenticateRequest;
@@ -182,9 +156,6 @@ router.post("/v1/usuarios/google", verificarTokenGoogle, async (req, res, next) 
   }
 });
 
-/*
-  login do usuario
-*/
 router.post("/v1/usuarios/login", async (req, res, next) => {
   try {
     const { email, senha } = req.body;
@@ -200,13 +171,9 @@ router.post("/v1/usuarios/login", async (req, res, next) => {
   }
 });
 
-/*
-  cadastro do usuario
-*/
 router.post("/v1/usuarios/cadastrar", async (req, res, next) => {
   const { nome, email, senha, contato } = req.body;
 
-  // Validação básica
   if (!nome || !email || !senha) {
     return res.status(400).json({ erro: "Nome, email e senha são obrigatórios" });
   }
@@ -215,7 +182,7 @@ router.post("/v1/usuarios/cadastrar", async (req, res, next) => {
     const usuario = await cadastrarUsuario(nome, email, senha, contato);
     res.status(201).json({
       mensagem: "Usuário cadastrado com sucesso",
-      usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email },
+      usuario: { id: usuario.id, nome, email },
     });
   } catch (erro: any) {
     if (erro.message === "Email já cadastrado") {
@@ -226,9 +193,6 @@ router.post("/v1/usuarios/cadastrar", async (req, res, next) => {
   }
 });
 
-/*
-  registrar uma nova ocorrencia (solicitação de resgate/condução/coleta)
-*/
 router.post("/v1/usuarios/registrar-ocorrencia", verificarToken, async (req, res, next) => {
   try {
     const usuarioId = (req as CustomRequest).usuario.id;
@@ -263,9 +227,47 @@ router.post("/v1/usuarios/registrar-ocorrencia", verificarToken, async (req, res
   }
 });
 
-/*
-  listar ocorrencias abertas para coletores
-*/
+router.post(
+  "/v1/ocorrencias/:id/imagem",
+  verificarToken,
+  upload.single("imagem"),
+  async (req, res, next) => {
+    try {
+      const id = Number(req.params.id);
+      if (!req.file) {
+        return res.status(400).json({ erro: "Arquivo de imagem é obrigatório" });
+      }
+      const imagemUrl = `${req.protocol}://${req.get("host")}/img/${req.file.filename}`;
+      await atualizarReferenciaImagem(id, imagemUrl);
+      res.status(200).json({ mensagem: "Imagem salva", referencia_imagem: imagemUrl });
+    } catch (erro) {
+      console.error(erro);
+      next(erro);
+    }
+  }
+);
+
+router.get(
+  "/v1/usuarios/ocorrencias/:id",
+  verificarToken,
+  async (req, res, next) => {
+    try {
+      const id = Number(req.params.id);
+      const usuarioId = (req as CustomRequest).usuario.id;
+      const ocorrencia = await buscarOcorrenciaPorId(id);
+
+      if (!ocorrencia || ocorrencia.origem_solicitacao_id !== usuarioId) {
+        return res.status(404).json({ erro: "Ocorrência não encontrada" });
+      }
+
+      res.status(200).json(ocorrencia);
+    } catch (erro) {
+      console.error(erro);
+      next(erro);
+    }
+  }
+);
+
 router.get(
   "/v1/coletores/ocorrencias/abertas",
   verificarToken,
@@ -281,9 +283,6 @@ router.get(
   }
 );
 
-/*
-  listar ocorrencias ativas do coletor autenticado (estado 2 ou 5)
-*/
 router.get(
   "/v1/coletores/ocorrencias/ativas",
   verificarToken,
@@ -300,9 +299,6 @@ router.get(
   }
 );
 
-/*
-  listar historico de ocorrencias do coletor autenticado
-*/
 router.get(
   "/v1/coletores/ocorrencias/historico",
   verificarToken,
@@ -319,9 +315,6 @@ router.get(
   }
 );
 
-/*
-  listar todas as ocorrências
-*/
 router.get(
   "/v1/coletores/ocorrencias/listar",
   verificarToken,
@@ -338,9 +331,6 @@ router.get(
   }
 );
 
-/*
-  buscar detalhes de uma ocorrencia especifica (formulario)
-*/
 router.get(
   "/v1/coletores/ocorrencias/:id",
   verificarToken,
@@ -362,9 +352,6 @@ router.get(
   }
 );
 
-/*
-  aceitar ou rejeitar uma chamada
-*/
 router.patch(
   "/v1/coletores/responder/:id",
   verificarToken,
@@ -396,9 +383,6 @@ router.patch(
   }
 );
 
-/*
-  editar informações de uma ocorrencia em andamento
-*/
 router.patch(
   "/v1/coletores/ocorrencias/editar/:id",
   verificarToken,
@@ -430,9 +414,6 @@ router.patch(
   }
 );
 
-/*
-  encerrar uma chamada com desfecho
-*/
 router.patch(
   "/v1/coletores/ocorrencias/encerrar/:id",
   verificarToken,
@@ -473,7 +454,7 @@ router.patch(
 
 /*
   =====================================================
-  ROTAS DE ADMINISTRADOR (protegidas por token + admin)
+  ROTAS DE ADMINISTRADOR
   =====================================================
 */
 
@@ -525,7 +506,6 @@ router.get("/v1/admin/ocorrencias/:id", verificarToken, verificarAdminMiddleware
 router.post("/v1/admin/usuarios/:id/tornar-admin", verificarToken, verificarAdminMiddleware, async (req, res, next) => {
   try {
     const usuarioId = Number(req.params.id);
-    const body = req.body || {};
     const resultado = await tornarAdministrador(usuarioId);
     if (!resultado) {
       return res.status(409).json({ erro: "Usuário já é administrador" });
@@ -542,8 +522,6 @@ router.post("/v1/admin/usuarios/:id/tornar-admin", verificarToken, verificarAdmi
 router.post("/v1/admin/usuarios/:id/tornar-coletor", verificarToken, verificarAdminMiddleware, async (req, res, next) => {
   try {
     const usuarioId = Number(req.params.id);
-    const body = req.body || {};
-    const { contato } = body;
     const resultado = await tornarColetor(usuarioId);
     if (!resultado) {
       return res.status(409).json({ erro: "Usuário já é coletor" });
@@ -575,14 +553,30 @@ router.delete("/v1/admin/usuarios/:id", verificarToken, verificarAdminMiddleware
   }
 });
 
-/*
-  identificação do animal
-*/
+router.post("/v1/teste/tornar-coletor/:id", async (req, res, next) => {
+  try {
+    const usuarioId = Number(req.params.id);
+    if (!usuarioId || isNaN(usuarioId)) {
+      return res.status(400).json({ erro: "ID inválido" });
+    }
+    const { cpf } = req.body;
+    const resultado = await tornarColetor(usuarioId, cpf);
+    if (!resultado) {
+      return res.status(409).json({ erro: "Usuário já é um coletor" });
+    }
+    res.status(201).json({ mensagem: "Usuário transformado em coletor", usuario_id: resultado.usuario_id });
+  } catch (erro: any) {
+    if (erro.code === "23503") {
+      return res.status(404).json({ erro: "Usuário não encontrado" });
+    }
+    next(erro);
+  }
+});
+
 router.post("/v1/animais/identificar", 
   identificarAnimal, 
   async (req: RequestComAnimal, res: Response, next: NextFunction) => {
     try {
-      // Verificar se o middleware realmente identificou algo
       if (!req.animalIdentificado) {
         return res.status(404).json({
           success: false,
@@ -590,7 +584,6 @@ router.post("/v1/animais/identificar",
         });
       }
 
-      // Retornar o resultado da identificação
       res.json({
         success: true,
         animal: req.animalIdentificado.especie,

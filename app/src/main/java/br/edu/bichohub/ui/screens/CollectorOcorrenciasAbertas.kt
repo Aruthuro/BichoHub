@@ -32,8 +32,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import br.edu.bichohub.api.RetrofitObject
-import br.edu.bichohub.api.datac.OcorrenciaResponse
-import br.edu.bichohub.api.datac.ResponderRequest
+import br.edu.bichohub.api.model.OcorrenciaResponse
+import br.edu.bichohub.api.model.ResponderRequest
 import br.edu.bichohub.ui.theme.Template
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope

@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import br.edu.bichohub.api.RetrofitObject
-import br.edu.bichohub.api.datac.OcorrenciaResponse
+import br.edu.bichohub.api.model.OcorrenciaResponse
 import br.edu.bichohub.ui.theme.Template
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable

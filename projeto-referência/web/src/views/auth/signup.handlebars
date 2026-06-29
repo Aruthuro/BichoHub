@@ -1,0 +1,43 @@
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="card-title text-center mb-4">Cadastrar</h3>
+
+                {{#if error}}
+                    <div class="alert alert-danger text-center" role="alert">
+                        {{error}}
+                    </div>
+                {{/if}}
+
+                <form action="/signup" method="POST">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome</label>
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Seu nome" required autofocus>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="seu@email.com" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="senha" class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="senha" name="senha" placeholder="Sua senha" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="contato" class="form-label">Contato</label>
+                        <input type="text" class="form-control" id="contato" name="contato" placeholder="(opcional)">
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100">Cadastrar</button>
+                </form>
+
+                <p class="text-center mt-3 mb-0">
+                    Já tem conta? <a href="/login">Entre</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,17 +1,17 @@
 package br.edu.bichohub.api
 
-import br.edu.bichohub.api.datac.CadastroRequest
 import br.edu.bichohub.api.datac.CadastroResponse
 import br.edu.bichohub.api.datac.DashboardResponse
-import br.edu.bichohub.api.datac.EditarOcorrenciaRequest
-import br.edu.bichohub.api.datac.EncerrarRequest
-import br.edu.bichohub.api.datac.LoginRequest
 import br.edu.bichohub.api.datac.LoginResponse
 import br.edu.bichohub.api.datac.MensagemResponse
 import br.edu.bichohub.api.datac.OcorrenciaRequest
-import br.edu.bichohub.api.datac.OcorrenciaResponse
-import br.edu.bichohub.api.datac.ResponderRequest
 import br.edu.bichohub.api.datac.UsuarioResponse
+import br.edu.bichohub.api.model.CadastroRequest
+import br.edu.bichohub.api.model.EditarOcorrenciaRequest
+import br.edu.bichohub.api.model.EncerrarRequest
+import br.edu.bichohub.api.model.LoginRequest
+import br.edu.bichohub.api.model.OcorrenciaResponse
+import br.edu.bichohub.api.model.ResponderRequest
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
