@@ -96,14 +96,13 @@ export async function listarSolicitacoes(usuarioId: number) {
   return resultado.rows;
 }
 
-export async function tornarColetor(usuarioId: number, cpf?: string) {
-  const cpfFinal = cpf || String(usuarioId).padStart(11, "0");
+export async function tornarColetor(usuarioId: number) {
   const resultado = await client.query(
-    `INSERT INTO coletores (usuario_id, cpf)
-     VALUES ($1, $2)
+    `INSERT INTO coletores (usuario_id)
+     VALUES ($1)
      ON CONFLICT (usuario_id) DO NOTHING
      RETURNING usuario_id`,
-    [usuarioId, cpfFinal]
+    [usuarioId]
   );
   return resultado.rows[0] || null;
 }
@@ -354,8 +353,8 @@ export async function listarTodosUsuarios() {
 export async function listarTodasOcorrencias(filtro?: string) {
   let sql = `
     SELECT o.*,
-          ST_AsText(o.origem_gps) AS origem_gps,
-          ST_AsText(o.destino_gps) AS destino_gps,
+          ST_AsGeoJSON(o.origem_gps) AS origem_gps,
+          ST_AsGeoJSON(o.destino_gps) AS destino_gps,
           u_sol.nome AS solicitante_nome,
           u_sol.contato AS solicitante_contato,
           u_col.nome AS coletor_nome

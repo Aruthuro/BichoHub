@@ -1,9 +1,20 @@
+import type { GeoJSON } from "geojson";
+
+export interface OcorrenciaMapa {
+    id: number;
+    data_captura: string;
+    risco?: string;
+    status_saude?: string;
+    classificacao?: string;
+    origem_gps: GeoJSON;
+}
+
 export interface Ocorrencia {
     id: number;
     coletor_id?: number;
     origem_solicitacao_id: number;
-    origem_gps: string;
-    destino_gps?: string;
+    origem_gps: JSON;
+    destino_gps?: JSON;
     data_captura: string;
     descricao_origem?: string;
     descricao_destino?: string;

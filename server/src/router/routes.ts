@@ -580,8 +580,7 @@ router.post("/v1/teste/tornar-coletor/:id", async (req, res, next) => {
     if (!usuarioId || isNaN(usuarioId)) {
       return res.status(400).json({ erro: "ID inválido" });
     }
-    const { cpf } = req.body;
-    const resultado = await tornarColetor(usuarioId, cpf);
+    const resultado = await tornarColetor(usuarioId);
     if (!resultado) {
       return res.status(409).json({ erro: "Usuário já é um coletor" });
     }

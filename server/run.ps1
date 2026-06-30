@@ -89,7 +89,7 @@ function RunMakeAdmin {
 
     # Insere diretamente no banco (via API seria chicken-egg: precisa de admin pra criar admin)
     $CPF = $ID.ToString().PadLeft(11, '0')
-    docker compose --env-file "$ENV_FILE" exec -T db_postgres psql -U postgres -d bichohub -c "INSERT INTO administrador (usuario_id, cpf) VALUES ($ID, '$CPF') ON CONFLICT (usuario_id) DO NOTHING;"
+    docker compose --env-file "$ENV_FILE" exec -T db_postgres psql -U postgres -d bichohub -c "INSERT INTO administrador (usuario_id) VALUES ($ID) ON CONFLICT (usuario_id) DO NOTHING;"
 
     if ($LASTEXITCODE -eq 0) {
         Write-Host ""

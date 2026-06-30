@@ -1,5 +1,5 @@
 import { api } from "../constants.js"
-import { type Ocorrencia } from '../views/types/ocorrencia.js';
+import { type Ocorrencia } from '../types/ocorrencia.js';
 
 const headers = (token: string) => ({
     Authorization: `Bearer ${token}`

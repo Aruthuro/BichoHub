@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { api } from "../constants.js"
-import { type Ocorrencia } from '../views/types/ocorrencia.js';
+import type { Ocorrencia, OcorrenciaMapa } from '../types/ocorrencia.js';
 
 dotenv.config();
 
@@ -23,7 +23,7 @@ export async function getOcorrenciasByColetor(token: string): Promise<Ocorrencia
     return resp.data;
 }
 
-export async function getOcorrencias(token: string): Promise<Ocorrencia[]> {
+export async function getOcorrencias(token: string): Promise<OcorrenciaMapa[]> {
     const resp = await api.get('/v1/coletores/ocorrencias/listar', { headers: headers(token) });
     return resp.data;
 }

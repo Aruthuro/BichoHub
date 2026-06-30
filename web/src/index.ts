@@ -44,7 +44,6 @@ app.engine('handlebars', engine({
     defaultLayout: 'main',
     layoutsDir: "src/views/layouts",
     helpers: {
-        json: (value: unknown) => JSON.stringify(value),
         eq: (a: any, b: any) => a === b,
         or: (...args: any[]) => args.slice(0, -1).some(Boolean)
     }
