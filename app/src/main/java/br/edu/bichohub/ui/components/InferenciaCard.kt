@@ -18,26 +18,30 @@ fun InferenciaCard(
     confiancaClassificacao: Int?,
     modifier: Modifier = Modifier
 ) {
-    if (classificacao.isNullOrBlank()) return
-
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFE8F5E9)
+            containerColor = if (classificacao.isNullOrBlank()) Color(0xFFFFF8E1) else Color(0xFFE8F5E9)
         )
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            Text("Classificação do modelo")
+            Text(
+                text = if (classificacao.isNullOrBlank()) "Classificação do modelo" else "Classificação do modelo"
+            )
             Row(modifier = Modifier.padding(top = 4.dp)) {
-                Text(
-                    text = classificacao,
-                    color = Color(0xFF2E7D32)
-                )
-                if (confiancaClassificacao != null) {
+                if (!classificacao.isNullOrBlank()) {
+                    Text(text = classificacao, color = Color(0xFF2E7D32))
+                    if (confiancaClassificacao != null) {
+                        Text(
+                            text = " (${confiancaClassificacao}%)",
+                            color = Color(0xFF558B2F),
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+                } else {
                     Text(
-                        text = " (${confiancaClassificacao}%)",
-                        color = Color(0xFF558B2F),
-                        modifier = Modifier.padding(start = 4.dp)
+                        text = "🔍 Modulo de inferencia em desenvolvimento",
+                        color = Color(0xFFF57F17)
                     )
                 }
             }

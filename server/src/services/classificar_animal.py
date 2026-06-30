@@ -1,6 +1,8 @@
 import json
 import sys
 import os
+import logging
+logging.getLogger("ultralytics").setLevel(logging.ERROR)
 from ultralytics import YOLO
 
 MODELS_DIR = os.environ.get("YOLO_MODELS_DIR") or os.path.join(
@@ -18,7 +20,7 @@ CLASSES_COBRAS = ["Cascavel", "Jararaca", "Sucuri", "Jiboia", "Cobra-Coral"]
 
 def carregar_modelo(caminho):
     if os.path.exists(caminho):
-        return YOLO(caminho)
+        return YOLO(caminho, verbose=False)
     return None
 
 def classificar(imagem_path):

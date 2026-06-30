@@ -20,7 +20,9 @@ export function classificarImagem(imagemPath: string): ClassificacaoResultado {
       encoding: "utf-8",
       timeout: 30000
     });
-    return JSON.parse(output.trim());
+    const lines = output.trim().split("\n").filter(l => l.trim());
+    const lastLine = lines[lines.length - 1];
+    return JSON.parse(lastLine);
   } catch (erro: any) {
     return { erro: `Erro ao classificar imagem: ${erro.message}` };
   }
