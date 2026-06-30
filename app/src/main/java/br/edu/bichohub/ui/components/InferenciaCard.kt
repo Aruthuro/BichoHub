@@ -69,7 +69,7 @@ fun InferenciaCard(
                 }
                 else -> {
                     Text(
-                        text = "🔍 Modulo de inferencia em desenvolvimento",
+                        text = "Modelo indisponivel no momento",
                         color = Color(0xFFF57F17),
                         modifier = Modifier.padding(top = 4.dp)
                     )
