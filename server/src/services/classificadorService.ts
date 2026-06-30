@@ -22,6 +22,7 @@ export function classificarImagem(imagemPath: string): ClassificacaoResultado {
     });
     const lines = output.trim().split("\n").filter(l => l.trim());
     const lastLine = lines[lines.length - 1];
+    if (!lastLine) return { erro: "Saída vazia do classificador" };
     return JSON.parse(lastLine);
   } catch (erro: any) {
     return { erro: `Erro ao classificar imagem: ${erro.message}` };

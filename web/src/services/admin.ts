@@ -26,7 +26,7 @@ export async function getOcorrenciaById(token: string, id: number): Promise<Ocor
 }
 
 export async function tornarAdmin(token: string, id: number): Promise<any> {
-    const resp = await api.post(`/v1/admin/usuarios/${id}/tornar-admin`, { headers: headers(token) });
+    const resp = await api.post(`/v1/admin/usuarios/${id}/tornar-admin`, null, { headers: headers(token) });
     return resp.data;
 }
 
