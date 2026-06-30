@@ -27,7 +27,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "BASE_URL", "\"https://bichohub-server.onrender.com/api/\"")
+            buildConfigField("String", "BASE_URL", "\"http://localhost:6969/api/\"")
         }
         release {
             isMinifyEnabled = false
@@ -36,6 +36,10 @@ android {
                 "proguard-rules.pro"
             )
             buildConfigField("String", "BASE_URL", "\"https://bichohub-server.onrender.com/api/\"")
+        }
+        create("releaseLocal") {
+            initWith(getByName("release"))
+            buildConfigField("String", "BASE_URL", "\"http://localhost:6969/api/\"")
         }
     }
 

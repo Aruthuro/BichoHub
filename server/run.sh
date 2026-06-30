@@ -2,11 +2,10 @@
 # ============================================
 # BichoHub — Script de inicialização (Linux/Mac)
 # Uso: ./run.sh up                    (sobe containers)
-#      ./run.sh down                  (derruba containers)
+#      ./run.sh down                  (derruba containers + apaga volumes)
+#      ./run.sh stop                  (derruba containers, mantém volumes)
 #      ./run.sh build                 (reconstrói a imagem)
 #      ./run.sh make-admin <id>       (promove usuário <id> a admin)
-#      ./run.sh bot-on                (ativa o bot manualmente)
-#      ./run.sh bot-off               (desativa o bot)
 # ============================================
 
 ENV_FILE=".env.development"
@@ -45,12 +44,23 @@ run_up() {
 
 run_down() {
     echo "============================================"
-    echo "  BichoHub — Parando ambiente de dev"
+    echo "  BichoHub — Parando e apagando volumes"
     echo "============================================"
 
     docker compose --env-file "$ENV_FILE" down -v --remove-orphans
     echo ""
-    echo "  Containers removidos."
+    echo "  Containers e volumes removidos."
+    echo "============================================"
+}
+
+run_stop() {
+    echo "============================================"
+    echo "  BichoHub — Parando (mantendo volumes)"
+    echo "============================================"
+
+    docker compose --env-file "$ENV_FILE" down --remove-orphans
+    echo ""
+    echo "  Containers parados. Volumes preservados."
     echo "============================================"
 }
 
@@ -88,29 +98,14 @@ run_make_admin() {
     fi
 }
 
-run_bot_on() {
-    echo "Ativando bot do WhatsApp..."
-    docker compose --env-file "$ENV_FILE" exec -T backend curl -s -X POST http://localhost:6969/api/whatsapp/ativar
-    echo ""
-    echo "  Bot ativado!"
-}
-
-run_bot_off() {
-    echo "Desativando bot do WhatsApp..."
-    docker compose --env-file "$ENV_FILE" exec -T backend curl -s -X POST http://localhost:6969/api/whatsapp/desativar
-    echo ""
-    echo "  Bot desativado."
-}
-
 case "${1:-up}" in
     up)          run_up ;;
     down)        run_down ;;
+    stop)        run_stop ;;
     build)       run_build ;;
     make-admin)  run_make_admin "$@" ;;
-    bot-on)      run_bot_on ;;
-    bot-off)     run_bot_off ;;
     *)
-        echo "Uso: $0 {up|down|build|make-admin <id>|bot-on|bot-off}"
+        echo "Uso: $0 {up|down|stop|build|make-admin <id>}"
         exit 1
         ;;
 esac

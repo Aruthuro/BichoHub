@@ -1,11 +1,10 @@
 # ============================================
 # BichoHub - Script de inicializacao (Windows)
 # Uso: .\run.ps1 up                    (sobe containers)
-#      .\run.ps1 down                  (derruba containers)
+#      .\run.ps1 down                  (derruba containers + apaga volumes)
+#      .\run.ps1 stop                  (derruba containers, mantém volumes)
 #      .\run.ps1 build                 (reconstroi a imagem)
 #      .\run.ps1 make-admin <id>       (promove usuario <id> a admin)
-#      .\run.ps1 bot-on                (ativa o bot manualmente)
-#      .\run.ps1 bot-off               (desativa o bot)
 # ============================================
 
 param(
@@ -55,12 +54,23 @@ function RunUp {
 
 function RunDown {
     Write-Host "============================================" -ForegroundColor Yellow
-    Write-Host "  BichoHub - Parando ambiente de dev" -ForegroundColor Yellow
+    Write-Host "  BichoHub - Parando e apagando volumes" -ForegroundColor Yellow
     Write-Host "============================================" -ForegroundColor Yellow
 
     docker compose --env-file "$ENV_FILE" down -v --remove-orphans
     Write-Host ""
-    Write-Host "  Containers removidos." -ForegroundColor Green
+    Write-Host "  Containres e volumes removidos." -ForegroundColor Green
+    Write-Host "============================================" -ForegroundColor Yellow
+}
+
+function RunStop {
+    Write-Host "============================================" -ForegroundColor Yellow
+    Write-Host "  BichoHub - Parando (mantendo volumes)" -ForegroundColor Yellow
+    Write-Host "============================================" -ForegroundColor Yellow
+
+    docker compose --env-file "$ENV_FILE" down --remove-orphans
+    Write-Host ""
+    Write-Host "  Containers parados. Volumes preservados." -ForegroundColor Green
     Write-Host "============================================" -ForegroundColor Yellow
 }
 
@@ -100,28 +110,13 @@ function RunMakeAdmin {
     }
 }
 
-function RunBotOn {
-    Write-Host "Ativando bot do WhatsApp..." -ForegroundColor Yellow
-    docker compose --env-file "$ENV_FILE" exec -T backend curl -s -X POST http://localhost:6969/api/whatsapp/ativar
-    Write-Host ""
-    Write-Host "  Bot ativado! Agora responde mensagens." -ForegroundColor Green
-}
-
-function RunBotOff {
-    Write-Host "Desativando bot do WhatsApp..." -ForegroundColor Yellow
-    docker compose --env-file "$ENV_FILE" exec -T backend curl -s -X POST http://localhost:6969/api/whatsapp/desativar
-    Write-Host ""
-    Write-Host "  Bot desativado." -ForegroundColor Green
-}
-
 switch ($Comando) {
     "up"         { RunUp }
     "down"       { RunDown }
+    "stop"       { RunStop }
     "build"      { RunBuild }
     "make-admin" { RunMakeAdmin }
-    "bot-on"     { RunBotOn }
-    "bot-off"    { RunBotOff }
     default {
-        Write-Host "Uso: .\run.ps1 {up|down|build|make-admin <id>|bot-on|bot-off}" -ForegroundColor Yellow
+        Write-Host "Uso: .\run.ps1 {up|down|stop|build|make-admin <id>}" -ForegroundColor Yellow
     }
 }

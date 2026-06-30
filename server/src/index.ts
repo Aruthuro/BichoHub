@@ -6,8 +6,6 @@ import { client } from "./bancoDeDados.js";
 import { logger, logError } from "./logger.js";
 import router from "./router/routes.js";
 import modeloRouter from "./router/modeloRoutes.js";
-import whatsappRouter from "./router/whatsappRoutes.js";
-import { iniciarWhatsAppBot } from "./services/whatsappBot.js";
 import { type Request, type Response, type NextFunction } from "express";
 
 const app = express();
@@ -23,7 +21,6 @@ app.use("/img", express.static(`${publicPath}/img`));
 
 app.use("/api", router);
 app.use("/api/modelo", modeloRouter);
-app.use("/api/whatsapp", whatsappRouter);
 
 app.use((req, res) => {
   res.status(404).json({ erro: "Rota não encontrada" });
@@ -68,15 +65,7 @@ async function iniciarServidor() {
   });
 
   if (env.NODE_ENV !== "test") {
-    try {
-      if (!process.env.RENDER) {
-        iniciarWhatsAppBot();
-      } else {
-        console.log("WhatsApp Bot desabilitado — sem Chromium no Render");
-      }
-    } catch (e) {
-      console.log("WhatsApp bot nao disponivel neste ambiente");
-    }
+    console.log("WhatsApp Bot desabilitado");
   }
 }
 

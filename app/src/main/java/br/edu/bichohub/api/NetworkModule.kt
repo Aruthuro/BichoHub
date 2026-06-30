@@ -16,6 +16,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 import android.util.Log
+import br.edu.bichohub.BuildConfig
 import okhttp3.logging.HttpLoggingInterceptor
 /**
  * Objeto único que providencia uma instância do Retrofit para os serviços.
@@ -23,7 +24,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val URL = "https://bichohub-server.onrender.com/api/"
+    private const val URL = BuildConfig.BASE_URL
 
     @Provides
     @Singleton
