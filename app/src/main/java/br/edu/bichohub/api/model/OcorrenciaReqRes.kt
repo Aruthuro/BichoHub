@@ -58,5 +58,9 @@ data class OcorrenciaResponse(
     val coletorNome: String? = null,
     val classificacao: String? = null,
     @SerializedName("confianca_classificacao")
-    val confiancaClassificacao: Int? = null
+    val confiancaClassificacao: Int? = null,
+    @SerializedName("classificacao_coletor")
+    val classificacaoColetor: String? = null,
+    @SerializedName("classificacao_confirmada")
+    val classificacaoConfirmada: Boolean = false
 )

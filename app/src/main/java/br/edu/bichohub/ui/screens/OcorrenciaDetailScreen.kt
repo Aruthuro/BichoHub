@@ -58,6 +58,9 @@ fun OcorrenciaDetailScreen(
     var observacoes by remember { mutableStateOf("") }
     var risco by remember { mutableStateOf("") }
     var equipamento by remember { mutableStateOf("") }
+    var classificacaoColetorEdit by remember { mutableStateOf("") }
+    var classificacaoConfirmadaEdit by remember { mutableStateOf(false) }
+    var mostrarEditor by remember { mutableStateOf(false) }
     var dadosCarregados by remember { mutableStateOf(false) }
 
     LaunchedEffect(ocorrenciaId) {
@@ -79,6 +82,8 @@ fun OcorrenciaDetailScreen(
             observacoes = occ.observacoes ?: ""
             risco = occ.risco ?: ""
             equipamento = occ.equipamentoCaptura ?: ""
+            classificacaoColetorEdit = occ.classificacaoColetor ?: ""
+            classificacaoConfirmadaEdit = occ.classificacaoConfirmada
             dadosCarregados = true
         }
     }
@@ -158,8 +163,66 @@ fun OcorrenciaDetailScreen(
                 InferenciaCard(
                     classificacao = occ.classificacao,
                     confiancaClassificacao = occ.confiancaClassificacao,
+                    classificacaoColetor = occ.classificacaoColetor,
+                    classificacaoConfirmada = occ.classificacaoConfirmada,
                     modifier = Modifier.padding(top = 8.dp)
                 )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = { mostrarEditor = !mostrarEditor },
+                        modifier = Modifier.weight(1f),
+                        enabled = acaoState !is UiState.Loading
+                    ) {
+                        Text(if (mostrarEditor) "Cancelar" else "Editar")
+                    }
+
+                    if (!occ.classificacao.isNullOrBlank() && !classificacaoConfirmadaEdit) {
+                        Button(
+                            onClick = {
+                                classificacaoConfirmadaEdit = true
+                                bichoHubViewModel.editarOcorrencia(
+                                    ocorrenciaId,
+                                    EditarOcorrenciaRequest(classificacaoConfirmada = true)
+                                )
+                            },
+                            modifier = Modifier.weight(1f),
+                            enabled = acaoState !is UiState.Loading
+                        ) {
+                            Text("Endossar")
+                        }
+                    }
+                }
+
+                if (mostrarEditor) {
+                    OutlinedTextField(
+                        value = classificacaoColetorEdit,
+                        onValueChange = { classificacaoColetorEdit = it },
+                        label = { Text("Nome do animal") },
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                    )
+
+                    Button(
+                        onClick = {
+                            bichoHubViewModel.editarOcorrencia(
+                                ocorrenciaId,
+                                EditarOcorrenciaRequest(
+                                    classificacaoColetor = classificacaoColetorEdit.ifBlank { null }
+                                )
+                            )
+                            mostrarEditor = false
+                        },
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                        enabled = acaoState !is UiState.Loading
+                    ) {
+                        Text("Salvar")
+                    }
+                }
+
+                Spacer(Modifier.height(8.dp))
             }
 
             Spacer(Modifier.height(16.dp))
@@ -208,7 +271,9 @@ fun OcorrenciaDetailScreen(
                         statusSaude = statusSaude.ifBlank { null },
                         observacoes = observacoes.ifBlank { null },
                         risco = risco.ifBlank { null },
-                        equipamentoCaptura = equipamento.ifBlank { null }
+                        equipamentoCaptura = equipamento.ifBlank { null },
+                        classificacaoColetor = classificacaoColetorEdit.ifBlank { null },
+                        classificacaoConfirmada = classificacaoConfirmadaEdit
                     )
                     bichoHubViewModel.editarOcorrencia(ocorrenciaId, req)
                 },

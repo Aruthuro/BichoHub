@@ -1,0 +1,13 @@
+.git/
+.gitignore
+.gitattributes
+README.md
+web/
+app/
+server/node_modules
+server/.env*
+server/logs/
+server/public/img
+.idea/
+build/
+.gradle/

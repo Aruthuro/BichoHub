@@ -84,6 +84,7 @@ export async function listarSolicitacoes(usuarioId: number) {
     SELECT o.id, o.data_captura, o.descricao_origem, o.descricao_destino,
           o.observacoes, o.risco, o.tipo, o.estado, o.referencia_imagem,
           o.classificacao, o.confianca_classificacao,
+          o.classificacao_coletor, o.classificacao_confirmada,
           u_coletor.nome AS coletor_nome
     FROM ocorrencias o
     LEFT JOIN coletores c ON o.coletor_id = c.usuario_id
@@ -170,7 +171,8 @@ export async function listarOcorrenciasDoColetor(coletorId: number) {
     `SELECT o.id, o.tipo, o.data_captura, o.descricao_origem,
             o.observacoes, o.risco, o.estado, o.status_saude,
             o.desfecho, o.descricao_soltura,
-            o.referencia_imagem, o.classificacao, o.confianca_classificacao,
+           o.referencia_imagem, o.classificacao, o.confianca_classificacao,
+           o.classificacao_coletor, o.classificacao_confirmada,
             ST_AsText(o.origem_gps) AS origem_gps,
             ST_AsText(o.destino_gps) AS destino_gps,
             u.nome AS solicitante_nome
@@ -188,6 +190,7 @@ export async function listarOcorrenciasAtivas(coletorId: number) {
     `SELECT o.id, o.tipo, o.data_captura, o.descricao_origem,
             o.observacoes, o.risco, o.ultimo_caso, o.estado,
             o.classificacao, o.confianca_classificacao,
+            o.classificacao_coletor, o.classificacao_confirmada,
             o.coletor_id,
             ST_AsText(o.origem_gps) AS origem_gps,
             u.nome AS solicitante_nome, u.contato AS solicitante_contato,
@@ -229,6 +232,8 @@ export async function editarOcorrencia(
     equipamento_captura?: string;
     descricao_destino?: string;
     destino_gps?: string;
+    classificacao_coletor?: string;
+    classificacao_confirmada?: boolean;
   }
 ) {
   const campos: string[] = [];
@@ -262,6 +267,14 @@ export async function editarOcorrencia(
   if (dados.destino_gps !== undefined) {
     campos.push(`destino_gps = ST_GeomFromText($${idx++}, 4326)`);
     valores.push(dados.destino_gps);
+  }
+  if (dados.classificacao_coletor !== undefined) {
+    campos.push(`classificacao_coletor = $${idx++}`);
+    valores.push(dados.classificacao_coletor);
+  }
+  if (dados.classificacao_confirmada !== undefined) {
+    campos.push(`classificacao_confirmada = $${idx++}`);
+    valores.push(dados.classificacao_confirmada);
   }
 
   if (campos.length === 0) return null;

@@ -98,6 +98,8 @@ fun ChamadasAtivasScreen(
                                     InferenciaCard(
                                         classificacao = chamada.classificacao,
                                         confiancaClassificacao = chamada.confiancaClassificacao,
+                                        classificacaoColetor = chamada.classificacaoColetor,
+                                        classificacaoConfirmada = chamada.classificacaoConfirmada,
                                         modifier = Modifier.padding(top = 4.dp)
                                     )
 

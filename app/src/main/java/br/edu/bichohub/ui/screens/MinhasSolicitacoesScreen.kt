@@ -98,6 +98,8 @@ fun MinhasSolicitacoesScreen(onShowSnackbar: (String) -> Unit, onOcorrenciaSelec
                                     InferenciaCard(
                                         classificacao = sol.classificacao,
                                         confiancaClassificacao = sol.confiancaClassificacao,
+                                        classificacaoColetor = sol.classificacaoColetor,
+                                        classificacaoConfirmada = sol.classificacaoConfirmada,
                                         modifier = Modifier.padding(top = 4.dp)
                                     )
                                 }

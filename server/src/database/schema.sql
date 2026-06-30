@@ -67,6 +67,8 @@ CREATE TABLE IF NOT EXISTS ocorrencias (
 
     classificacao VARCHAR(100),
     confianca_classificacao REAL,
+    classificacao_coletor VARCHAR(100),
+    classificacao_confirmada BOOLEAN NOT NULL DEFAULT FALSE,
 
     estado INTEGER NOT NULL DEFAULT 0,
     tipo INTEGER NOT NULL,

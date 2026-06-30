@@ -125,6 +125,8 @@ fun OcorrenciasAbertasScreen(
                                     InferenciaCard(
                                         classificacao = occ.classificacao,
                                         confiancaClassificacao = occ.confiancaClassificacao,
+                                        classificacaoColetor = occ.classificacaoColetor,
+                                        classificacaoConfirmada = occ.classificacaoConfirmada,
                                         modifier = Modifier.padding(top = 4.dp)
                                     )
                                     Spacer(Modifier.height(8.dp))

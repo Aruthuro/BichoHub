@@ -103,6 +103,8 @@ fun AdminOcorrenciasScreen(onVoltar: () -> Unit) {
                             InferenciaCard(
                                 classificacao = o.classificacao,
                                 confiancaClassificacao = o.confiancaClassificacao,
+                                classificacaoColetor = o.classificacaoColetor,
+                                classificacaoConfirmada = o.classificacaoConfirmada,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                         }

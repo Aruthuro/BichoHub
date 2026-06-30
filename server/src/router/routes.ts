@@ -448,7 +448,7 @@ router.patch(
     try {
       const id = Number(req.params.id);
       const coletorId = (req as CustomRequest).usuario.id;
-      const { estado, status_saude, observacoes, risco, equipamento_captura, descricao_destino, destino_gps } = req.body;
+      const { estado, status_saude, observacoes, risco, equipamento_captura, descricao_destino, destino_gps, classificacao_coletor, classificacao_confirmada } = req.body;
 
       if (estado !== undefined && ![2, 5].includes(estado)) {
         return res.status(400).json({ erro: "estado deve ser 2 (em andamento) ou 5 (animal sob cuidados)" });
@@ -456,7 +456,8 @@ router.patch(
 
       const resultado = await editarOcorrencia(id, coletorId, {
         estado, status_saude, observacoes, risco,
-        equipamento_captura, descricao_destino, destino_gps
+        equipamento_captura, descricao_destino, destino_gps,
+        classificacao_coletor, classificacao_confirmada
       });
 
       if (!resultado) {

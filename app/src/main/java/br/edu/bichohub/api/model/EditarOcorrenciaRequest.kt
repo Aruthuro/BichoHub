@@ -13,5 +13,9 @@ data class EditarOcorrenciaRequest(
     @SerializedName("descricao_destino")
     val descricaoDestino: String? = null,
     @SerializedName("destino_gps")
-    val destinoGps: String? = null
+    val destinoGps: String? = null,
+    @SerializedName("classificacao_coletor")
+    val classificacaoColetor: String? = null,
+    @SerializedName("classificacao_confirmada")
+    val classificacaoConfirmada: Boolean? = null
 )

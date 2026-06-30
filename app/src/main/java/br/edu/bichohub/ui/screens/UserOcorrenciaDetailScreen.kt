@@ -98,6 +98,8 @@ fun UserOcorrenciaDetailScreen(
                 InferenciaCard(
                     classificacao = occ.classificacao,
                     confiancaClassificacao = occ.confiancaClassificacao,
+                    classificacaoColetor = occ.classificacaoColetor,
+                    classificacaoConfirmada = occ.classificacaoConfirmada,
                     modifier = Modifier.padding(top = 8.dp)
                 )
 

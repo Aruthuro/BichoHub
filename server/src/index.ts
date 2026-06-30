@@ -48,6 +48,13 @@ async function iniciarServidor() {
   for (let i = 1; i <= 10; i++) {
     try {
       await client.query(schema);
+
+      await client.query(`
+        ALTER TABLE ocorrencias
+        ADD COLUMN IF NOT EXISTS classificacao_coletor VARCHAR(100),
+        ADD COLUMN IF NOT EXISTS classificacao_confirmada BOOLEAN NOT NULL DEFAULT FALSE
+      `);
+
       console.log("Schema atualizado");
       break;
     } catch (erro) {
