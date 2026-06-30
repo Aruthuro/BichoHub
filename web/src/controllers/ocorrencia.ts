@@ -17,6 +17,14 @@ const detalhes = async (req: Request, res: Response) => {
         if (!id) return res.status(400).render("error", { status: 400, message: "ID inválido." });
         const ocorrencia = await ocorrenciaService.getOcorrenciaById(req.token!, id);
         if (!ocorrencia) return res.status(404).send("Ocorrência não encontrada");
+        if (ocorrencia.referencia_imagem) {
+            const img = ocorrencia.referencia_imagem;
+            if (img.startsWith("data:") || img.startsWith("http")) {
+                ocorrencia.referencia_imagem_display = img;
+            } else {
+                ocorrencia.referencia_imagem_display = `data:image/jpeg;base64,${img}`;
+            }
+        }
         res.render("ocorrencias/detalhes", { ocorrencia });
     } catch (erro: any) {
         const msg = erro?.response?.data?.erro || erro?.message || "Erro ao carregar ocorrência";

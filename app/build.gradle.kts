@@ -35,7 +35,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "BASE_URL", "\"https://bichohub-server.onrender.com/api/\"")
+            buildConfigField("String", "BASE_URL", "\"https://bichohub-prod.onrender.com/api/\"")
         }
         create("releaseLocal") {
             initWith(getByName("release"))

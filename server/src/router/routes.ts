@@ -275,8 +275,11 @@ router.post(
       if (!req.file) {
         return res.status(400).json({ erro: "Arquivo de imagem é obrigatório" });
       }
-      const imagemUrl = `${req.protocol}://${req.get("host")}/img/${req.file.filename}`;
-      await atualizarReferenciaImagem(id, imagemUrl);
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      const mime = ext === ".png" ? "image/png" : "image/jpeg";
+      const base64 = fs.readFileSync(req.file.path, { encoding: "base64" });
+      const dataUri = `data:${mime};base64,${base64}`;
+      await atualizarReferenciaImagem(id, dataUri);
 
       void (async () => {
         try {
@@ -297,7 +300,7 @@ router.post(
         }
       })();
 
-      res.status(200).json({ mensagem: "Imagem salva", referencia_imagem: imagemUrl });
+      res.status(200).json({ mensagem: "Imagem salva", referencia_imagem: dataUri });
     } catch (erro) {
       console.error(erro);
       next(erro);
