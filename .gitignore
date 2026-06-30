@@ -13,3 +13,4 @@ server/logs/
 .env
 !.env.example
 server/public/img
+app/release
