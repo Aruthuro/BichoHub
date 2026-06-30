@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import br.edu.bichohub.api.RetrofitObject
 import br.edu.bichohub.api.model.OcorrenciaResponse
+import br.edu.bichohub.ui.components.InferenciaCard
 import br.edu.bichohub.ui.theme.Template
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -99,6 +100,11 @@ fun AdminOcorrenciasScreen(onVoltar: () -> Unit) {
                             o.coletorNome?.let { Text("Coletor: $it") }
                             o.descricaoOrigem?.let { Text("Descrição: $it") }
                             o.desfecho?.let { Text("Desfecho: $it") }
+                            InferenciaCard(
+                                classificacao = o.classificacao,
+                                confiancaClassificacao = o.confiancaClassificacao,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
                         }
                     }
                 }

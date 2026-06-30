@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import br.edu.bichohub.ui.components.InferenciaCard
 import br.edu.bichohub.ui.components.TipoSolicitacao
 import br.edu.bichohub.ui.components.UiState
 import br.edu.bichohub.ui.theme.corEstado
@@ -99,6 +100,11 @@ fun HistoricoColetorScreen(onOcorrenciaSelecionada: (Int) -> Unit, onShowSnackba
                                         }
                                         Text("Desfecho: $rotulo")
                                     }
+                                    InferenciaCard(
+                                        classificacao = occ.classificacao,
+                                        confiancaClassificacao = occ.confiancaClassificacao,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
                                     Spacer(Modifier.height(4.dp))
                                     Button(
                                         onClick = { onOcorrenciaSelecionada(occ.id) },

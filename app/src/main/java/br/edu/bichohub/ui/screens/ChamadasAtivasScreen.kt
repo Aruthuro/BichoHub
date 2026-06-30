@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import br.edu.bichohub.ui.components.InferenciaCard
 import br.edu.bichohub.ui.components.TipoSolicitacao
 import br.edu.bichohub.ui.components.UiState
 import br.edu.bichohub.ui.theme.corEstado
@@ -94,6 +95,11 @@ fun ChamadasAtivasScreen(
                                     chamada.solicitanteNome?.let { Text("Solicitante: $it") }
                                     chamada.risco?.let { Text("Risco: $it") }
                                     chamada.statusSaude?.let { Text("Saúde: $it") }
+                                    InferenciaCard(
+                                        classificacao = chamada.classificacao,
+                                        confiancaClassificacao = chamada.confiancaClassificacao,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
 
                                     Spacer(Modifier.height(4.dp))
 

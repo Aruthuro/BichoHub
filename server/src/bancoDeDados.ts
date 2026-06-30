@@ -187,6 +187,7 @@ export async function listarOcorrenciasAtivas(coletorId: number) {
   const resultado = await client.query(
     `SELECT o.id, o.tipo, o.data_captura, o.descricao_origem,
             o.observacoes, o.risco, o.ultimo_caso, o.estado,
+            o.classificacao, o.confianca_classificacao,
             o.coletor_id,
             ST_AsText(o.origem_gps) AS origem_gps,
             u.nome AS solicitante_nome, u.contato AS solicitante_contato,

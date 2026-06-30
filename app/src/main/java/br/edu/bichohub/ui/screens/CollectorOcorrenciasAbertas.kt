@@ -39,6 +39,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import br.edu.bichohub.ui.components.InferenciaCard
 import br.edu.bichohub.ui.components.TipoSolicitacao
 
 @Serializable
@@ -116,6 +117,11 @@ fun CollectorOcorrenciasAbertasScreen(
                                 occ.descricaoOrigem?.let { Text("Descrição: $it") }
                                 occ.solicitanteNome?.let { Text("Solicitante: $it") }
                                 occ.solicitanteContato?.let { Text("Contato: $it") }
+                                InferenciaCard(
+                                    classificacao = occ.classificacao,
+                                    confiancaClassificacao = occ.confiancaClassificacao,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
                                 Spacer(Modifier.height(8.dp))
                                 Button(
                                     onClick = { onOcorrenciaAceita(occ.id) },
@@ -155,6 +161,11 @@ fun CollectorOcorrenciasAbertasScreen(
                                 if (occ.ultimoCaso) {
                                     Text("Último caso")
                                 }
+                                InferenciaCard(
+                                    classificacao = occ.classificacao,
+                                    confiancaClassificacao = occ.confiancaClassificacao,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
                                 Spacer(Modifier.height(8.dp))
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),

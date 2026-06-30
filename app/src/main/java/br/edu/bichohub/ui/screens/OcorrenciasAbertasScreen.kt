@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import br.edu.bichohub.ui.components.InferenciaCard
 import br.edu.bichohub.ui.components.TipoSolicitacao
 import br.edu.bichohub.ui.components.UiState
 import br.edu.bichohub.ui.viewmodels.BichoHubViewModel
@@ -121,6 +122,11 @@ fun OcorrenciasAbertasScreen(
                                     if (occ.ultimoCaso) {
                                         Text("Último caso")
                                     }
+                                    InferenciaCard(
+                                        classificacao = occ.classificacao,
+                                        confiancaClassificacao = occ.confiancaClassificacao,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
                                     Spacer(Modifier.height(8.dp))
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),

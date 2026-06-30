@@ -2,6 +2,8 @@ import { Router, type Response, type Request, type NextFunction } from "express"
 import multer from "multer";
 import path from "path";
 import crypto from "crypto";
+import fs from "fs";
+import os from "os";
 
 import {
   criarTabelaMensagens,
@@ -31,7 +33,7 @@ import {
 import { verificarToken, verificarTokenGoogle, verificarColetor, realizarLogin, realizarLoginGoogle, cadastrarUsuario, verificarAdminMiddleware, type AutenticateRequest } from "../middlewares/authService.js";
 import { type CustomRequest } from "../middlewares/authService.js"
 import { identificarAnimal, type RequestComAnimal } from "../middlewares/deteccaoAnimal.js";
-import yoloService from "../services/yoloServices.js";
+import { classificarImagem } from "../services/classificadorService.js";
 
 const storage = multer.diskStorage({
   destination: path.join(process.cwd(), "public", "img"),
@@ -217,24 +219,38 @@ router.post("/v1/usuarios/registrar-ocorrencia", verificarToken, async (req, res
       ocorrenciaId: number,
       base64: string
     ) {
+      let tempPath = "";
       try {
-        const resultado =
-          await yoloService.classificarAnimalBase64(base64);
+        const base64Data = base64.replace(/^data:image\/\w+;base64,/, "");
+        const buffer = Buffer.from(base64Data, "base64");
+        tempPath = path.join(os.tmpdir(), `${crypto.randomUUID()}.jpg`);
+        fs.writeFileSync(tempPath, buffer);
 
-        if (resultado.success && resultado.classificacao_final) {
-          await atualizarClassificacao(
-            ocorrenciaId,
-            resultado.classificacao_final,
-            Math.round((resultado.confidence_final ?? 0) * 100)
-          );
+        const resultado = classificarImagem(tempPath);
+
+        if (resultado.erro) {
+          console.error("Erro na classificação:", resultado.erro);
+          return;
         }
 
+        const classificacao = resultado.especie ?? resultado.classe_geral;
+        const confianca = Math.round(
+          ((resultado.confianca_especie ?? resultado.confianca ?? 0)) * 100
+        );
+
+        if (classificacao) {
+          await atualizarClassificacao(ocorrenciaId, classificacao, confianca);
+        }
       } catch (err) {
         console.error(
           "Erro ao classificar ocorrência",
           ocorrenciaId,
           err
         );
+      } finally {
+        if (tempPath) {
+          try { fs.unlinkSync(tempPath); } catch { /* ignore */ }
+        }
       }
     }
 
@@ -261,6 +277,26 @@ router.post(
       }
       const imagemUrl = `${req.protocol}://${req.get("host")}/img/${req.file.filename}`;
       await atualizarReferenciaImagem(id, imagemUrl);
+
+      void (async () => {
+        try {
+          const resultado = classificarImagem(req.file!.path);
+          if (resultado.erro) {
+            console.error("Erro na classificação do upload:", resultado.erro);
+            return;
+          }
+          const classificacao = resultado.especie ?? resultado.classe_geral;
+          const confianca = Math.round(
+            ((resultado.confianca_especie ?? resultado.confianca ?? 0)) * 100
+          );
+          if (classificacao) {
+            await atualizarClassificacao(id, classificacao, confianca);
+          }
+        } catch (err) {
+          console.error("Erro ao classificar imagem da ocorrência", id, err);
+        }
+      })();
+
       res.status(200).json({ mensagem: "Imagem salva", referencia_imagem: imagemUrl });
     } catch (erro) {
       console.error(erro);
